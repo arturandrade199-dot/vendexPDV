@@ -1,0 +1,114 @@
+<UserControl x:Class="Vendex.App.Views.PagamentoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d">
+    <Grid Margin="32" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="580" />
+            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="360" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Coluna esquerda: totais, troco em destaque e linhas já lançadas — tudo centralizado -->
+        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+            <TextBlock Text="Total da venda" Foreground="#6B7280" FontSize="14" HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding TotalFormatado}" FontSize="44" FontWeight="Bold" Foreground="#1F2430"
+                       Margin="0,0,0,4" HorizontalAlignment="Center" />
+
+            <TextBlock FontSize="22" Foreground="#B87A0A" FontWeight="Medium" Margin="0,0,0,20" HorizontalAlignment="Center">
+                <Run Text="Restante: " /><Run Text="{Binding RestanteFormatado, Mode=OneWay}" />
+            </TextBlock>
+
+            <!-- Troco: exibido bem grande assim que o restante zera -->
+            <Border Background="#DCF5E3" CornerRadius="16" Padding="24" Margin="0,0,0,24" HorizontalAlignment="Stretch"
+                    Visibility="{Binding TrocoTotalFormatado, Converter={StaticResource NullToVisibilityConverter}}">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="TROCO" FontSize="16" FontWeight="Bold" Foreground="#1B8A4B"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding TrocoTotalFormatado}" FontSize="56" FontWeight="Bold"
+                               Foreground="#1B8A4B" HorizontalAlignment="Center" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Text="Pagamentos lançados" FontWeight="SemiBold" Foreground="#1F2430" Margin="0,0,0,10"
+                       HorizontalAlignment="Center" />
+            <ItemsControl ItemsSource="{Binding Pagamentos}" HorizontalAlignment="Stretch">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="White" CornerRadius="10" BorderBrush="#E5E7EB" BorderThickness="1"
+                                Padding="18,12" Margin="0,0,0,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="16" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock FontWeight="Medium" Foreground="#1F2430">
+                                        <Run Text="{Binding FormaTexto, Mode=OneWay}" />
+                                        <Run Text=" — " /><Run Text="{Binding ValorFormatado, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <TextBlock Foreground="#6B7280" FontSize="12"
+                                               Visibility="{Binding ClienteNome, Converter={StaticResource NullToVisibilityConverter}}">
+                                        <Run Text="Cliente: " /><Run Text="{Binding ClienteNome, Mode=OneWay}" />
+                                    </TextBlock>
+                                </StackPanel>
+                                <ui:Button Grid.Column="2" Content="Remover" Padding="10,4" VerticalAlignment="Center"
+                                           Command="{Binding DataContext.RemoverPagamentoCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                           CommandParameter="{Binding}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+
+        <!-- Coluna direita: adicionar nova linha de pagamento -->
+        <Border Grid.Column="2" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1"
+                Padding="20" VerticalAlignment="Top">
+            <StackPanel>
+                <TextBlock Text="Forma de pagamento" Margin="0,0,0,6" />
+                <ComboBox ItemsSource="{Binding FormasPagamentoDisponiveis}" SelectedItem="{Binding FormaPagamentoSelecionada}"
+                          Padding="8" Margin="0,0,0,16" />
+
+                <TextBlock Text="Valor (R$)" Margin="0,0,0,6" />
+                <ui:TextBox Text="{Binding ValorTexto, UpdateSourceTrigger=PropertyChanged}" Padding="10" FontSize="16" />
+                <TextBlock Text="{Binding PreviaTroco}" Foreground="#1B8A4B" FontWeight="SemiBold" Margin="0,8,0,0" />
+
+                <!-- Fiado: cliente + vencimento -->
+                <StackPanel Visibility="{Binding IsFiadoSelecionado, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Margin="0,16,0,0">
+                    <TextBlock Text="Cliente" Margin="0,0,0,6" />
+                    <ComboBox ItemsSource="{Binding Clientes}" SelectedItem="{Binding ClienteSelecionado}"
+                              DisplayMemberPath="Nome" Padding="8" Margin="0,0,0,12" />
+
+                    <TextBlock Text="Vencimento" Margin="0,0,0,6" />
+                    <DatePicker SelectedDate="{Binding VencimentoFiadoSelecionavel}" Margin="0,0,0,16" />
+
+                    <TextBlock Text="Ou cadastre um novo cliente:" Foreground="#6B7280" FontSize="12" Margin="0,0,0,6" />
+                    <ui:TextBox Text="{Binding NovoClienteNome, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="Nome" Margin="0,0,0,8" />
+                    <ui:TextBox Text="{Binding NovoClienteTelefone, UpdateSourceTrigger=PropertyChanged}"
+                                PlaceholderText="Telefone (opcional)" Margin="0,0,0,8" />
+                    <ui:Button Content="Cadastrar cliente" Command="{Binding AdicionarClienteRapidoCommand}"
+                               HorizontalAlignment="Left" Margin="0,0,0,8" />
+                </StackPanel>
+
+                <ui:Button Content="+ Adicionar pagamento" Appearance="Secondary" Command="{Binding AdicionarPagamentoCommand}"
+                           HorizontalAlignment="Stretch" Padding="0,10" Margin="0,16,0,0" />
+
+                <TextBlock Text="{Binding MensagemErro}" Foreground="#C4291E" TextWrapping="Wrap" Margin="0,12,0,0" />
+
+                <Separator Margin="0,20" />
+
+                <ui:Button Content="← Voltar ao carrinho" Command="{Binding VoltarAoCarrinhoCommand}"
+                           HorizontalAlignment="Stretch" Padding="0,10" Margin="0,0,0,8" />
+                <ui:Button Content="Confirmar Venda" Appearance="Primary" Command="{Binding ConfirmarCommand}"
+                           IsEnabled="{Binding PodeConfirmar}" HorizontalAlignment="Stretch" Padding="0,12" />
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

@@ -1,0 +1,18 @@
+<Window x:Class="GeradorSerial.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        mc:Ignorable="d"
+        Title="Vendex — Gerador de Serial" Height="280" Width="480"
+        WindowStartupLocation="CenterScreen">
+    <StackPanel Margin="24">
+        <TextBlock Text="Código de Instalação (informado pelo cliente):" Margin="0,0,0,4" />
+        <TextBox x:Name="TxtCodigoInstalacao" FontSize="16" Padding="6" />
+
+        <Button Content="Gerar Serial" Click="GerarSerial_Click" Margin="0,16,0,16" Padding="8" HorizontalAlignment="Left" />
+
+        <TextBlock Text="Serial de Ativação:" Margin="0,0,0,4" />
+        <TextBox x:Name="TxtSerialGerado" FontSize="16" Padding="6" IsReadOnly="True" Background="#F0F0F0" />
+    </StackPanel>
+</Window>

@@ -1,0 +1,13 @@
+bin/
+obj/
+*.user
+.vs/
+*.suo
+
+dados/
+*.db
+*.db-shm
+*.db-wal
+
+publish/
+*.log

@@ -1,0 +1,55 @@
+<ui:FluentWindow x:Class="Vendex.App.ProdutoWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        mc:Ignorable="d"
+        Title="{Binding Titulo}" Height="520" Width="440"
+        WindowStartupLocation="CenterOwner"
+        ExtendsContentIntoTitleBar="True"
+        WindowBackdropType="Mica">
+    <Grid Margin="24,0,24,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0" Title="{Binding Titulo}" />
+
+        <StackPanel Grid.Row="1" Margin="0,16,0,0">
+            <TextBlock Text="Nome" Margin="0,0,0,4" />
+            <ui:TextBox Text="{Binding Nome, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+            <TextBlock Text="Descrição" Margin="0,0,0,4" />
+            <ui:TextBox Text="{Binding Descricao, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+            <TextBlock Text="Código de barras (opcional)" Margin="0,0,0,4" />
+            <ui:TextBox Text="{Binding CodigoBarras, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Preço de custo (R$)" Margin="0,0,0,4" />
+                    <ui:TextBox Text="{Binding PrecoCustoTexto, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Preço de venda (R$)" Margin="0,0,0,4" />
+                    <ui:TextBox Text="{Binding PrecoVendaTexto, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+            </Grid>
+
+            <TextBlock Text="Estoque" Margin="0,0,0,4" />
+            <ui:TextBox Text="{Binding EstoqueTexto, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+            <TextBlock Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,0,0,12" TextWrapping="Wrap" />
+
+            <ui:Button Content="Salvar" Appearance="Primary" Command="{Binding SalvarCommand}"
+                       HorizontalAlignment="Right" Padding="24,8" />
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>
