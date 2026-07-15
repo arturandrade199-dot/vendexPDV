@@ -8,6 +8,7 @@ public partial class NovaContaPagarWindow : FluentWindow
     public NovaContaPagarWindow(NovaContaPagarViewModel viewModel)
     {
         InitializeComponent();
+        this.ConfigurarComoDialogo();
         DataContext = viewModel;
         viewModel.Salvo += () =>
         {

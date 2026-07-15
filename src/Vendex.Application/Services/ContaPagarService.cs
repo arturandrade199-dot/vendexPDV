@@ -13,7 +13,7 @@ public class ContaPagarService : IContaPagarService
         _unitOfWork = unitOfWork;
     }
 
-    public Task<IReadOnlyList<ContaPagar>> ListarAsync() => _unitOfWork.ContasPagar.ObterTodosAsync();
+    public Task<IReadOnlyList<ContaPagar>> ListarAsync() => _unitOfWork.ContasPagar.ObterTodosComFornecedorAsync();
 
     public async Task<ResumoContasPagar> ObterResumoAsync()
     {
@@ -32,10 +32,11 @@ public class ContaPagarService : IContaPagarService
         return new ResumoContasPagar(vencidos, vencemHoje, aVencer, pagos, totalPeriodo);
     }
 
-    public async Task<ContaPagar> AdicionarAsync(string descricao, string categoria, decimal valorTotal, DateTime dataVencimento)
+    public async Task<ContaPagar> AdicionarAsync(string descricao, string categoria, decimal valorTotal, DateTime dataVencimento, int? fornecedorId)
     {
         var conta = new ContaPagar
         {
+            FornecedorId = fornecedorId,
             Descricao = descricao,
             Categoria = categoria,
             ValorTotal = valorTotal,

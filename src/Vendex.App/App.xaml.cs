@@ -9,7 +9,6 @@ using Vendex.App.Navigation;
 using Vendex.Application.Services;
 using Vendex.Data;
 using Vendex.Domain.Entities;
-using Vendex.Domain.Enums;
 using Vendex.Domain.Interfaces;
 
 namespace Vendex.App;
@@ -21,6 +20,12 @@ public partial class App : System.Windows.Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // Sem isso, o WPF encerra o app sozinho assim que a LoginWindow fecha — ela é a
+        // primeira (e, até a MainWindow abrir, única) janela, e o ShutdownMode padrão
+        // (OnLastWindowClose) trata isso como "última janela fechada". Revertido para
+        // OnMainWindowClose logo depois que a MainWindow é exibida com sucesso.
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
         // Loja é sempre pt-BR (moeda, datas). Sem isso, `StringFormat={}{0:C2}` em XAML usa
         // "en-US" por padrão (propriedade FrameworkElement.Language), mesmo em Windows
@@ -50,64 +55,121 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IUsuarioService, UsuarioService>();
                 services.AddSingleton<IAuditoriaService, AuditoriaService>();
                 services.AddSingleton<IContaPagarService, ContaPagarService>();
+                services.AddSingleton<IContaReceberService, ContaReceberService>();
+                services.AddSingleton<ICaixaService, CaixaService>();
                 services.AddSingleton<IProdutoService, ProdutoService>();
                 services.AddSingleton<IVendaService, VendaService>();
                 services.AddSingleton<IClienteService, ClienteService>();
+                services.AddSingleton<IFornecedorService, FornecedorService>();
+
+                services.AddSingleton<SessaoUsuario>();
 
                 services.AddSingleton<ShellViewModel>();
                 services.AddSingleton<INavigationService>(provedor => provedor.GetRequiredService<ShellViewModel>());
 
                 services.AddTransient<ViewModels.MenuViewModel>();
                 services.AddTransient<ViewModels.ContasPagarViewModel>();
+                services.AddTransient<ViewModels.ContasReceberViewModel>();
                 services.AddTransient<ViewModels.ProdutosViewModel>();
+                services.AddTransient<ViewModels.FornecedoresViewModel>();
+                services.AddTransient<ViewModels.ClientesViewModel>();
+                services.AddTransient<ViewModels.UsuariosViewModel>();
                 services.AddTransient<MainWindow>();
+
+                services.AddTransient<ViewModels.LoginViewModel>();
+                services.AddTransient<LoginWindow>();
 
                 services.AddTransient<ViewModels.PdvViewModel>();
                 services.AddTransient<PdvWindow>();
                 services.AddTransient<Func<PdvWindow>>(provedor => () => provedor.GetRequiredService<PdvWindow>());
 
+                services.AddTransient<ViewModels.CaixaViewModel>();
+                services.AddTransient<CaixaWindow>();
+                services.AddTransient<Func<CaixaWindow>>(provedor => () => provedor.GetRequiredService<CaixaWindow>());
+
                 services.AddTransient<Func<IReadOnlyList<ViewModels.ItemCarrinhoViewModel>, ViewModels.FinalizarVendaViewModel>>(provedor => itens =>
                     new ViewModels.FinalizarVendaViewModel(
                         itens,
                         provedor.GetRequiredService<IVendaService>(),
-                        provedor.GetRequiredService<IUsuarioService>(),
+                        provedor.GetRequiredService<SessaoUsuario>(),
                         provedor.GetRequiredService<IClienteService>()));
 
                 services.AddTransient<ViewModels.NovaContaPagarViewModel>();
                 services.AddTransient<NovaContaPagarWindow>();
                 services.AddTransient<Func<NovaContaPagarWindow>>(provedor => () => provedor.GetRequiredService<NovaContaPagarWindow>());
 
+                services.AddTransient<ViewModels.NovaContaReceberViewModel>();
+                services.AddTransient<NovaContaReceberWindow>();
+                services.AddTransient<Func<NovaContaReceberWindow>>(provedor => () => provedor.GetRequiredService<NovaContaReceberWindow>());
+
                 services.AddTransient<Func<Produto?, ProdutoWindow>>(provedor => produtoExistente =>
                 {
                     var viewModel = new ViewModels.ProdutoWindowViewModel(provedor.GetRequiredService<IProdutoService>(), produtoExistente);
                     return new ProdutoWindow(viewModel);
+                });
+
+                services.AddTransient<Func<Fornecedor?, FornecedorWindow>>(provedor => fornecedorExistente =>
+                {
+                    var viewModel = new ViewModels.FornecedorWindowViewModel(provedor.GetRequiredService<IFornecedorService>(), fornecedorExistente);
+                    return new FornecedorWindow(viewModel);
+                });
+
+                services.AddTransient<Func<Cliente?, ClienteWindow>>(provedor => clienteExistente =>
+                {
+                    var viewModel = new ViewModels.ClienteWindowViewModel(provedor.GetRequiredService<IClienteService>(), clienteExistente);
+                    return new ClienteWindow(viewModel);
+                });
+
+                services.AddTransient<Func<Usuario?, UsuarioWindow>>(provedor => usuarioExistente =>
+                {
+                    var viewModel = new ViewModels.UsuarioWindowViewModel(provedor.GetRequiredService<IUsuarioService>(), usuarioExistente);
+                    return new UsuarioWindow(viewModel);
                 });
             })
             .Build();
 
         var contexto = _host.Services.GetRequiredService<VendexDbContext>();
         contexto.Database.Migrate();
+        SeedModulos(contexto);
 
-        // Ainda não existe tela de Ativação/Login (ver arquitetura). Enquanto isso, garante
-        // um usuário Administrador padrão para satisfazer o FK obrigatório de Venda.UsuarioId
-        // — remover assim que o módulo de Login existir e passar a criar o usuário de verdade.
-        var usuarioService = _host.Services.GetRequiredService<IUsuarioService>();
-        if (!usuarioService.ExisteAlgumUsuarioAsync().GetAwaiter().GetResult())
+        var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
+        if (loginWindow.ShowDialog() != true)
         {
-            usuarioService.CriarUsuarioAsync("Administrador", "admin", "admin123", TipoUsuario.Administrador)
-                .GetAwaiter().GetResult();
+            Shutdown();
+            return;
         }
 
         var shell = _host.Services.GetRequiredService<ShellViewModel>();
         shell.NavegarPara<ViewModels.MenuViewModel>("Menu");
 
         var janelaPrincipal = _host.Services.GetRequiredService<MainWindow>();
+
+        // O WPF marca a primeira Window construída no processo (a LoginWindow, já
+        // fechada nesse ponto) como Application.MainWindow e não atualiza sozinho — sem
+        // isso, ConfigurarComoDialogo() das próximas janelas tentaria usar como Owner
+        // uma janela de login já fechada.
+        MainWindow = janelaPrincipal;
         janelaPrincipal.Show();
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
         _host?.Dispose();
         base.OnExit(e);
+    }
+
+    // Catálogo fixo de módulos para o controle de permissões por usuário (ver
+    // arquitetura). Roda toda inicialização, mas só grava na primeira vez — sem
+    // Migration.HasData porque essa lista pode crescer conforme novos módulos entram,
+    // sem exigir uma nova migration a cada módulo novo.
+    private static void SeedModulos(VendexDbContext contexto)
+    {
+        if (contexto.Modulos.Any())
+            return;
+
+        var nomes = new[] { "PDV", "Produtos", "Clientes", "Fornecedores", "Contas a Receber", "Contas a Pagar", "Caixa" };
+        contexto.Modulos.AddRange(nomes.Select(nome => new Modulo { NomeModulo = nome }));
+        contexto.SaveChanges();
     }
 }

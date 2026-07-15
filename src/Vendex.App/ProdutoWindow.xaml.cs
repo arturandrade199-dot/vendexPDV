@@ -8,6 +8,7 @@ public partial class ProdutoWindow : FluentWindow
     public ProdutoWindow(ProdutoWindowViewModel viewModel)
     {
         InitializeComponent();
+        this.ConfigurarComoDialogo();
         DataContext = viewModel;
         viewModel.Salvo += () =>
         {

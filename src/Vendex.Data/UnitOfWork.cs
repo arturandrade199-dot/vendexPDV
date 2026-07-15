@@ -19,9 +19,9 @@ public class UnitOfWork : IUnitOfWork
         Fornecedores = new Repository<Fornecedor>(_contexto);
         Vendas = new VendaRepository(_contexto);
         VendaPagamentos = new Repository<VendaPagamento>(_contexto);
-        ContasReceber = new Repository<ContaReceber>(_contexto);
+        ContasReceber = new ContaReceberRepository(_contexto);
         ContasReceberPagamentos = new Repository<ContaReceberPagamento>(_contexto);
-        ContasPagar = new Repository<ContaPagar>(_contexto);
+        ContasPagar = new ContaPagarRepository(_contexto);
         ContasPagarPagamentos = new Repository<ContaPagarPagamento>(_contexto);
         Caixas = new CaixaRepository(_contexto);
         LogsAuditoria = new Repository<LogAuditoria>(_contexto);
@@ -36,9 +36,9 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<Fornecedor> Fornecedores { get; }
     public IVendaRepository Vendas { get; }
     public IRepository<VendaPagamento> VendaPagamentos { get; }
-    public IRepository<ContaReceber> ContasReceber { get; }
+    public IContaReceberRepository ContasReceber { get; }
     public IRepository<ContaReceberPagamento> ContasReceberPagamentos { get; }
-    public IRepository<ContaPagar> ContasPagar { get; }
+    public IContaPagarRepository ContasPagar { get; }
     public IRepository<ContaPagarPagamento> ContasPagarPagamentos { get; }
     public ICaixaRepository Caixas { get; }
     public IRepository<LogAuditoria> LogsAuditoria { get; }

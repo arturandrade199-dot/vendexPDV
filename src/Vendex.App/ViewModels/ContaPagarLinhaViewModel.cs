@@ -18,6 +18,7 @@ public class ContaPagarLinhaViewModel
         Id = conta.Id;
         Vencimento = conta.DataVencimento.ToString("dd/MM/yyyy", CulturaBr);
         Descricao = conta.Descricao;
+        FornecedorNome = conta.Fornecedor?.Nome ?? "—";
         TotalFormatado = conta.ValorTotal.ToString("C2", CulturaBr);
         PodeMarcarComoPago = conta.Status != StatusContaFinanceira.Pago;
 
@@ -33,6 +34,7 @@ public class ContaPagarLinhaViewModel
     public int Id { get; }
     public string Vencimento { get; }
     public string Descricao { get; }
+    public string FornecedorNome { get; }
     public string TotalFormatado { get; }
     public string SituacaoTexto { get; }
     public Color SituacaoFundo { get; }

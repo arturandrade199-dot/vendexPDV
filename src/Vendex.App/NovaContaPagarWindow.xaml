@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
-        Title="Nova conta a pagar" Height="420" Width="420"
+        Title="Nova conta a pagar" Height="480" Width="420"
         WindowStartupLocation="CenterOwner"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica">
@@ -23,6 +23,10 @@
 
             <TextBlock Text="Categoria" Margin="0,0,0,4" />
             <ui:TextBox Text="{Binding Categoria, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Fornecedor, Aluguel, Energia..." Margin="0,0,0,12" />
+
+            <TextBlock Text="Fornecedor (opcional)" Margin="0,0,0,4" />
+            <ComboBox ItemsSource="{Binding Fornecedores}" DisplayMemberPath="Nome"
+                      SelectedItem="{Binding FornecedorSelecionado}" Margin="0,0,0,12" />
 
             <TextBlock Text="Valor total (R$)" Margin="0,0,0,4" />
             <ui:TextBox Text="{Binding ValorTotalTexto, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />

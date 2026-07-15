@@ -10,22 +10,61 @@ public class MenuViewModel : ObservableObject
 {
     public ObservableCollection<ModuloTile> Modulos { get; }
 
-    public MenuViewModel(INavigationService navegacao, Func<PdvWindow> pdvWindowFactory)
+    public MenuViewModel(INavigationService navegacao, Func<PdvWindow> pdvWindowFactory, Func<CaixaWindow> caixaWindowFactory, SessaoUsuario sessao)
     {
-        Modulos = new ObservableCollection<ModuloTile>
+        var modulos = new List<ModuloTile>();
+
+        if (sessao.PodeAcessar("PDV"))
         {
-            new("PDV (Venda)", "Registrar vendas no balcão", SymbolRegular.Cart24, true,
-                new RelayCommand(() => pdvWindowFactory().ShowDialog())),
-            new("Produtos", "Cadastro de produtos", SymbolRegular.Box24, true,
-                new RelayCommand(() => navegacao.NavegarPara<ProdutosViewModel>("Produtos"))),
-            new("Clientes e Fornecedores", "Cadastros vinculados a contas", SymbolRegular.People24, false, null),
-            new("Contas a Receber", "Vendas a prazo e parceladas", SymbolRegular.ReceiptMoney24, false, null),
-            new("Contas a Pagar", "Despesas e obrigações da loja", SymbolRegular.Wallet24, true,
-                new RelayCommand(() => navegacao.NavegarPara<ContasPagarViewModel>("Contas a pagar"))),
-            new("Caixa", "Abertura e fechamento do dia", SymbolRegular.Money24, false, null),
-            new("Usuários e Permissões", "Funcionários e acessos", SymbolRegular.PeopleSettings24, false, null),
-            new("Relatórios", "Vendas, financeiro e auditoria", SymbolRegular.DocumentBulletList24, false, null),
-            new("Configurações", "Dados da loja e preferências", SymbolRegular.Settings24, false, null),
-        };
+            modulos.Add(new ModuloTile("PDV (Venda)", "Registrar vendas no balcão", SymbolRegular.Cart24, true,
+                new RelayCommand(() => pdvWindowFactory().ShowDialog())));
+        }
+
+        if (sessao.PodeAcessar("Produtos"))
+        {
+            modulos.Add(new ModuloTile("Produtos", "Cadastro de produtos", SymbolRegular.Box24, true,
+                new RelayCommand(() => navegacao.NavegarPara<ProdutosViewModel>("Produtos"))));
+        }
+
+        if (sessao.PodeAcessar("Clientes"))
+        {
+            modulos.Add(new ModuloTile("Clientes", "Cadastro vinculado a Contas a Receber", SymbolRegular.People24, true,
+                new RelayCommand(() => navegacao.NavegarPara<ClientesViewModel>("Clientes"))));
+        }
+
+        if (sessao.PodeAcessar("Fornecedores"))
+        {
+            modulos.Add(new ModuloTile("Fornecedores", "Cadastro vinculado a Contas a Pagar", SymbolRegular.Building24, true,
+                new RelayCommand(() => navegacao.NavegarPara<FornecedoresViewModel>("Fornecedores"))));
+        }
+
+        if (sessao.PodeAcessar("Contas a Receber"))
+        {
+            modulos.Add(new ModuloTile("Contas a Receber", "Vendas a prazo e parceladas", SymbolRegular.ReceiptMoney24, true,
+                new RelayCommand(() => navegacao.NavegarPara<ContasReceberViewModel>("Contas a receber"))));
+        }
+
+        if (sessao.PodeAcessar("Contas a Pagar"))
+        {
+            modulos.Add(new ModuloTile("Contas a Pagar", "Despesas e obrigações da loja", SymbolRegular.Wallet24, true,
+                new RelayCommand(() => navegacao.NavegarPara<ContasPagarViewModel>("Contas a pagar"))));
+        }
+
+        if (sessao.PodeAcessar("Caixa"))
+        {
+            modulos.Add(new ModuloTile("Caixa", "Abertura e fechamento do dia", SymbolRegular.Money24, true,
+                new RelayCommand(() => caixaWindowFactory().ShowDialog())));
+        }
+
+        if (sessao.EhAdministrador)
+        {
+            modulos.Add(new ModuloTile("Usuários e Permissões", "Funcionários e acessos", SymbolRegular.PeopleSettings24, true,
+                new RelayCommand(() => navegacao.NavegarPara<UsuariosViewModel>("Usuários"))));
+        }
+
+        modulos.Add(new ModuloTile("Relatórios", "Vendas, financeiro e auditoria", SymbolRegular.DocumentBulletList24, false, null));
+        modulos.Add(new ModuloTile("Configurações", "Dados da loja e preferências", SymbolRegular.Settings24, false, null));
+
+        Modulos = new ObservableCollection<ModuloTile>(modulos);
     }
 }

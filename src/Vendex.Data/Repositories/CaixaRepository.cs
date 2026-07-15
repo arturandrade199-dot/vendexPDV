@@ -12,5 +12,5 @@ public class CaixaRepository : Repository<Caixa>, ICaixaRepository
     }
 
     public Task<Caixa?> ObterCaixaAbertoAsync() =>
-        DbSet.FirstOrDefaultAsync(c => c.Status == StatusCaixa.Aberto);
+        DbSet.Include(c => c.Movimentacoes).FirstOrDefaultAsync(c => c.Status == StatusCaixa.Aberto);
 }

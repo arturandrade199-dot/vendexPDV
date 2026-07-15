@@ -12,4 +12,11 @@ public class VendaRepository : Repository<Venda>, IVendaRepository
 
     public Task<Venda?> ObterComItensAsync(int id) =>
         DbSet.Include(v => v.Itens).ThenInclude(i => i.Produto).FirstOrDefaultAsync(v => v.Id == id);
+
+    public async Task<IReadOnlyList<Venda>> ObterPorPeriodoAsync(DateTime inicio, DateTime fim) =>
+        await DbSet
+            .Include(v => v.Itens)
+            .Include(v => v.Pagamentos)
+            .Where(v => !v.Cancelada && v.DataHora >= inicio && v.DataHora <= fim)
+            .ToListAsync();
 }

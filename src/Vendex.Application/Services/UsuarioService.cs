@@ -50,4 +50,72 @@ public class UsuarioService : IUsuarioService
 
         return BCrypt.Net.BCrypt.Verify(senha, usuario.SenhaHash) ? usuario : null;
     }
+
+    public async Task AtualizarAsync(int usuarioId, string nome, string login, TipoUsuario tipoUsuario, string? novaSenha)
+    {
+        var usuario = await _unitOfWork.Usuarios.ObterPorIdAsync(usuarioId);
+        if (usuario is null)
+            return;
+
+        var existente = await _unitOfWork.Usuarios.ObterPorLoginAsync(login);
+        if (existente is not null && existente.Id != usuarioId)
+            throw new InvalidOperationException($"Já existe um usuário com o login '{login}'.");
+
+        usuario.Nome = nome;
+        usuario.Login = login;
+        usuario.TipoUsuario = tipoUsuario;
+        if (!string.IsNullOrEmpty(novaSenha))
+            usuario.SenhaHash = BCrypt.Net.BCrypt.HashPassword(novaSenha);
+
+        _unitOfWork.Usuarios.Atualizar(usuario);
+        await _unitOfWork.SalvarAlteracoesAsync();
+    }
+
+    public async Task AlternarAtivoAsync(int usuarioId)
+    {
+        var usuario = await _unitOfWork.Usuarios.ObterPorIdAsync(usuarioId);
+        if (usuario is null)
+            return;
+
+        usuario.Ativo = !usuario.Ativo;
+        _unitOfWork.Usuarios.Atualizar(usuario);
+        await _unitOfWork.SalvarAlteracoesAsync();
+    }
+
+    public Task<IReadOnlyList<Modulo>> ListarModulosAsync() => _unitOfWork.Modulos.ObterTodosAsync();
+
+    public async Task<IReadOnlyList<string>> ObterNomesModulosPermitidosAsync(int usuarioId)
+    {
+        var permissoes = await _unitOfWork.UsuarioPermissoes.ObterTodosAsync();
+        var modulos = await _unitOfWork.Modulos.ObterTodosAsync();
+
+        var moduloIdsPermitidos = permissoes
+            .Where(p => p.UsuarioId == usuarioId && p.PodeAcessar)
+            .Select(p => p.ModuloId)
+            .ToHashSet();
+
+        return modulos
+            .Where(m => moduloIdsPermitidos.Contains(m.Id))
+            .Select(m => m.NomeModulo)
+            .ToList();
+    }
+
+    public async Task DefinirPermissoesAsync(int usuarioId, IReadOnlyList<int> moduloIdsPermitidos)
+    {
+        var permissoesAtuais = await _unitOfWork.UsuarioPermissoes.ObterTodosAsync();
+        foreach (var permissao in permissoesAtuais.Where(p => p.UsuarioId == usuarioId))
+            _unitOfWork.UsuarioPermissoes.Remover(permissao);
+
+        foreach (var moduloId in moduloIdsPermitidos)
+        {
+            await _unitOfWork.UsuarioPermissoes.AdicionarAsync(new UsuarioPermissao
+            {
+                UsuarioId = usuarioId,
+                ModuloId = moduloId,
+                PodeAcessar = true
+            });
+        }
+
+        await _unitOfWork.SalvarAlteracoesAsync();
+    }
 }

@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Vendex.App.Navigation;
 using Vendex.Application.Services;
 using Vendex.Domain.Entities;
 using DominioFormaPagamento = Vendex.Domain.Enums.FormaPagamento;
@@ -27,7 +28,7 @@ public partial class FinalizarVendaViewModel : ObservableObject
     private readonly IReadOnlyList<ItemCarrinhoViewModel> _itens;
     private readonly decimal _total;
     private readonly IVendaService _vendaService;
-    private readonly IUsuarioService _usuarioService;
+    private readonly SessaoUsuario _sessao;
     private readonly IClienteService _clienteService;
 
     private decimal _restante;
@@ -72,14 +73,14 @@ public partial class FinalizarVendaViewModel : ObservableObject
     public FinalizarVendaViewModel(
         IReadOnlyList<ItemCarrinhoViewModel> itens,
         IVendaService vendaService,
-        IUsuarioService usuarioService,
+        SessaoUsuario sessao,
         IClienteService clienteService)
     {
         _itens = itens;
         _total = itens.Sum(i => i.Subtotal);
         _restante = _total;
         _vendaService = vendaService;
-        _usuarioService = usuarioService;
+        _sessao = sessao;
         _clienteService = clienteService;
 
         TotalFormatado = _total.ToString("C2", CulturaBr);
@@ -240,14 +241,6 @@ public partial class FinalizarVendaViewModel : ObservableObject
             return;
         }
 
-        var usuarios = await _usuarioService.ListarAsync();
-        var usuario = usuarios.FirstOrDefault();
-        if (usuario is null)
-        {
-            MensagemErro = "Nenhum usuário cadastrado — não é possível registrar a venda.";
-            return;
-        }
-
         var itensDto = _itens
             .Select(i => new ItemCarrinho(i.ProdutoId, i.Quantidade, i.PrecoUnitario, i.PrecoCusto))
             .ToList();
@@ -257,7 +250,7 @@ public partial class FinalizarVendaViewModel : ObservableObject
             .ToList();
 
         var venda = await _vendaService.FinalizarVendaAsync(
-            itensDto, pagamentosDto, usuario.Id, _clienteIdFiado, _vencimentoFiado);
+            itensDto, pagamentosDto, _sessao.UsuarioLogado!.Id, _clienteIdFiado, _vencimentoFiado);
 
         var clienteTexto = Pagamentos.FirstOrDefault(p => p.ClienteNome is not null)?.ClienteNome;
 

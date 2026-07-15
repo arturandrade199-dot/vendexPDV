@@ -12,9 +12,9 @@ public interface IUnitOfWork
     IRepository<Fornecedor> Fornecedores { get; }
     IVendaRepository Vendas { get; }
     IRepository<VendaPagamento> VendaPagamentos { get; }
-    IRepository<ContaReceber> ContasReceber { get; }
+    IContaReceberRepository ContasReceber { get; }
     IRepository<ContaReceberPagamento> ContasReceberPagamentos { get; }
-    IRepository<ContaPagar> ContasPagar { get; }
+    IContaPagarRepository ContasPagar { get; }
     IRepository<ContaPagarPagamento> ContasPagarPagamentos { get; }
     ICaixaRepository Caixas { get; }
     IRepository<LogAuditoria> LogsAuditoria { get; }

@@ -9,6 +9,7 @@
         mc:Ignorable="d"
         Title="Vendex PDV" Height="760" Width="1240"
         MinHeight="600" MinWidth="900"
+        WindowState="Maximized"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica"
         WindowCornerPreference="Round">
@@ -26,6 +27,38 @@
             <Setter Property="Background" Value="Transparent" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding TituloAtual}" Value="Produtos">
+                    <Setter Property="Background" Value="#EDEBFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="IconeFornecedores" TargetType="Border" BasedOn="{StaticResource IconeMenu}">
+            <Setter Property="Background" Value="Transparent" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding TituloAtual}" Value="Fornecedores">
+                    <Setter Property="Background" Value="#EDEBFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="IconeContasReceber" TargetType="Border" BasedOn="{StaticResource IconeMenu}">
+            <Setter Property="Background" Value="Transparent" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding TituloAtual}" Value="Contas a receber">
+                    <Setter Property="Background" Value="#EDEBFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="IconeClientes" TargetType="Border" BasedOn="{StaticResource IconeMenu}">
+            <Setter Property="Background" Value="Transparent" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding TituloAtual}" Value="Clientes">
+                    <Setter Property="Background" Value="#EDEBFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="IconeUsuarios" TargetType="Border" BasedOn="{StaticResource IconeMenu}">
+            <Setter Property="Background" Value="Transparent" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding TituloAtual}" Value="Usuários">
                     <Setter Property="Background" Value="#EDEBFF" />
                 </DataTrigger>
             </Style.Triggers>
@@ -58,7 +91,8 @@
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
 
-                    <Border Style="{StaticResource IconeContasPagar}" ToolTip="Contas a Pagar" Cursor="Hand">
+                    <Border Style="{StaticResource IconeContasPagar}" ToolTip="Contas a Pagar" Cursor="Hand"
+                            Visibility="{Binding PodeAcessarContasPagar, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaContasPagarCommand}" />
                         </Border.InputBindings>
@@ -69,15 +103,44 @@
                         <ui:SymbolIcon Symbol="Cart24" Foreground="#6B7280"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Style="{StaticResource IconeProdutos}" ToolTip="Produtos" Cursor="Hand">
+                    <Border Style="{StaticResource IconeProdutos}" ToolTip="Produtos" Cursor="Hand"
+                            Visibility="{Binding PodeAcessarProdutos, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaProdutosCommand}" />
                         </Border.InputBindings>
                         <ui:SymbolIcon Symbol="Box24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Style="{StaticResource IconeMenu}" Opacity="0.55" ToolTip="Clientes e Fornecedores — em breve">
-                        <ui:SymbolIcon Symbol="People24" Foreground="#6B7280"
+                    <Border Style="{StaticResource IconeClientes}" ToolTip="Clientes" Cursor="Hand"
+                            Visibility="{Binding PodeAcessarClientes, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaClientesCommand}" />
+                        </Border.InputBindings>
+                        <ui:SymbolIcon Symbol="People24" Foreground="#5B4FE9"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Style="{StaticResource IconeFornecedores}" ToolTip="Fornecedores" Cursor="Hand"
+                            Visibility="{Binding PodeAcessarFornecedores, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaFornecedoresCommand}" />
+                        </Border.InputBindings>
+                        <ui:SymbolIcon Symbol="Building24" Foreground="#5B4FE9"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Style="{StaticResource IconeContasReceber}" ToolTip="Contas a Receber" Cursor="Hand"
+                            Visibility="{Binding PodeAcessarContasReceber, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaContasReceberCommand}" />
+                        </Border.InputBindings>
+                        <ui:SymbolIcon Symbol="ReceiptMoney24" Foreground="#5B4FE9"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Style="{StaticResource IconeUsuarios}" ToolTip="Usuários e Permissões" Cursor="Hand"
+                            Visibility="{Binding EhAdministrador, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaUsuariosCommand}" />
+                        </Border.InputBindings>
+                        <ui:SymbolIcon Symbol="PeopleSettings24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <Border Style="{StaticResource IconeMenu}" Opacity="0.55" ToolTip="Relatórios — em breve">
@@ -109,10 +172,10 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Border Width="32" Height="32" CornerRadius="16" Background="#5B4FE9" Margin="0,0,8,0">
-                            <TextBlock Text="A" Foreground="White" FontWeight="Bold"
+                            <TextBlock Text="{Binding IniciaisUsuarioLogado}" Foreground="White" FontWeight="Bold"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
-                        <TextBlock Text="Administrador" VerticalAlignment="Center" Foreground="#1F2430" />
+                        <TextBlock Text="{Binding NomeUsuarioLogado}" VerticalAlignment="Center" Foreground="#1F2430" />
                     </StackPanel>
                 </Grid>
 
@@ -127,6 +190,18 @@
                         </DataTemplate>
                         <DataTemplate DataType="{x:Type vm:ProdutosViewModel}">
                             <views:ProdutosView />
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:FornecedoresViewModel}">
+                            <views:FornecedoresView />
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:ContasReceberViewModel}">
+                            <views:ContasReceberView />
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:ClientesViewModel}">
+                            <views:ClientesView />
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:UsuariosViewModel}">
+                            <views:UsuariosView />
                         </DataTemplate>
                     </ContentControl.Resources>
                 </ContentControl>
