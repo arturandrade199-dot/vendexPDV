@@ -19,6 +19,8 @@ public interface IUnitOfWork
     ICaixaRepository Caixas { get; }
     IRepository<LogAuditoria> LogsAuditoria { get; }
     ILicencaRepository Licencas { get; }
+    IRepository<ConfiguracaoBackup> ConfiguracoesBackup { get; }
 
     Task<int> SalvarAlteracoesAsync();
+    Task BackupBancoDadosAsync(string caminhoArquivoDestino);
 }

@@ -2,8 +2,10 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Vendex.App.Navigation;
 using Vendex.Application.Services;
 using Vendex.Domain.Entities;
+using Vendex.Domain.Enums;
 
 namespace Vendex.App.ViewModels;
 
@@ -12,7 +14,12 @@ public partial class PdvViewModel : ObservableObject
     private static readonly CultureInfo CulturaBr = CultureInfo.GetCultureInfo("pt-BR");
 
     private readonly IVendaService _vendaService;
+    private readonly ICaixaService _caixaService;
+    private readonly SessaoUsuario _sessao;
+    private readonly Func<CaixaWindow> _caixaWindowFactory;
     private readonly Func<IReadOnlyList<ItemCarrinhoViewModel>, FinalizarVendaViewModel> _finalizarVendaViewModelFactory;
+
+    private TipoMovimentacaoCaixa _tipoMovimentacaoAtual;
 
     public ObservableCollection<Produto> ResultadosBusca { get; } = new();
     public ObservableCollection<ItemCarrinhoViewModel> Itens { get; } = new();
@@ -22,6 +29,18 @@ public partial class PdvViewModel : ObservableObject
     [ObservableProperty] private string? mensagem;
     [ObservableProperty] private string totalFormatado = "R$ 0,00";
     [ObservableProperty] private bool temItens;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(RotuloStatusCaixa))]
+    [NotifyPropertyChangedFor(nameof(MostrarCarrinho))]
+    [NotifyPropertyChangedFor(nameof(MostrarBloqueioSemCaixa))]
+    private bool caixaAberto;
+
+    [ObservableProperty] private bool mostrarPainelMovimentacao;
+    [ObservableProperty] private string tituloMovimentacao = string.Empty;
+    [ObservableProperty] private string valorMovimentacaoTexto = string.Empty;
+    [ObservableProperty] private string motivoMovimentacao = string.Empty;
+    [ObservableProperty] private string? mensagemErroMovimentacao;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(EstaEmPagamento))]
@@ -37,15 +56,29 @@ public partial class PdvViewModel : ObservableObject
 
     public bool EstaEmPagamento => PagamentoAtual is not null;
     public bool EstaComRecibo => ReciboAtual is not null;
-    public bool MostrarCarrinho => !EstaEmPagamento && !EstaComRecibo;
-    public string RotuloStatusCaixa => TemItens || EstaEmPagamento || EstaComRecibo ? "Caixa aberto" : "Caixa livre";
+    public bool MostrarCarrinho => CaixaAberto && !EstaEmPagamento && !EstaComRecibo;
+    public bool MostrarBloqueioSemCaixa => !CaixaAberto && !EstaEmPagamento && !EstaComRecibo;
+    public string RotuloStatusCaixa => CaixaAberto ? "Caixa aberto" : "Nenhum caixa aberto";
 
     public PdvViewModel(
         IVendaService vendaService,
+        ICaixaService caixaService,
+        SessaoUsuario sessao,
+        Func<CaixaWindow> caixaWindowFactory,
         Func<IReadOnlyList<ItemCarrinhoViewModel>, FinalizarVendaViewModel> finalizarVendaViewModelFactory)
     {
         _vendaService = vendaService;
+        _caixaService = caixaService;
+        _sessao = sessao;
+        _caixaWindowFactory = caixaWindowFactory;
         _finalizarVendaViewModelFactory = finalizarVendaViewModelFactory;
+        _ = AtualizarStatusCaixaAsync();
+    }
+
+    private async Task AtualizarStatusCaixaAsync()
+    {
+        var caixa = await _caixaService.ObterCaixaAbertoAsync();
+        CaixaAberto = caixa is not null;
     }
 
     partial void OnTermoBuscaChanged(string value) => _ = BuscarAsync(value);
@@ -138,11 +171,62 @@ public partial class PdvViewModel : ObservableObject
         Mensagem = "Venda cancelada.";
     }
 
+    [RelayCommand]
+    private async Task AbrirCaixaJanelaAsync()
+    {
+        _caixaWindowFactory().ShowDialog();
+        await AtualizarStatusCaixaAsync();
+    }
+
+    [RelayCommand]
+    private void AbrirSangria() => AbrirPainelMovimentacao(TipoMovimentacaoCaixa.Sangria);
+
+    [RelayCommand]
+    private void AbrirSuprimento() => AbrirPainelMovimentacao(TipoMovimentacaoCaixa.Reforco);
+
+    private void AbrirPainelMovimentacao(TipoMovimentacaoCaixa tipo)
+    {
+        _tipoMovimentacaoAtual = tipo;
+        TituloMovimentacao = tipo == TipoMovimentacaoCaixa.Sangria ? "Sangria" : "Suprimento";
+        ValorMovimentacaoTexto = string.Empty;
+        MotivoMovimentacao = string.Empty;
+        MensagemErroMovimentacao = null;
+        MostrarPainelMovimentacao = true;
+    }
+
+    [RelayCommand]
+    private void CancelarMovimentacao() => MostrarPainelMovimentacao = false;
+
+    [RelayCommand]
+    private async Task ConfirmarMovimentacaoAsync()
+    {
+        if (!decimal.TryParse(ValorMovimentacaoTexto, out var valor) || valor <= 0)
+        {
+            MensagemErroMovimentacao = "Informe um valor válido maior que zero.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(MotivoMovimentacao))
+        {
+            MensagemErroMovimentacao = "Informe o motivo.";
+            return;
+        }
+
+        try
+        {
+            await _caixaService.RegistrarMovimentacaoAsync(_sessao.UsuarioLogado!.Id, _tipoMovimentacaoAtual, valor, MotivoMovimentacao.Trim());
+            MostrarPainelMovimentacao = false;
+        }
+        catch (InvalidOperationException ex)
+        {
+            MensagemErroMovimentacao = ex.Message;
+        }
+    }
+
     private void AtualizarResumo()
     {
         var total = Itens.Sum(i => i.Subtotal);
         TotalFormatado = total.ToString("C2", CulturaBr);
         TemItens = Itens.Count > 0;
-        OnPropertyChanged(nameof(RotuloStatusCaixa));
     }
 }

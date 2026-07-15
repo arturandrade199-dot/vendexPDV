@@ -35,6 +35,20 @@
 
         <!-- Corpo -->
         <Grid Grid.Row="2" Margin="24,0,24,16">
+            <!-- Estado sem caixa aberto: bloqueia a venda até abrir um caixa -->
+            <Border Visibility="{Binding MostrarBloqueioSemCaixa, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <ui:SymbolIcon Symbol="Wallet24" FontSize="48" Foreground="#6B7280" HorizontalAlignment="Center" Margin="0,0,0,16" />
+                    <TextBlock Text="Nenhum caixa aberto" FontSize="18" FontWeight="SemiBold"
+                               Foreground="#1F2430" HorizontalAlignment="Center" Margin="0,0,0,4" />
+                    <TextBlock Text="Abra o caixa para começar a vender." Foreground="#6B7280"
+                               HorizontalAlignment="Center" Margin="0,0,0,20" />
+                    <ui:Button Content="Abrir Caixa" Appearance="Primary" Padding="24,10"
+                               HorizontalAlignment="Center" Command="{Binding AbrirCaixaJanelaCommand}" />
+                </StackPanel>
+            </Border>
+
             <!-- Estado normal: busca + (logo ou grid do carrinho) -->
             <Grid Visibility="{Binding MostrarCarrinho, Converter={StaticResource BoolToVisibilityConverter}}">
                 <Grid.ColumnDefinitions>
@@ -164,9 +178,40 @@
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
                     <TextBlock Text="{Binding Mensagem}" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,16,0" />
-                    <ui:Button Content="Sangria" IsEnabled="False" ToolTip="Em breve" Margin="0,0,8,0" />
-                    <ui:Button Content="Suprimento" IsEnabled="False" ToolTip="Em breve" Margin="0,0,8,0" />
-                    <ui:Button Content="Caixa" IsEnabled="False" ToolTip="Em breve" />
+                    <StackPanel x:Name="PainelBotoesMovimentacao" Orientation="Horizontal">
+                        <ui:Button Content="Sangria" Margin="0,0,8,0" Command="{Binding AbrirSangriaCommand}" />
+                        <ui:Button Content="Suprimento" Margin="0,0,8,0" Command="{Binding AbrirSuprimentoCommand}" />
+                    </StackPanel>
+                    <ui:Button Content="Caixa" Command="{Binding AbrirCaixaJanelaCommand}" />
+
+                    <Popup IsOpen="{Binding MostrarPainelMovimentacao, Mode=TwoWay}"
+                           PlacementTarget="{Binding ElementName=PainelBotoesMovimentacao}"
+                           Placement="Top" StaysOpen="False" AllowsTransparency="True">
+                        <Border Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1"
+                                Padding="20" Width="320" Margin="0,0,0,8">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.15" Color="Black" />
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="{Binding TituloMovimentacao}" FontWeight="SemiBold" FontSize="16"
+                                           Foreground="#1F2430" Margin="0,0,0,12" />
+
+                                <TextBlock Text="Valor (R$)" Margin="0,0,0,4" />
+                                <ui:TextBox Text="{Binding ValorMovimentacaoTexto, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+                                <TextBlock Text="Motivo" Margin="0,0,0,4" />
+                                <ui:TextBox Text="{Binding MotivoMovimentacao, UpdateSourceTrigger=PropertyChanged}"
+                                            AcceptsReturn="True" TextWrapping="Wrap" Height="60" Margin="0,0,0,12" />
+
+                                <TextBlock Text="{Binding MensagemErroMovimentacao}" Foreground="#C4291E" Margin="0,0,0,12" TextWrapping="Wrap" />
+
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <ui:Button Content="Cancelar" Margin="0,0,8,0" Command="{Binding CancelarMovimentacaoCommand}" />
+                                    <ui:Button Content="Confirmar" Appearance="Primary" Command="{Binding ConfirmarMovimentacaoCommand}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </Popup>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,24,0"

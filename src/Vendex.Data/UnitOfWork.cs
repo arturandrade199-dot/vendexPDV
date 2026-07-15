@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Vendex.Data.Repositories;
 using Vendex.Domain.Entities;
 using Vendex.Domain.Interfaces;
@@ -26,6 +27,7 @@ public class UnitOfWork : IUnitOfWork
         Caixas = new CaixaRepository(_contexto);
         LogsAuditoria = new Repository<LogAuditoria>(_contexto);
         Licencas = new LicencaRepository(_contexto);
+        ConfiguracoesBackup = new Repository<ConfiguracaoBackup>(_contexto);
     }
 
     public IUsuarioRepository Usuarios { get; }
@@ -43,6 +45,24 @@ public class UnitOfWork : IUnitOfWork
     public ICaixaRepository Caixas { get; }
     public IRepository<LogAuditoria> LogsAuditoria { get; }
     public ILicencaRepository Licencas { get; }
+    public IRepository<ConfiguracaoBackup> ConfiguracoesBackup { get; }
 
     public Task<int> SalvarAlteracoesAsync() => _contexto.SaveChangesAsync();
+
+    public async Task BackupBancoDadosAsync(string caminhoArquivoDestino)
+    {
+        var origem = (Microsoft.Data.Sqlite.SqliteConnection)_contexto.Database.GetDbConnection();
+        var estavaFechada = origem.State != System.Data.ConnectionState.Open;
+        if (estavaFechada) await origem.OpenAsync();
+
+        // Pooling=False: essa conexão de destino é de uso único (só pra receber o backup) — sem
+        // isso, o Microsoft.Data.Sqlite mantém o handle nativo aberto no pool mesmo depois do
+        // Dispose(), e a pasta temporária não pode ser apagada logo em seguida (arquivo em uso).
+        using var destino = new Microsoft.Data.Sqlite.SqliteConnection($"Data Source={caminhoArquivoDestino};Pooling=False");
+        destino.Open();
+        origem.BackupDatabase(destino);
+        destino.Close();
+
+        if (estavaFechada) await origem.CloseAsync();
+    }
 }

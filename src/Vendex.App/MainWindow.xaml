@@ -216,6 +216,12 @@
                         <DataTemplate DataType="{x:Type vm:UsuariosViewModel}">
                             <views:UsuariosView />
                         </DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:ConfiguracaoBackupViewModel}">
+                            <views:ConfiguracaoBackupView />
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:RelatoriosViewModel}">
+                            <views:RelatoriosView />
+                        </DataTemplate>
                     </ContentControl.Resources>
                 </ContentControl>
             </Grid>

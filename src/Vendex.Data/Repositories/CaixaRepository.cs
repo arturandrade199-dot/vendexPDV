@@ -13,4 +13,12 @@ public class CaixaRepository : Repository<Caixa>, ICaixaRepository
 
     public Task<Caixa?> ObterCaixaAbertoAsync() =>
         DbSet.Include(c => c.Movimentacoes).FirstOrDefaultAsync(c => c.Status == StatusCaixa.Aberto);
+
+    public async Task<IReadOnlyList<Caixa>> ObterPorPeriodoAsync(DateTime inicio, DateTime fim) =>
+        await DbSet
+            .Include(c => c.UsuarioAbertura)
+            .Include(c => c.UsuarioFechamento)
+            .Where(c => c.DataAbertura >= inicio && c.DataAbertura <= fim)
+            .AsNoTracking()
+            .ToListAsync();
 }

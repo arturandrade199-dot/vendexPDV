@@ -15,7 +15,7 @@ public class VendaRepository : Repository<Venda>, IVendaRepository
 
     public async Task<IReadOnlyList<Venda>> ObterPorPeriodoAsync(DateTime inicio, DateTime fim) =>
         await DbSet
-            .Include(v => v.Itens)
+            .Include(v => v.Itens).ThenInclude(i => i.Produto)
             .Include(v => v.Pagamentos)
             .Where(v => !v.Cancelada && v.DataHora >= inicio && v.DataHora <= fim)
             .ToListAsync();

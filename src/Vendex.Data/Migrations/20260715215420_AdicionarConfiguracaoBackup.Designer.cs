@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vendex.Data;
 
@@ -10,9 +11,11 @@ using Vendex.Data;
 namespace Vendex.Data.Migrations
 {
     [DbContext(typeof(VendexDbContext))]
-    partial class VendexDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260715215420_AdicionarConfiguracaoBackup")]
+    partial class AdicionarConfiguracaoBackup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");

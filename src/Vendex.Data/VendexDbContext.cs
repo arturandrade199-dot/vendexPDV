@@ -29,6 +29,7 @@ public class VendexDbContext : DbContext
     public DbSet<LogAuditoria> LogsAuditoria => Set<LogAuditoria>();
     public DbSet<Config> Configs => Set<Config>();
     public DbSet<Licenca> Licencas => Set<Licenca>();
+    public DbSet<ConfiguracaoBackup> ConfiguracoesBackup => Set<ConfiguracaoBackup>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

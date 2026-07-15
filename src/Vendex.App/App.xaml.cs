@@ -39,6 +39,11 @@ public partial class App : System.Windows.Application
 
         Directory.CreateDirectory(AppPaths.PastaDados);
 
+        // Autodeclaração de licença exigida pelo QuestPDF antes de gerar qualquer PDF —
+        // Community é gratuita para empresas com faturamento anual abaixo de US$1M, o caso
+        // de uso do Vendex (ver decisão registrada com o usuário para o módulo de Relatórios).
+        QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices((_, services) =>
             {
@@ -59,6 +64,9 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IVendaService, VendaService>();
                 services.AddSingleton<IClienteService, ClienteService>();
                 services.AddSingleton<IFornecedorService, FornecedorService>();
+                services.AddSingleton<IBackupService, BackupService>();
+                services.AddSingleton<AgendadorBackup>();
+                services.AddSingleton<IRelatorioService, RelatorioService>();
 
                 services.AddSingleton<SessaoUsuario>();
 
@@ -72,6 +80,8 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.FornecedoresViewModel>();
                 services.AddTransient<ViewModels.ClientesViewModel>();
                 services.AddTransient<ViewModels.UsuariosViewModel>();
+                services.AddTransient<ViewModels.ConfiguracaoBackupViewModel>();
+                services.AddTransient<ViewModels.RelatoriosViewModel>();
                 services.AddTransient<MainWindow>();
 
                 services.AddTransient<ViewModels.LoginViewModel>();
@@ -140,6 +150,8 @@ public partial class App : System.Windows.Application
         var contexto = _host.Services.GetRequiredService<VendexDbContext>();
         contexto.Database.Migrate();
         SeedModulos(contexto);
+
+        _host.Services.GetRequiredService<AgendadorBackup>().Iniciar();
 
         var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
         if (loginWindow.ShowDialog() != true)
