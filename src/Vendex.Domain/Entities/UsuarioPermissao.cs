@@ -9,4 +9,7 @@ public class UsuarioPermissao : EntidadeBase
     public Modulo Modulo { get; set; } = null!;
 
     public bool PodeAcessar { get; set; }
+    public bool PodeCriar { get; set; }
+    public bool PodeEditar { get; set; }
+    public bool PodeExcluir { get; set; }
 }

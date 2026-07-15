@@ -141,6 +141,10 @@
                     <Run Text="Desde " /><Run Text="{Binding ResumoAberturaDataFormatada, Mode=OneWay}" />
                     <Run Text=" — valor inicial de " /><Run Text="{Binding ResumoAberturaValorFormatado, Mode=OneWay}" />
                 </TextBlock>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
+                    <ui:Button Content="Sangria" Padding="18,10" Margin="0,0,12,0" Command="{Binding SangriaCommand}" />
+                    <ui:Button Content="Suprimento" Padding="18,10" Command="{Binding SuprimentoCommand}" />
+                </StackPanel>
                 <ui:Button Content="Fechar Caixa" Appearance="Primary" Padding="24,10"
                            HorizontalAlignment="Center" Command="{Binding IniciarFechamentoCommand}" />
             </StackPanel>
@@ -153,22 +157,34 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="Contagem de fechamento de caixa" FontSize="16" FontWeight="SemiBold"
                            Foreground="#1F2430" Margin="0,0,0,16" />
                 <ContentControl Grid.Row="1" Content="{Binding}" ContentTemplate="{StaticResource ModeloContagem}" />
-                <Border Grid.Row="2" Background="#EDEBFF" CornerRadius="10" Padding="16,12" Margin="0,16,0,0">
+                <Border Grid.Row="2" Background="#F3F4F8" CornerRadius="10" Padding="16,12" Margin="0,16,0,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Total em caixa" FontWeight="Medium" Foreground="#5B4FE9" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="0" Text="Valor esperado em caixa (abertura + vendas em dinheiro + suprimentos − sangrias)"
+                                   FontWeight="Medium" Foreground="#6B7280" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,12,0" />
+                        <TextBlock Grid.Column="1" Text="{Binding ValorEsperadoFechamentoFormatado}" FontWeight="Bold" FontSize="16" Foreground="#1F2430" />
+                    </Grid>
+                </Border>
+                <Border Grid.Row="3" Background="#EDEBFF" CornerRadius="10" Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Total contado em caixa" FontWeight="Medium" Foreground="#5B4FE9" VerticalAlignment="Center" />
                         <TextBlock Grid.Column="1" Text="{Binding TotalContadoFormatado}" FontWeight="Bold" FontSize="20" Foreground="#5B4FE9" />
                     </Grid>
                 </Border>
-                <TextBlock Grid.Row="3" Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
-                <ui:Button Grid.Row="4" Content="Confirmar Fechamento" Appearance="Primary" Command="{Binding FecharCommand}"
+                <TextBlock Grid.Row="4" Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
+                <ui:Button Grid.Row="5" Content="Confirmar Fechamento" Appearance="Primary" Command="{Binding FecharCommand}"
                            HorizontalAlignment="Right" Padding="24,8" Margin="0,16,0,0" />
             </Grid>
 

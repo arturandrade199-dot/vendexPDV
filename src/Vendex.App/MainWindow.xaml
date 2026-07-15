@@ -170,12 +170,25 @@
                         <TextBlock Text="{Binding TituloAtual}" FontSize="22" FontWeight="SemiBold"
                                    VerticalAlignment="Center" Foreground="#1F2430" />
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Border Width="32" Height="32" CornerRadius="16" Background="#5B4FE9" Margin="0,0,8,0">
-                            <TextBlock Text="{Binding IniciaisUsuarioLogado}" Foreground="White" FontWeight="Bold"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <TextBlock Text="{Binding NomeUsuarioLogado}" VerticalAlignment="Center" Foreground="#1F2430" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Cursor="Hand"
+                                ToolTip="{Binding NomeComPerfilUsuarioLogado}">
+                        <StackPanel.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding AbrirPerfilCommand}" />
+                        </StackPanel.InputBindings>
+
+                        <Grid Width="32" Height="32" Margin="0,0,8,0">
+                            <Border CornerRadius="16" Background="#5B4FE9">
+                                <TextBlock Text="{Binding IniciaisUsuarioLogado}" Foreground="White" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                            <Ellipse Visibility="{Binding FotoUsuarioLogado, Converter={StaticResource NullToVisibilityConverter}}">
+                                <Ellipse.Fill>
+                                    <ImageBrush ImageSource="{Binding FotoUsuarioLogado, Converter={StaticResource PathToImageSourceConverter}}" Stretch="UniformToFill" />
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Grid>
+
+                        <TextBlock Text="{Binding NomeComPerfilUsuarioLogado}" VerticalAlignment="Center" Foreground="#1F2430" />
                     </StackPanel>
                 </Grid>
 

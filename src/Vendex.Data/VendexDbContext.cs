@@ -138,6 +138,7 @@ public class VendexDbContext : DbContext
         {
             e.Property(m => m.Valor).HasPrecision(18, 2);
             e.HasOne(m => m.Caixa).WithMany(c => c.Movimentacoes).HasForeignKey(m => m.CaixaId);
+            e.HasOne(m => m.Usuario).WithMany().HasForeignKey(m => m.UsuarioId).OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<LogAuditoria>(e =>

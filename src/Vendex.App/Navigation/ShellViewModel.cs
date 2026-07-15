@@ -3,6 +3,10 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
 using Vendex.App.ViewModels;
 
+// PerfilWindow fica no namespace Vendex.App (raiz do projeto); ShellViewModel está em
+// Vendex.App.Navigation, que não enxerga o namespace pai automaticamente em C#.
+using Vendex.App;
+
 namespace Vendex.App.Navigation;
 
 /// <summary>
@@ -14,6 +18,7 @@ public partial class ShellViewModel : ObservableObject, INavigationService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly SessaoUsuario _sessao;
+    private readonly Func<PerfilWindow> _perfilWindowFactory;
 
     [ObservableProperty]
     private object? conteudoAtual;
@@ -26,6 +31,8 @@ public partial class ShellViewModel : ObservableObject, INavigationService
     public bool EhAdministrador => _sessao.EhAdministrador;
     public string NomeUsuarioLogado => _sessao.UsuarioLogado?.Nome ?? string.Empty;
     public string IniciaisUsuarioLogado => string.IsNullOrEmpty(NomeUsuarioLogado) ? "?" : NomeUsuarioLogado[..1].ToUpperInvariant();
+    public string? FotoUsuarioLogado => _sessao.UsuarioLogado?.FotoCaminho;
+    public string NomeComPerfilUsuarioLogado => $"{NomeUsuarioLogado} ({(EhAdministrador ? "Administrador" : "Funcionário")})";
 
     public bool PodeAcessarContasPagar => _sessao.PodeAcessar("Contas a Pagar");
     public bool PodeAcessarProdutos => _sessao.PodeAcessar("Produtos");
@@ -38,11 +45,31 @@ public partial class ShellViewModel : ObservableObject, INavigationService
     // trava o container de DI (a instância ainda não terminou de ser criada). A
     // navegação inicial é disparada explicitamente pelo App.xaml.cs, depois que este
     // objeto já está totalmente construído.
-    public ShellViewModel(IServiceProvider serviceProvider, SessaoUsuario sessao)
+    public ShellViewModel(IServiceProvider serviceProvider, SessaoUsuario sessao, Func<PerfilWindow> perfilWindowFactory)
     {
         _serviceProvider = serviceProvider;
         _sessao = sessao;
+        _perfilWindowFactory = perfilWindowFactory;
+
+        // As propriedades de usuário logado (nome/iniciais/foto/tooltip) são calculadas a
+        // partir de _sessao.UsuarioLogado — sem isso, editar o perfil não atualiza o
+        // cabeçalho até reiniciar o app, porque ShellViewModel não notifica sozinho quando
+        // o objeto por trás delas muda.
+        _sessao.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(SessaoUsuario.UsuarioLogado))
+                return;
+
+            OnPropertyChanged(nameof(NomeUsuarioLogado));
+            OnPropertyChanged(nameof(IniciaisUsuarioLogado));
+            OnPropertyChanged(nameof(FotoUsuarioLogado));
+            OnPropertyChanged(nameof(NomeComPerfilUsuarioLogado));
+            OnPropertyChanged(nameof(EhAdministrador));
+        };
     }
+
+    [RelayCommand]
+    private void AbrirPerfil() => _perfilWindowFactory().ShowDialog();
 
     public void NavegarPara<TViewModel>(string titulo) where TViewModel : notnull
     {

@@ -11,4 +11,7 @@ public class CaixaMovimentacao : EntidadeBase
     public decimal Valor { get; set; }
     public string Motivo { get; set; } = string.Empty;
     public DateTime DataHora { get; set; } = DateTime.Now;
+
+    public int UsuarioId { get; set; }
+    public Usuario Usuario { get; set; } = null!;
 }

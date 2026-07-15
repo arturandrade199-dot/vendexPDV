@@ -50,8 +50,8 @@ public partial class LoginViewModel : ObservableObject
 
         MensagemErro = null;
         _sessao.UsuarioLogado = usuario;
-        var modulosPermitidos = await _usuarioService.ObterNomesModulosPermitidosAsync(usuario.Id);
-        _sessao.DefinirModulosPermitidos(modulosPermitidos);
+        var permissoes = await _usuarioService.ObterPermissoesModulosAsync(usuario.Id);
+        _sessao.DefinirPermissoes(permissoes);
         Autenticado?.Invoke();
     }
 

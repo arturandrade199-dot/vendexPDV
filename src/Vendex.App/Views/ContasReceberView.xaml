@@ -55,7 +55,8 @@
             <Grid Grid.Row="0" Margin="0,0,0,16">
                 <ui:Button Content="+ Adicionar" Appearance="Primary"
                            Command="{Binding AdicionarCommand}" Padding="18,8"
-                           HorizontalAlignment="Left" />
+                           HorizontalAlignment="Left"
+                           Visibility="{Binding PodeCriar, Converter={StaticResource BoolToVisibilityConverter}}" />
             </Grid>
 
             <!-- Tabela -->
@@ -111,9 +112,15 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <ui:Button Content="Marcar como recebido"
-                                                   Visibility="{Binding PodeMarcarComoRecebido, Converter={StaticResource BoolToVisibilityConverter}}"
                                                    Command="{Binding DataContext.MarcarComoRecebidoCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                   CommandParameter="{Binding}" />
+                                                   CommandParameter="{Binding}">
+                                            <ui:Button.Visibility>
+                                                <MultiBinding Converter="{StaticResource AllTrueToVisibilityConverter}">
+                                                    <Binding Path="PodeMarcarComoRecebido" />
+                                                    <Binding Path="DataContext.PodeEditar" RelativeSource="{RelativeSource AncestorType=ListView}" />
+                                                </MultiBinding>
+                                            </ui:Button.Visibility>
+                                        </ui:Button>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>

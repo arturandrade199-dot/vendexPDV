@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:behaviors="clr-namespace:Vendex.App.Behaviors"
         mc:Ignorable="d"
         Title="{Binding Titulo}" Height="620" Width="440"
         WindowStartupLocation="CenterOwner"
@@ -22,10 +23,12 @@
             <ui:TextBox Text="{Binding Nome, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
 
             <TextBlock Text="Telefone" Margin="0,0,0,4" />
-            <ui:TextBox Text="{Binding Telefone, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+            <ui:TextBox Text="{Binding Telefone, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12"
+                        behaviors:Mascara.Tipo="Telefone" />
 
             <TextBlock Text="Documento (CPF)" Margin="0,0,0,4" />
-            <ui:TextBox Text="{Binding Documento, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+            <ui:TextBox Text="{Binding Documento, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12"
+                        behaviors:Mascara.Tipo="Cpf" />
 
             <TextBlock Text="Endereço" Margin="0,0,0,4" />
             <ui:TextBox Text="{Binding Endereco, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />

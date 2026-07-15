@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vendex.Data;
 
@@ -10,9 +11,11 @@ using Vendex.Data;
 namespace Vendex.Data.Migrations
 {
     [DbContext(typeof(VendexDbContext))]
-    partial class VendexDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260715185326_PermissoesPorAcao")]
+    partial class PermissoesPorAcao
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -140,9 +143,6 @@ namespace Vendex.Data.Migrations
                     b.Property<int>("Tipo")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("UsuarioId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<decimal>("Valor")
                         .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
@@ -150,8 +150,6 @@ namespace Vendex.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CaixaId");
-
-                    b.HasIndex("UsuarioId");
 
                     b.ToTable("CaixaMovimentacoes");
                 });
@@ -492,9 +490,6 @@ namespace Vendex.Data.Migrations
                     b.Property<DateTime>("DataCadastro")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("FotoCaminho")
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("Login")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -690,15 +685,7 @@ namespace Vendex.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Vendex.Domain.Entities.Usuario", "Usuario")
-                        .WithMany()
-                        .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Caixa");
-
-                    b.Navigation("Usuario");
                 });
 
             modelBuilder.Entity("Vendex.Domain.Entities.ContaPagar", b =>

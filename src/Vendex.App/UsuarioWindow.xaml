@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
-        Title="{Binding Titulo}" Height="640" Width="420"
+        Title="{Binding Titulo}" Height="680" Width="460"
         WindowStartupLocation="CenterOwner"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica">
@@ -31,11 +31,26 @@
                 <CheckBox Content="Administrador (acesso irrestrito)" IsChecked="{Binding EhAdministrador}" Margin="0,0,0,12" />
 
                 <StackPanel Visibility="{Binding EhAdministrador, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                    <TextBlock Text="Módulos permitidos" FontWeight="SemiBold" Margin="0,4,0,10" Foreground="#1F2430" />
+                    <TextBlock Text="Módulos e permissões" FontWeight="SemiBold" Margin="0,4,0,10" Foreground="#1F2430" />
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <TextBlock Text="" Width="150" />
+                        <TextBlock Text="Ver" Width="55" FontWeight="SemiBold" />
+                        <TextBlock Text="Criar" Width="55" FontWeight="SemiBold" />
+                        <TextBlock Text="Editar" Width="55" FontWeight="SemiBold" />
+                        <TextBlock Text="Excluir" Width="55" FontWeight="SemiBold" />
+                    </StackPanel>
+
                     <ItemsControl ItemsSource="{Binding ModulosDisponiveis}" Margin="0,0,0,12">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <CheckBox Content="{Binding NomeModulo}" IsChecked="{Binding Permitido}" Margin="0,0,0,8" />
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <TextBlock Text="{Binding NomeModulo}" Width="150" VerticalAlignment="Center" />
+                                    <CheckBox Width="55" IsChecked="{Binding PodeVisualizar}" />
+                                    <CheckBox Width="55" IsChecked="{Binding PodeCriar}" />
+                                    <CheckBox Width="55" IsChecked="{Binding PodeEditar}" />
+                                    <CheckBox Width="55" IsChecked="{Binding PodeExcluir}" />
+                                </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Vendex.App.Navigation;
 using Vendex.Application.Services;
+using Vendex.Domain.Enums;
 
 namespace Vendex.App.ViewModels;
 
@@ -17,6 +18,7 @@ public partial class CaixaViewModel : ObservableObject
 
     private readonly ICaixaService _caixaService;
     private readonly SessaoUsuario _sessao;
+    private readonly Func<TipoMovimentacaoCaixa, MovimentacaoCaixaWindow> _movimentacaoWindowFactory;
 
     public ObservableCollection<CedulaLinhaViewModel> LinhasNotas { get; } = new();
     public ObservableCollection<CedulaLinhaViewModel> LinhasMoedas { get; } = new();
@@ -38,6 +40,7 @@ public partial class CaixaViewModel : ObservableObject
     public bool MostrarFecharRecibo => Estado == EstadoTela.FecharRecibo;
 
     [ObservableProperty] private string totalContadoFormatado = "R$ 0,00";
+    [ObservableProperty] private string valorEsperadoFechamentoFormatado = "R$ 0,00";
     [ObservableProperty] private string? mensagemErro;
 
     [ObservableProperty] private string reciboAberturaDataFormatada = string.Empty;
@@ -58,10 +61,11 @@ public partial class CaixaViewModel : ObservableObject
 
     public event Action? Concluido;
 
-    public CaixaViewModel(ICaixaService caixaService, SessaoUsuario sessao)
+    public CaixaViewModel(ICaixaService caixaService, SessaoUsuario sessao, Func<TipoMovimentacaoCaixa, MovimentacaoCaixaWindow> movimentacaoWindowFactory)
     {
         _caixaService = caixaService;
         _sessao = sessao;
+        _movimentacaoWindowFactory = movimentacaoWindowFactory;
 
         foreach (var valor in ValoresNotas)
             AdicionarLinha(LinhasNotas, valor);
@@ -126,13 +130,23 @@ public partial class CaixaViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void IniciarFechamento()
+    private void Sangria() => _movimentacaoWindowFactory(TipoMovimentacaoCaixa.Sangria).ShowDialog();
+
+    [RelayCommand]
+    private void Suprimento() => _movimentacaoWindowFactory(TipoMovimentacaoCaixa.Reforco).ShowDialog();
+
+    [RelayCommand]
+    private async Task IniciarFechamentoAsync()
     {
         foreach (var linha in LinhasNotas.Concat(LinhasMoedas))
             linha.Quantidade = 0;
 
         TotalContadoFormatado = "R$ 0,00";
         MensagemErro = null;
+
+        var valorEsperado = await _caixaService.ObterValorEsperadoEmCaixaAsync();
+        ValorEsperadoFechamentoFormatado = valorEsperado.ToString("C2", CulturaBr);
+
         Estado = EstadoTela.FecharForm;
     }
 

@@ -58,7 +58,8 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <ui:Button Grid.Column="0" Content="+ Adicionar" Appearance="Primary"
-                           Command="{Binding AdicionarCommand}" Padding="18,8" />
+                           Command="{Binding AdicionarCommand}" Padding="18,8"
+                           Visibility="{Binding PodeCriar, Converter={StaticResource BoolToVisibilityConverter}}" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                     <ui:Button Content="Importar" IsEnabled="False" ToolTip="Em breve" Margin="0,0,8,0" />
                     <ui:Button Content="Exportar" IsEnabled="False" ToolTip="Em breve" Margin="0,0,8,0" />
@@ -119,9 +120,15 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <ui:Button Content="Marcar como pago"
-                                                   Visibility="{Binding PodeMarcarComoPago, Converter={StaticResource BoolToVisibilityConverter}}"
                                                    Command="{Binding DataContext.MarcarComoPagoCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                   CommandParameter="{Binding}" />
+                                                   CommandParameter="{Binding}">
+                                            <ui:Button.Visibility>
+                                                <MultiBinding Converter="{StaticResource AllTrueToVisibilityConverter}">
+                                                    <Binding Path="PodeMarcarComoPago" />
+                                                    <Binding Path="DataContext.PodeEditar" RelativeSource="{RelativeSource AncestorType=ListView}" />
+                                                </MultiBinding>
+                                            </ui:Button.Visibility>
+                                        </ui:Button>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>

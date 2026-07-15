@@ -321,11 +321,16 @@ O primeiro usuário criado na ativação do sistema é sempre o **Administrador*
 | Id | Identificador único |
 | UsuarioId | Referência ao usuário |
 | ModuloId | Referência ao módulo |
-| PodeAcessar | Sim / Não |
+| PodeAcessar | Ver o módulo (Sim / Não) |
+| PodeCriar | Criar novos registros no módulo (Sim / Não) |
+| PodeEditar | Editar registros existentes no módulo (Sim / Não) |
+| PodeExcluir | Excluir/desativar registros no módulo (Sim / Não) |
 
-> Na prática, o Administrador tem uma tela de "Cadastro de Usuários" onde, ao criar ou editar um funcionário, marca em checkboxes quais módulos ele pode acessar. Essa tela em si é restrita apenas ao Administrador.
+> Na prática, o Administrador tem uma tela de "Cadastro de Usuários" onde, ao criar ou editar um funcionário, marca em checkboxes — por módulo — o que ele pode ver, criar, editar e excluir. Essa tela em si é restrita apenas ao Administrador. Regra de cascata: desmarcar "Ver" desmarca as outras três (não faz sentido criar/editar/excluir num módulo que não se vê); marcar qualquer uma das outras três marca "Ver" automaticamente.
+>
+> Nem todo módulo tem as quatro ações mapeadas para um comando real: Clientes não tem ação de excluir/desativar hoje, e em Contas a Receber/Contas a Pagar "Editar" controla a ação de marcar como recebido/pago (não há edição de campos após a criação). Nesses casos o flag correspondente fica salvo no banco mas sem efeito até a tela ganhar a ação equivalente.
 
-Em WPF, a visibilidade dos itens de menu por permissão é resolvida no ViewModel (propriedade calculada a partir das permissões do usuário logado), evitando lógica de autorização espalhada pelas Views.
+Em WPF, a visibilidade dos itens de menu e dos botões de ação por permissão é resolvida no ViewModel (propriedades calculadas a partir das permissões do usuário logado), evitando lógica de autorização espalhada pelas Views. Os comandos (Adicionar/Editar/Excluir) também verificam a permissão internamente antes de executar, como defesa em profundidade — a visibilidade do botão na tela não é a única barreira.
 
 ---
 

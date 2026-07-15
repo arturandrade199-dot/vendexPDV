@@ -31,7 +31,8 @@
             <Grid Grid.Row="0" Margin="0,0,0,16">
                 <ui:Button Content="+ Adicionar" Appearance="Primary"
                            Command="{Binding AdicionarCommand}" Padding="18,8"
-                           HorizontalAlignment="Left" />
+                           HorizontalAlignment="Left"
+                           Visibility="{Binding PodeCriar, Converter={StaticResource BoolToVisibilityConverter}}" />
             </Grid>
 
             <!-- Tabela -->
@@ -80,10 +81,12 @@
                                         <StackPanel Orientation="Horizontal">
                                             <ui:Button Content="Editar" Margin="0,0,8,0"
                                                        Command="{Binding DataContext.EditarCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                       CommandParameter="{Binding}" />
+                                                       CommandParameter="{Binding}"
+                                                       Visibility="{Binding DataContext.PodeEditar, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource BoolToVisibilityConverter}}" />
                                             <ui:Button Content="Remover"
                                                        Command="{Binding DataContext.RemoverCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                       CommandParameter="{Binding}" />
+                                                       CommandParameter="{Binding}"
+                                                       Visibility="{Binding DataContext.PodeExcluir, RelativeSource={RelativeSource AncestorType=ListView}, Converter={StaticResource BoolToVisibilityConverter}}" />
                                         </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>

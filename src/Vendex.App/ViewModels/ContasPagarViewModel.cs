@@ -2,16 +2,20 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Vendex.App.Navigation;
 using Vendex.Application.Services;
 
 namespace Vendex.App.ViewModels;
 
 public partial class ContasPagarViewModel : ObservableObject
 {
+    private const string NomeModulo = "Contas a Pagar";
+
     private static readonly CultureInfo CulturaBr = CultureInfo.GetCultureInfo("pt-BR");
 
     private readonly IContaPagarService _contaPagarService;
     private readonly Func<NovaContaPagarWindow> _novaContaPagarWindowFactory;
+    private readonly SessaoUsuario _sessao;
 
     public ObservableCollection<ContaPagarLinhaViewModel> Contas { get; } = new();
 
@@ -21,16 +25,22 @@ public partial class ContasPagarViewModel : ObservableObject
     [ObservableProperty] private string pagosFormatado = "R$ 0,00";
     [ObservableProperty] private string totalPeriodoFormatado = "R$ 0,00";
 
-    public ContasPagarViewModel(IContaPagarService contaPagarService, Func<NovaContaPagarWindow> novaContaPagarWindowFactory)
+    public bool PodeCriar => _sessao.PodeCriar(NomeModulo);
+    public bool PodeEditar => _sessao.PodeEditar(NomeModulo);
+
+    public ContasPagarViewModel(IContaPagarService contaPagarService, Func<NovaContaPagarWindow> novaContaPagarWindowFactory, SessaoUsuario sessao)
     {
         _contaPagarService = contaPagarService;
         _novaContaPagarWindowFactory = novaContaPagarWindowFactory;
+        _sessao = sessao;
         _ = CarregarAsync();
     }
 
     [RelayCommand]
     private async Task AdicionarAsync()
     {
+        if (!PodeCriar) return;
+
         var janela = _novaContaPagarWindowFactory();
         if (janela.ShowDialog() == true)
         {
@@ -41,6 +51,8 @@ public partial class ContasPagarViewModel : ObservableObject
     [RelayCommand]
     private async Task MarcarComoPagoAsync(ContaPagarLinhaViewModel linha)
     {
+        if (!PodeEditar) return;
+
         await _contaPagarService.MarcarComoPagoAsync(linha.Id);
         await CarregarAsync();
     }

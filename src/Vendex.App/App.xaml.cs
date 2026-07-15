@@ -37,9 +37,7 @@ public partial class App : System.Windows.Application
             typeof(FrameworkElement),
             new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(culturaBr.IetfLanguageTag)));
 
-        var pastaDados = Path.Combine(AppContext.BaseDirectory, "dados");
-        Directory.CreateDirectory(pastaDados);
-        var caminhoBanco = Path.Combine(pastaDados, "vendex.db");
+        Directory.CreateDirectory(AppPaths.PastaDados);
 
         _host = Host.CreateDefaultBuilder()
             .ConfigureServices((_, services) =>
@@ -49,7 +47,7 @@ public partial class App : System.Windows.Application
                 // viver pela sessão inteira em vez de por escopo — app desktop de usuário
                 // único, sem concorrência entre requisições como haveria numa API.
                 services.AddDbContext<VendexDbContext>(options =>
-                    options.UseSqlite($"Data Source={caminhoBanco}"), ServiceLifetime.Singleton);
+                    options.UseSqlite($"Data Source={AppPaths.CaminhoBanco}"), ServiceLifetime.Singleton);
 
                 services.AddSingleton<IUnitOfWork, UnitOfWork>();
                 services.AddSingleton<IUsuarioService, UsuarioService>();
@@ -86,6 +84,17 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.CaixaViewModel>();
                 services.AddTransient<CaixaWindow>();
                 services.AddTransient<Func<CaixaWindow>>(provedor => () => provedor.GetRequiredService<CaixaWindow>());
+
+                services.AddTransient<ViewModels.PerfilWindowViewModel>();
+                services.AddTransient<PerfilWindow>();
+                services.AddTransient<Func<PerfilWindow>>(provedor => () => provedor.GetRequiredService<PerfilWindow>());
+
+                services.AddTransient<Func<Domain.Enums.TipoMovimentacaoCaixa, MovimentacaoCaixaWindow>>(provedor => tipo =>
+                {
+                    var viewModel = new ViewModels.MovimentacaoCaixaWindowViewModel(
+                        provedor.GetRequiredService<ICaixaService>(), provedor.GetRequiredService<SessaoUsuario>(), tipo);
+                    return new MovimentacaoCaixaWindow(viewModel);
+                });
 
                 services.AddTransient<Func<IReadOnlyList<ViewModels.ItemCarrinhoViewModel>, ViewModels.FinalizarVendaViewModel>>(provedor => itens =>
                     new ViewModels.FinalizarVendaViewModel(

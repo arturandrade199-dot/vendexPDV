@@ -43,14 +43,21 @@ public partial class UsuarioWindowViewModel : ObservableObject
 
     private async Task CarregarModulosAsync()
     {
-        var modulos = await _usuarioService.ListarModulosAsync();
-        var permitidosAtuais = _usuarioId is int id
-            ? await _usuarioService.ObterNomesModulosPermitidosAsync(id)
-            : Array.Empty<string>();
-
-        ModulosDisponiveis.Clear();
-        foreach (var modulo in modulos)
-            ModulosDisponiveis.Add(new ModuloPermissaoLinhaViewModel(modulo.Id, modulo.NomeModulo, permitidosAtuais.Contains(modulo.NomeModulo)));
+        if (_usuarioId is int id)
+        {
+            var permissoes = await _usuarioService.ObterPermissoesModulosAsync(id);
+            ModulosDisponiveis.Clear();
+            foreach (var permissao in permissoes)
+                ModulosDisponiveis.Add(new ModuloPermissaoLinhaViewModel(permissao.ModuloId, permissao.NomeModulo,
+                    permissao.PodeVisualizar, permissao.PodeCriar, permissao.PodeEditar, permissao.PodeExcluir));
+        }
+        else
+        {
+            var modulos = await _usuarioService.ListarModulosAsync();
+            ModulosDisponiveis.Clear();
+            foreach (var modulo in modulos)
+                ModulosDisponiveis.Add(new ModuloPermissaoLinhaViewModel(modulo.Id, modulo.NomeModulo, false, false, false, false));
+        }
     }
 
     [RelayCommand]
@@ -75,7 +82,9 @@ public partial class UsuarioWindowViewModel : ObservableObject
         }
 
         var tipo = EhAdministrador ? TipoUsuario.Administrador : TipoUsuario.Funcionario;
-        var moduloIdsPermitidos = ModulosDisponiveis.Where(m => m.Permitido).Select(m => m.Id).ToList();
+        var permissoes = ModulosDisponiveis
+            .Select(m => new PermissaoModulo(m.Id, m.NomeModulo, m.PodeVisualizar, m.PodeCriar, m.PodeEditar, m.PodeExcluir))
+            .ToList();
 
         try
         {
@@ -91,7 +100,7 @@ public partial class UsuarioWindowViewModel : ObservableObject
                 usuarioId = novoUsuario.Id;
             }
 
-            await _usuarioService.DefinirPermissoesAsync(usuarioId, moduloIdsPermitidos);
+            await _usuarioService.DefinirPermissoesAsync(usuarioId, permissoes);
 
             MensagemErro = null;
             Salvo?.Invoke();

@@ -13,6 +13,8 @@
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <conv:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
             <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <conv:AllTrueToVisibilityConverter x:Key="AllTrueToVisibilityConverter" />
+            <conv:PathToImageSourceConverter x:Key="PathToImageSourceConverter" />
 
             <!-- Estilos compartilhados do "design moderno" — reaproveitados em todas as telas de módulo -->
             <Style x:Key="CartaoResumo" TargetType="Border">

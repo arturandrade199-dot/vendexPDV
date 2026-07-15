@@ -71,6 +71,20 @@ public class UsuarioService : IUsuarioService
         await _unitOfWork.SalvarAlteracoesAsync();
     }
 
+    public async Task<Usuario> AtualizarPerfilAsync(int usuarioId, string nome, string? fotoCaminho)
+    {
+        var usuario = await _unitOfWork.Usuarios.ObterPorIdAsync(usuarioId);
+        if (usuario is null)
+            throw new InvalidOperationException("Usuário não encontrado.");
+
+        usuario.Nome = nome;
+        usuario.FotoCaminho = fotoCaminho;
+
+        _unitOfWork.Usuarios.Atualizar(usuario);
+        await _unitOfWork.SalvarAlteracoesAsync();
+        return usuario;
+    }
+
     public async Task AlternarAtivoAsync(int usuarioId)
     {
         var usuario = await _unitOfWork.Usuarios.ObterPorIdAsync(usuarioId);
@@ -84,35 +98,38 @@ public class UsuarioService : IUsuarioService
 
     public Task<IReadOnlyList<Modulo>> ListarModulosAsync() => _unitOfWork.Modulos.ObterTodosAsync();
 
-    public async Task<IReadOnlyList<string>> ObterNomesModulosPermitidosAsync(int usuarioId)
+    public async Task<IReadOnlyList<PermissaoModulo>> ObterPermissoesModulosAsync(int usuarioId)
     {
         var permissoes = await _unitOfWork.UsuarioPermissoes.ObterTodosAsync();
         var modulos = await _unitOfWork.Modulos.ObterTodosAsync();
 
-        var moduloIdsPermitidos = permissoes
-            .Where(p => p.UsuarioId == usuarioId && p.PodeAcessar)
-            .Select(p => p.ModuloId)
-            .ToHashSet();
+        var permissoesPorModulo = permissoes
+            .Where(p => p.UsuarioId == usuarioId)
+            .ToDictionary(p => p.ModuloId);
 
         return modulos
-            .Where(m => moduloIdsPermitidos.Contains(m.Id))
-            .Select(m => m.NomeModulo)
+            .Select(m => permissoesPorModulo.TryGetValue(m.Id, out var p)
+                ? new PermissaoModulo(m.Id, m.NomeModulo, p.PodeAcessar, p.PodeCriar, p.PodeEditar, p.PodeExcluir)
+                : new PermissaoModulo(m.Id, m.NomeModulo, false, false, false, false))
             .ToList();
     }
 
-    public async Task DefinirPermissoesAsync(int usuarioId, IReadOnlyList<int> moduloIdsPermitidos)
+    public async Task DefinirPermissoesAsync(int usuarioId, IReadOnlyList<PermissaoModulo> permissoes)
     {
         var permissoesAtuais = await _unitOfWork.UsuarioPermissoes.ObterTodosAsync();
         foreach (var permissao in permissoesAtuais.Where(p => p.UsuarioId == usuarioId))
             _unitOfWork.UsuarioPermissoes.Remover(permissao);
 
-        foreach (var moduloId in moduloIdsPermitidos)
+        foreach (var permissao in permissoes.Where(p => p.PodeVisualizar || p.PodeCriar || p.PodeEditar || p.PodeExcluir))
         {
             await _unitOfWork.UsuarioPermissoes.AdicionarAsync(new UsuarioPermissao
             {
                 UsuarioId = usuarioId,
-                ModuloId = moduloId,
-                PodeAcessar = true
+                ModuloId = permissao.ModuloId,
+                PodeAcessar = permissao.PodeVisualizar,
+                PodeCriar = permissao.PodeCriar,
+                PodeEditar = permissao.PodeEditar,
+                PodeExcluir = permissao.PodeExcluir
             });
         }
 
