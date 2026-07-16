@@ -19,6 +19,7 @@ public partial class ShellViewModel : ObservableObject, INavigationService
     private readonly IServiceProvider _serviceProvider;
     private readonly SessaoUsuario _sessao;
     private readonly Func<PerfilWindow> _perfilWindowFactory;
+    private readonly Func<PdvWindow> _pdvWindowFactory;
 
     [ObservableProperty]
     private object? conteudoAtual;
@@ -39,17 +40,19 @@ public partial class ShellViewModel : ObservableObject, INavigationService
     public bool PodeAcessarClientes => _sessao.PodeAcessar("Clientes");
     public bool PodeAcessarFornecedores => _sessao.PodeAcessar("Fornecedores");
     public bool PodeAcessarContasReceber => _sessao.PodeAcessar("Contas a Receber");
+    public bool PodeAcessarPdv => _sessao.PodeAcessar("PDV");
 
     // Não navega para o Menu aqui: MenuViewModel precisa de INavigationService, que
     // aponta de volta para este singleton — resolvê-lo durante o próprio construtor
     // trava o container de DI (a instância ainda não terminou de ser criada). A
     // navegação inicial é disparada explicitamente pelo App.xaml.cs, depois que este
     // objeto já está totalmente construído.
-    public ShellViewModel(IServiceProvider serviceProvider, SessaoUsuario sessao, Func<PerfilWindow> perfilWindowFactory)
+    public ShellViewModel(IServiceProvider serviceProvider, SessaoUsuario sessao, Func<PerfilWindow> perfilWindowFactory, Func<PdvWindow> pdvWindowFactory)
     {
         _serviceProvider = serviceProvider;
         _sessao = sessao;
         _perfilWindowFactory = perfilWindowFactory;
+        _pdvWindowFactory = pdvWindowFactory;
 
         // As propriedades de usuário logado (nome/iniciais/foto/tooltip) são calculadas a
         // partir de _sessao.UsuarioLogado — sem isso, editar o perfil não atualiza o
@@ -97,4 +100,10 @@ public partial class ShellViewModel : ObservableObject, INavigationService
 
     [RelayCommand]
     private void IrParaUsuarios() => NavegarPara<UsuariosViewModel>("Usuários");
+
+    [RelayCommand]
+    private void IrParaRelatorios() => NavegarPara<RelatoriosViewModel>("Relatórios");
+
+    [RelayCommand]
+    private void AbrirPdv() => _pdvWindowFactory().ShowDialog();
 }

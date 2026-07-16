@@ -63,6 +63,14 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="IconeRelatorios" TargetType="Border" BasedOn="{StaticResource IconeMenu}">
+            <Setter Property="Background" Value="Transparent" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding TituloAtual}" Value="Relatórios">
+                    <Setter Property="Background" Value="#EDEBFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </ui:FluentWindow.Resources>
 
     <Grid Background="#F3F4F8">
@@ -91,7 +99,7 @@
                                    HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
 
-                    <Border Style="{StaticResource IconeContasPagar}" ToolTip="Contas a Pagar" Cursor="Hand"
+                    <Border Style="{StaticResource IconeContasPagar}" ToolTip="Contas a Pagar — Despesas e obrigações da loja" Cursor="Hand"
                             Visibility="{Binding PodeAcessarContasPagar, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaContasPagarCommand}" />
@@ -99,11 +107,15 @@
                         <ui:SymbolIcon Symbol="Wallet24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Style="{StaticResource IconeMenu}" Opacity="0.55" ToolTip="PDV — em breve">
-                        <ui:SymbolIcon Symbol="Cart24" Foreground="#6B7280"
+                    <Border Style="{StaticResource IconeMenu}" ToolTip="PDV — Registrar vendas no balcão" Cursor="Hand"
+                            Visibility="{Binding PodeAcessarPdv, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding AbrirPdvCommand}" />
+                        </Border.InputBindings>
+                        <ui:SymbolIcon Symbol="Cart24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Style="{StaticResource IconeProdutos}" ToolTip="Produtos" Cursor="Hand"
+                    <Border Style="{StaticResource IconeProdutos}" ToolTip="Produtos — Cadastro de produtos" Cursor="Hand"
                             Visibility="{Binding PodeAcessarProdutos, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaProdutosCommand}" />
@@ -111,7 +123,7 @@
                         <ui:SymbolIcon Symbol="Box24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Style="{StaticResource IconeClientes}" ToolTip="Clientes" Cursor="Hand"
+                    <Border Style="{StaticResource IconeClientes}" ToolTip="Clientes — Cadastro vinculado a Contas a Receber" Cursor="Hand"
                             Visibility="{Binding PodeAcessarClientes, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaClientesCommand}" />
@@ -119,7 +131,7 @@
                         <ui:SymbolIcon Symbol="People24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Style="{StaticResource IconeFornecedores}" ToolTip="Fornecedores" Cursor="Hand"
+                    <Border Style="{StaticResource IconeFornecedores}" ToolTip="Fornecedores — Cadastro vinculado a Contas a Pagar" Cursor="Hand"
                             Visibility="{Binding PodeAcessarFornecedores, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaFornecedoresCommand}" />
@@ -127,7 +139,7 @@
                         <ui:SymbolIcon Symbol="Building24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Style="{StaticResource IconeContasReceber}" ToolTip="Contas a Receber" Cursor="Hand"
+                    <Border Style="{StaticResource IconeContasReceber}" ToolTip="Contas a Receber — Vendas a prazo e parceladas" Cursor="Hand"
                             Visibility="{Binding PodeAcessarContasReceber, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaContasReceberCommand}" />
@@ -135,7 +147,7 @@
                         <ui:SymbolIcon Symbol="ReceiptMoney24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Style="{StaticResource IconeUsuarios}" ToolTip="Usuários e Permissões" Cursor="Hand"
+                    <Border Style="{StaticResource IconeUsuarios}" ToolTip="Usuários e Permissões — Funcionários e acessos" Cursor="Hand"
                             Visibility="{Binding EhAdministrador, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Border.InputBindings>
                             <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaUsuariosCommand}" />
@@ -143,8 +155,12 @@
                         <ui:SymbolIcon Symbol="PeopleSettings24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
-                    <Border Style="{StaticResource IconeMenu}" Opacity="0.55" ToolTip="Relatórios — em breve">
-                        <ui:SymbolIcon Symbol="DocumentBulletList24" Foreground="#6B7280"
+                    <Border Style="{StaticResource IconeRelatorios}" ToolTip="Relatórios — Vendas, financeiro e auditoria" Cursor="Hand"
+                            Visibility="{Binding EhAdministrador, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaRelatoriosCommand}" />
+                        </Border.InputBindings>
+                        <ui:SymbolIcon Symbol="DocumentBulletList24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
