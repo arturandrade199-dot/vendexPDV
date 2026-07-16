@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vendex.Data;
 
@@ -10,9 +11,11 @@ using Vendex.Data;
 namespace Vendex.Data.Migrations
 {
     [DbContext(typeof(VendexDbContext))]
-    partial class VendexDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260716005306_AdicionarAssinaturaLicenca")]
+    partial class AdicionarAssinaturaLicenca
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -236,29 +239,6 @@ namespace Vendex.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ConfiguracoesBackup");
-                });
-
-            modelBuilder.Entity("Vendex.Domain.Entities.ConfiguracaoImpressao", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ImpressoraPadrao")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("ImprimirAberturaCaixa")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("ImprimirFechamentoCaixa")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<bool>("ImprimirVenda")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ConfiguracoesImpressao");
                 });
 
             modelBuilder.Entity("Vendex.Domain.Entities.ContaPagar", b =>

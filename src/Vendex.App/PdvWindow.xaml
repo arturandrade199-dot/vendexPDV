@@ -161,7 +161,7 @@
             <!-- Estado de recibo: também substitui o grid por inteiro, como um modal embutido -->
             <Border Visibility="{Binding EstaComRecibo, Converter={StaticResource BoolToVisibilityConverter}}"
                     Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1">
-                <views:ReciboView DataContext="{Binding ReciboAtual}" />
+                <views:ReciboView x:Name="ReciboControl" DataContext="{Binding ReciboAtual}" />
             </Border>
         </Grid>
 

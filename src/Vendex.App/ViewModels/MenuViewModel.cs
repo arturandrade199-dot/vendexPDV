@@ -56,6 +56,12 @@ public class MenuViewModel : ObservableObject
                 new RelayCommand(() => caixaWindowFactory().ShowDialog())));
         }
 
+        if (sessao.PodeAcessar("Vendas"))
+        {
+            modulos.Add(new ModuloTile("Vendas", "Histórico de vendas do período", SymbolRegular.ReceiptMoney24, true,
+                new RelayCommand(() => navegacao.NavegarPara<VendasViewModel>("Vendas"))));
+        }
+
         if (sessao.EhAdministrador)
         {
             modulos.Add(new ModuloTile("Usuários e Permissões", "Funcionários e acessos", SymbolRegular.PeopleSettings24, true,

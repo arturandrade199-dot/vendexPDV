@@ -17,4 +17,8 @@ public interface IVendaService
         int usuarioId,
         int? clienteId = null,
         DateTime? vencimentoFiado = null);
+
+    /// <summary>Vendas não canceladas no período, com itens/produtos e pagamentos já
+    /// carregados — usado pela tela de Vendas para listar e reimprimir cupons.</summary>
+    Task<IReadOnlyList<Venda>> ListarPorPeriodoAsync(DateTime inicio, DateTime fim);
 }

@@ -67,6 +67,9 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IBackupService, BackupService>();
                 services.AddSingleton<AgendadorBackup>();
                 services.AddSingleton<IRelatorioService, RelatorioService>();
+                services.AddSingleton<IConfiguracaoImpressaoService, ConfiguracaoImpressaoService>();
+                services.AddSingleton<ILicencaService, LicencaService>();
+                services.AddSingleton<AgendadorLicenca>();
 
                 services.AddSingleton<SessaoUsuario>();
 
@@ -82,10 +85,16 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.UsuariosViewModel>();
                 services.AddTransient<ViewModels.ConfiguracaoBackupViewModel>();
                 services.AddTransient<ViewModels.RelatoriosViewModel>();
+                services.AddTransient<ViewModels.VendasViewModel>();
                 services.AddTransient<MainWindow>();
+
+                services.AddTransient<Func<ViewModels.ReciboVenda, ReciboWindow>>(provedor => recibo => new ReciboWindow(recibo));
 
                 services.AddTransient<ViewModels.LoginViewModel>();
                 services.AddTransient<LoginWindow>();
+
+                services.AddTransient<ViewModels.AtivacaoViewModel>();
+                services.AddTransient<AtivacaoWindow>();
 
                 services.AddTransient<ViewModels.PdvViewModel>();
                 services.AddTransient<PdvWindow>();
@@ -153,6 +162,24 @@ public partial class App : System.Windows.Application
 
         _host.Services.GetRequiredService<AgendadorBackup>().Iniciar();
 
+        // Licenciamento por assinatura comentado por enquanto (backend do Supabase
+        // ainda não configurado) — retomar depois de construir os próximos módulos.
+        // Ver supabase/README.md pra reativar quando o backend estiver no ar.
+        //
+        // var licencaService = _host.Services.GetRequiredService<ILicencaService>();
+        // var licencaLiberada = licencaService.VerificarELiberarAsync().GetAwaiter().GetResult();
+        // if (!licencaLiberada)
+        // {
+        //     var ativacaoWindow = _host.Services.GetRequiredService<AtivacaoWindow>();
+        //     if (ativacaoWindow.ShowDialog() != true)
+        //     {
+        //         Shutdown();
+        //         return;
+        //     }
+        // }
+        //
+        // _host.Services.GetRequiredService<AgendadorLicenca>().Iniciar();
+
         var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
         if (loginWindow.ShowDialog() != true)
         {
@@ -186,11 +213,11 @@ public partial class App : System.Windows.Application
     // sem exigir uma nova migration a cada módulo novo.
     private static void SeedModulos(VendexDbContext contexto)
     {
-        if (contexto.Modulos.Any())
-            return;
+        var nomes = new[] { "PDV", "Produtos", "Clientes", "Fornecedores", "Contas a Receber", "Contas a Pagar", "Caixa", "Vendas" };
+        var existentes = contexto.Modulos.Select(m => m.NomeModulo).ToHashSet();
+        var faltantes = nomes.Where(nome => !existentes.Contains(nome));
 
-        var nomes = new[] { "PDV", "Produtos", "Clientes", "Fornecedores", "Contas a Receber", "Contas a Pagar", "Caixa" };
-        contexto.Modulos.AddRange(nomes.Select(nome => new Modulo { NomeModulo = nome }));
+        contexto.Modulos.AddRange(faltantes.Select(nome => new Modulo { NomeModulo = nome }));
         contexto.SaveChanges();
     }
 }

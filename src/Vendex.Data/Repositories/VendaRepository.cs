@@ -17,6 +17,8 @@ public class VendaRepository : Repository<Venda>, IVendaRepository
         await DbSet
             .Include(v => v.Itens).ThenInclude(i => i.Produto)
             .Include(v => v.Pagamentos)
+            .Include(v => v.Usuario)
+            .Include(v => v.Cliente)
             .Where(v => !v.Cancelada && v.DataHora >= inicio && v.DataHora <= fim)
             .ToListAsync();
 }

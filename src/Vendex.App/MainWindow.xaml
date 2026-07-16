@@ -71,6 +71,14 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="IconeVendas" TargetType="Border" BasedOn="{StaticResource IconeMenu}">
+            <Setter Property="Background" Value="Transparent" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding TituloAtual}" Value="Vendas">
+                    <Setter Property="Background" Value="#EDEBFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </ui:FluentWindow.Resources>
 
     <Grid Background="#F3F4F8">
@@ -145,6 +153,14 @@
                             <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaContasReceberCommand}" />
                         </Border.InputBindings>
                         <ui:SymbolIcon Symbol="ReceiptMoney24" Foreground="#5B4FE9"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Style="{StaticResource IconeVendas}" ToolTip="Vendas — Histórico de vendas do período" Cursor="Hand"
+                            Visibility="{Binding PodeAcessarVendas, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaVendasCommand}" />
+                        </Border.InputBindings>
+                        <ui:SymbolIcon Symbol="History24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <Border Style="{StaticResource IconeUsuarios}" ToolTip="Usuários e Permissões — Funcionários e acessos" Cursor="Hand"
@@ -237,6 +253,9 @@
                         </DataTemplate>
                         <DataTemplate DataType="{x:Type vm:RelatoriosViewModel}">
                             <views:RelatoriosView />
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:VendasViewModel}">
+                            <views:VendasView />
                         </DataTemplate>
                     </ContentControl.Resources>
                 </ContentControl>

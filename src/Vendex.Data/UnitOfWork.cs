@@ -28,6 +28,7 @@ public class UnitOfWork : IUnitOfWork
         LogsAuditoria = new Repository<LogAuditoria>(_contexto);
         Licencas = new LicencaRepository(_contexto);
         ConfiguracoesBackup = new Repository<ConfiguracaoBackup>(_contexto);
+        ConfiguracoesImpressao = new Repository<ConfiguracaoImpressao>(_contexto);
     }
 
     public IUsuarioRepository Usuarios { get; }
@@ -46,6 +47,7 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<LogAuditoria> LogsAuditoria { get; }
     public ILicencaRepository Licencas { get; }
     public IRepository<ConfiguracaoBackup> ConfiguracoesBackup { get; }
+    public IRepository<ConfiguracaoImpressao> ConfiguracoesImpressao { get; }
 
     public Task<int> SalvarAlteracoesAsync() => _contexto.SaveChangesAsync();
 

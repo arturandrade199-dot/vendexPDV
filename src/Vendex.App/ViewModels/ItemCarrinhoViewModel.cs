@@ -13,11 +13,19 @@ public partial class ItemCarrinhoViewModel : ObservableObject
     private int quantidade;
 
     public ItemCarrinhoViewModel(Produto produto, int quantidadeInicial)
+        : this(produto.Nome, produto.Id, produto.PrecoVenda, produto.PrecoCusto, quantidadeInicial)
     {
-        ProdutoId = produto.Id;
-        Nome = produto.Nome;
-        PrecoUnitario = produto.PrecoVenda;
-        PrecoCusto = produto.PrecoCusto;
+    }
+
+    /// <summary>Reconstrói o item a partir de valores históricos (ex: um VendaItem já
+    /// finalizado) em vez do Produto atual — sem isso, reimprimir o cupom de uma venda
+    /// antiga mostraria o preço de HOJE do produto, não o preço cobrado na hora da venda.</summary>
+    public ItemCarrinhoViewModel(string nome, int produtoId, decimal precoUnitario, decimal precoCusto, int quantidadeInicial)
+    {
+        ProdutoId = produtoId;
+        Nome = nome;
+        PrecoUnitario = precoUnitario;
+        PrecoCusto = precoCusto;
         Quantidade = quantidadeInicial;
     }
 

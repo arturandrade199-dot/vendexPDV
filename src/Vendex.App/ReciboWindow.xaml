@@ -1,0 +1,23 @@
+<ui:FluentWindow x:Class="Vendex.App.ReciboWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:views="clr-namespace:Vendex.App.Views"
+        mc:Ignorable="d"
+        Title="Cupom da venda" Height="600" Width="480"
+        WindowStartupLocation="CenterOwner"
+        ExtendsContentIntoTitleBar="True"
+        WindowBackdropType="Mica">
+    <Grid Margin="24,0,24,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0" Title="Cupom da venda" />
+
+        <views:ReciboView Grid.Row="1" PermitirNovaVenda="False" />
+    </Grid>
+</ui:FluentWindow>

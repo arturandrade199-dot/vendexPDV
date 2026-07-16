@@ -132,7 +132,7 @@ public class RelatorioService : IRelatorioService
                 p.DataPagamento.ToString("dd/MM/yyyy", CulturaBr),
                 p.ContaPagar.Descricao,
                 p.ContaPagar.Fornecedor?.Nome ?? "—",
-                FormatarFormaPagamento(p.FormaPagamento),
+                p.FormaPagamento.ParaTexto(),
                 p.ValorPago.ToString("C2", CulturaBr)
             })
             .ToList();
@@ -190,7 +190,7 @@ public class RelatorioService : IRelatorioService
                 p.DataPagamento.ToString("dd/MM/yyyy", CulturaBr),
                 p.ContaReceber.Descricao,
                 p.ContaReceber.Cliente.Nome,
-                FormatarFormaPagamento(p.FormaPagamento),
+                p.FormaPagamento.ParaTexto(),
                 p.ValorPago.ToString("C2", CulturaBr)
             })
             .ToList();
@@ -301,7 +301,7 @@ public class RelatorioService : IRelatorioService
             .ToList();
 
         var linhas = agregados
-            .Select(a => (IReadOnlyList<string>)new[] { FormatarFormaPagamento(a.Forma), a.Total.ToString("C2", CulturaBr) })
+            .Select(a => (IReadOnlyList<string>)new[] { a.Forma.ParaTexto(), a.Total.ToString("C2", CulturaBr) })
             .ToList();
 
         var total = agregados.Sum(a => a.Total);
@@ -319,17 +319,6 @@ public class RelatorioService : IRelatorioService
         StatusContaFinanceira.Atrasado => "Atrasado",
         StatusContaFinanceira.Parcial => "Parcial",
         _ => "Em aberto"
-    };
-
-    private static string FormatarFormaPagamento(FormaPagamento forma) => forma switch
-    {
-        FormaPagamento.Dinheiro => "Dinheiro",
-        FormaPagamento.CartaoCredito => "Cartão de Crédito",
-        FormaPagamento.CartaoDebito => "Cartão de Débito",
-        FormaPagamento.Pix => "Pix",
-        FormaPagamento.Beneficios => "Benefícios",
-        FormaPagamento.Fiado => "Fiado",
-        _ => forma.ToString()
     };
 
     public byte[] ExportarExcel(RelatorioResultado resultado)

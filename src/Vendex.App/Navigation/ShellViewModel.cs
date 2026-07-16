@@ -41,6 +41,7 @@ public partial class ShellViewModel : ObservableObject, INavigationService
     public bool PodeAcessarFornecedores => _sessao.PodeAcessar("Fornecedores");
     public bool PodeAcessarContasReceber => _sessao.PodeAcessar("Contas a Receber");
     public bool PodeAcessarPdv => _sessao.PodeAcessar("PDV");
+    public bool PodeAcessarVendas => _sessao.PodeAcessar("Vendas");
 
     // Não navega para o Menu aqui: MenuViewModel precisa de INavigationService, que
     // aponta de volta para este singleton — resolvê-lo durante o próprio construtor
@@ -103,6 +104,9 @@ public partial class ShellViewModel : ObservableObject, INavigationService
 
     [RelayCommand]
     private void IrParaRelatorios() => NavegarPara<RelatoriosViewModel>("Relatórios");
+
+    [RelayCommand]
+    private void IrParaVendas() => NavegarPara<VendasViewModel>("Vendas");
 
     [RelayCommand]
     private void AbrirPdv() => _pdvWindowFactory().ShowDialog();

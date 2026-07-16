@@ -20,6 +20,7 @@ public interface IUnitOfWork
     IRepository<LogAuditoria> LogsAuditoria { get; }
     ILicencaRepository Licencas { get; }
     IRepository<ConfiguracaoBackup> ConfiguracoesBackup { get; }
+    IRepository<ConfiguracaoImpressao> ConfiguracoesImpressao { get; }
 
     Task<int> SalvarAlteracoesAsync();
     Task BackupBancoDadosAsync(string caminhoArquivoDestino);

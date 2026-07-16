@@ -100,4 +100,7 @@ public class VendaService : IVendaService
         await _unitOfWork.SalvarAlteracoesAsync();
         return venda;
     }
+
+    public Task<IReadOnlyList<Venda>> ListarPorPeriodoAsync(DateTime inicio, DateTime fim) =>
+        _unitOfWork.Vendas.ObterPorPeriodoAsync(inicio, fim);
 }

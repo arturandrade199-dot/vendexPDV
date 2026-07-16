@@ -78,7 +78,8 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,16,0,0">
             <ui:Button Content="Imprimir cupom" Padding="16,10" Click="Imprimir_Click" Margin="0,0,16,0" />
             <ui:Button Content="Nova Venda" Appearance="Primary" Padding="24,10"
-                       Command="{Binding DataContext.NovaVendaCommand, RelativeSource={RelativeSource AncestorType=Window}}" />
+                       Command="{Binding DataContext.NovaVendaCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                       Visibility="{Binding PermitirNovaVenda, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibilityConverter}}" />
         </StackPanel>
     </Grid>
 </UserControl>

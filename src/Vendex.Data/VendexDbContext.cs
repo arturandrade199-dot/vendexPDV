@@ -30,6 +30,7 @@ public class VendexDbContext : DbContext
     public DbSet<Config> Configs => Set<Config>();
     public DbSet<Licenca> Licencas => Set<Licenca>();
     public DbSet<ConfiguracaoBackup> ConfiguracoesBackup => Set<ConfiguracaoBackup>();
+    public DbSet<ConfiguracaoImpressao> ConfiguracoesImpressao => Set<ConfiguracaoImpressao>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

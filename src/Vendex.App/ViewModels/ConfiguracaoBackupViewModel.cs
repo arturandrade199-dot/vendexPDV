@@ -1,4 +1,6 @@
+using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Printing;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
@@ -11,6 +13,7 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
     private static readonly CultureInfo CulturaBr = CultureInfo.GetCultureInfo("pt-BR");
 
     private readonly IBackupService _backupService;
+    private readonly IConfiguracaoImpressaoService _configuracaoImpressaoService;
 
     [ObservableProperty] private bool ativo;
     [ObservableProperty] private string horarioTexto = "22:00";
@@ -24,10 +27,22 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
 
     public bool PodeExecutarBackup => !ExecutandoBackup;
 
-    public ConfiguracaoBackupViewModel(IBackupService backupService)
+    public ObservableCollection<string> ImpressorasDisponiveis { get; } = new();
+
+    [ObservableProperty] private string? impressoraSelecionada;
+    [ObservableProperty] private bool imprimirAberturaCaixa = true;
+    [ObservableProperty] private bool imprimirFechamentoCaixa = true;
+    [ObservableProperty] private bool imprimirVenda = true;
+    [ObservableProperty] private string? mensagemErroImpressao;
+    [ObservableProperty] private string? mensagemSucessoImpressao;
+
+    public ConfiguracaoBackupViewModel(IBackupService backupService, IConfiguracaoImpressaoService configuracaoImpressaoService)
     {
         _backupService = backupService;
+        _configuracaoImpressaoService = configuracaoImpressaoService;
         _ = CarregarAsync();
+        CarregarImpressoras();
+        _ = CarregarConfiguracaoImpressaoAsync();
     }
 
     private async Task CarregarAsync()
@@ -37,6 +52,41 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
         HorarioTexto = configuracao.Horario.ToString(@"hh\:mm");
         CaminhoDestino = configuracao.CaminhoDestino;
         AtualizarStatusFormatado(configuracao.UltimoBackupData, configuracao.UltimoBackupSucesso, configuracao.UltimaMensagemErro);
+    }
+
+    private void CarregarImpressoras()
+    {
+        // System.Printing (não System.Drawing) — mesma pilha já usada pelo PrintDialog
+        // existente, sem adicionar dependência nova só pra listar as impressoras instaladas.
+        using var servidor = new LocalPrintServer();
+        foreach (var fila in servidor.GetPrintQueues())
+            ImpressorasDisponiveis.Add(fila.FullName);
+    }
+
+    private async Task CarregarConfiguracaoImpressaoAsync()
+    {
+        var configuracao = await _configuracaoImpressaoService.ObterConfiguracaoAsync();
+        ImpressoraSelecionada = configuracao.ImpressoraPadrao;
+        ImprimirAberturaCaixa = configuracao.ImprimirAberturaCaixa;
+        ImprimirFechamentoCaixa = configuracao.ImprimirFechamentoCaixa;
+        ImprimirVenda = configuracao.ImprimirVenda;
+    }
+
+    [RelayCommand]
+    private async Task SalvarImpressaoAsync()
+    {
+        MensagemErroImpressao = null;
+        MensagemSucessoImpressao = null;
+        try
+        {
+            await _configuracaoImpressaoService.SalvarConfiguracaoAsync(
+                ImpressoraSelecionada, ImprimirAberturaCaixa, ImprimirFechamentoCaixa, ImprimirVenda);
+            MensagemSucessoImpressao = "Preferências de impressão salvas.";
+        }
+        catch (Exception ex)
+        {
+            MensagemErroImpressao = ex.Message;
+        }
     }
 
     private void AtualizarStatusFormatado(DateTime? data, bool sucesso, string? mensagemErroBackup)

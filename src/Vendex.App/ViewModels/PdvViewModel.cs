@@ -142,6 +142,11 @@ public partial class PdvViewModel : ObservableObject
         PagamentoAtual = pagamento;
     }
 
+    /// <summary>Disparado logo que um cupom novo fica pronto — usado pelo PdvWindow pra
+    /// decidir se imprime automaticamente (config em Configurações), sem o ViewModel
+    /// precisar conhecer PrintDialog/Visual (isso é responsabilidade da View).</summary>
+    public event Action<ReciboVenda>? VendaFinalizada;
+
     private void OnVendaConfirmada(FinalizarVendaViewModel pagamento)
     {
         var recibo = pagamento.Resultado;
@@ -150,6 +155,9 @@ public partial class PdvViewModel : ObservableObject
         AtualizarResumo();
         Mensagem = null;
         ReciboAtual = recibo;
+
+        if (recibo is not null)
+            VendaFinalizada?.Invoke(recibo);
     }
 
     [RelayCommand]
