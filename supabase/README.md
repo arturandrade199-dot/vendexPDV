@@ -55,16 +55,17 @@ pra mais de um email no futuro.
 Sem esses 3 secrets, a function `reportar-problema` continua funcionando (grava o
 relatório na tabela `relatorios_problema` normalmente), só não manda o email.
 
-## 4. Publicar as 4 functions
+## 4. Publicar as 5 functions
 
 ```
 supabase functions deploy hotmart-webhook
 supabase functions deploy ativar-licenca
 supabase functions deploy verificar-licenca
 supabase functions deploy reportar-problema
+supabase functions deploy verificar-atualizacao
 ```
 
-`supabase/config.toml` já desliga a exigência de JWT nas 4 — o app conversa direto,
+`supabase/config.toml` já desliga a exigência de JWT nas 5 — o app conversa direto,
 sem login do Supabase Auth envolvido.
 
 ## 5. Configurar o webhook na Hotmart
@@ -84,7 +85,8 @@ ajuste o `index.ts` se não bater.
 
 Em `src/Vendex.Application/SupabaseFunctions.cs`, troque `BaseUrl` pela Project URL real
 (Painel do Supabase → Configurações do projeto → API), mantendo o sufixo `/functions/v1`.
-Esse valor é usado por todos os serviços (`LicencaService`, `RelatorioProblemaService`).
+Esse valor é usado por todos os serviços (`LicencaService`, `RelatorioProblemaService`,
+`AtualizacaoService`).
 
 ## Relatório de problemas dos clientes
 
@@ -102,6 +104,44 @@ configurados) e, se os secrets do Resend estiverem presentes, também dispara um
 Há um limite de 1 relatório a cada 5 minutos por fingerprint (checado na própria
 function) pra não virar spam se algo entrar em loop.
 
+## Atualização automática do app
+
+`AgendadorAtualizacao` (Vendex.App) roda 1x por semana (+ 1x no startup): chama
+`verificar-atualizacao`, compara a versão devolvida com a versão do próprio `.exe` rodando
+(`AssemblyVersion`, que vem do `<Version>`/`<FileVersion>` do `Vendex.App.csproj`) e, se
+houver uma mais nova, **pergunta ao usuário** antes de fazer qualquer coisa — nunca aplica
+sozinho, pra não interromper uma venda em andamento. Se o usuário aceitar, baixa o
+instalador, confere o SHA-256 contra o valor cadastrado (aborta se não bater — proteção
+contra download corrompido ou um Storage/secret comprometido), e reinicia o app rodando o
+instalador em modo silencioso (`/VERYSILENT /SUPPRESSMSGBOXES /NORESTART`) — é o mesmo
+instalador Inno Setup de sempre, sem precisar de um "updater" separado.
+
+### Publicando uma versão nova
+
+1. Gere o instalador normalmente (`dotnet publish` + Inno Setup), com `MyAppVersion` em
+   `installer/vendex.iss` **e** `<Version>`/`<FileVersion>` em `Vendex.App.csproj`
+   atualizados juntos (são duas fontes hoje, precisam ficar em sincronia manual).
+2. Calcule o hash do instalador gerado:
+   ```
+   # PowerShell
+   Get-FileHash .\installer\output\VendexPDV-Setup-1.1.0.exe -Algorithm SHA256
+   ```
+3. Suba o `.exe` num bucket do Supabase Storage (**Storage** → criar bucket, ex. `releases`,
+   pode ser público já que o instalador em si não é segredo) e copie a URL pública do
+   arquivo.
+4. Insira uma linha em `versoes_app` (**Table Editor** → `versoes_app` → **Insert row**, ou
+   via **SQL Editor**):
+   ```sql
+   insert into versoes_app (versao, url_instalador, sha256, notas) values (
+     '1.1.0',
+     'https://SEU-PROJETO.supabase.co/storage/v1/object/public/releases/VendexPDV-Setup-1.1.0.exe',
+     'HASH-CALCULADO-NO-PASSO-2',
+     'Corrige X, adiciona Y.'
+   );
+   ```
+5. Pronto — na próxima checagem (startup ou até 7 dias), os clientes já veem o aviso de
+   atualização.
+
 ## Testando antes de ir pra produção
 
 Sem Docker/Supabase CLI instalado localmente não foi possível rodar `supabase start` e
@@ -110,4 +150,4 @@ validada separadamente (Node assina, .NET confere, payload adulterado é rejeita
 lógica local de folga offline/relógio atrasado foi testada com um servidor
 inacessível de propósito. Falta testar as functions em si: `supabase start` localmente
 (exige Docker) ou publicar num projeto de teste e chamar com `curl` antes de apontar
-pro `LicencaService`/`RelatorioProblemaService` de verdade.
+pro `LicencaService`/`RelatorioProblemaService`/`AtualizacaoService` de verdade.

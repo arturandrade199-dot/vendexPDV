@@ -94,6 +94,8 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<AgendadorBackup>();
                 services.AddSingleton<IRelatorioProblemaService, RelatorioProblemaService>();
                 services.AddSingleton<AgendadorRelatorioProblemas>();
+                services.AddSingleton<IAtualizacaoService, AtualizacaoService>();
+                services.AddSingleton<AgendadorAtualizacao>();
                 services.AddSingleton<IRelatorioService, RelatorioService>();
                 services.AddSingleton<IConfiguracaoImpressaoService, ConfiguracaoImpressaoService>();
                 services.AddSingleton<ILicencaService, LicencaService>();
@@ -208,6 +210,10 @@ public partial class App : System.Windows.Application
         }
 
         _host.Services.GetRequiredService<AgendadorLicenca>().Iniciar();
+
+        // Só depois de confirmar a licença/assinatura ativa — quem não pagou não tem por
+        // que ser oferecido a versão mais nova (nem gerar tráfego de checagem à toa).
+        _host.Services.GetRequiredService<AgendadorAtualizacao>().Iniciar();
 
         var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
         if (loginWindow.ShowDialog() != true)

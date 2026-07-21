@@ -14,3 +14,6 @@ verify_jwt = false
 
 [functions.reportar-problema]
 verify_jwt = false
+
+[functions.verificar-atualizacao]
+verify_jwt = false
