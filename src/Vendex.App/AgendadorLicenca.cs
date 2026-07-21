@@ -1,5 +1,6 @@
 using System.Windows.Threading;
 using Vendex.Application.Services;
+using Vendex.Domain.Logging;
 
 namespace Vendex.App;
 
@@ -44,10 +45,11 @@ public class AgendadorLicenca
                 System.Windows.Application.Current.Shutdown();
             }
         }
-        catch
+        catch (Exception ex)
         {
             // Falha na checagem periódica não pode derrubar o app durante o uso normal
             // — só tenta de novo no próximo ciclo (ou na folga offline, se for o caso).
+            Logger.Error("Falha na checagem periódica de licença.", ex);
         }
     }
 }

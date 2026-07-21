@@ -1,6 +1,7 @@
 using System.IO.Compression;
 using Vendex.Domain.Entities;
 using Vendex.Domain.Interfaces;
+using Vendex.Domain.Logging;
 
 namespace Vendex.Application.Services;
 
@@ -88,6 +89,8 @@ public class BackupService : IBackupService
         }
         catch (Exception ex)
         {
+            Logger.Error("Falha ao executar backup automático.", ex);
+
             configuracao.UltimoBackupData = DateTime.Now;
             configuracao.UltimoBackupSucesso = false;
             configuracao.UltimaMensagemErro = ex.Message;

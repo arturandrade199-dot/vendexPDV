@@ -1,5 +1,6 @@
 using System.Windows.Threading;
 using Vendex.Application.Services;
+using Vendex.Domain.Logging;
 
 namespace Vendex.App;
 
@@ -47,11 +48,13 @@ public class AgendadorBackup
 
             await _backupService.ExecutarBackupAsync(AppPaths.PastaDados);
         }
-        catch
+        catch (Exception ex)
         {
             // A falha já fica registrada em ConfiguracaoBackup (UltimoBackupSucesso/UltimaMensagemErro)
             // dentro do próprio ExecutarBackupAsync — uma falha de backup automático não pode
-            // derrubar o app nem interromper o uso normal do PDV.
+            // derrubar o app nem interromper o uso normal do PDV. ExecutarBackupAsync já loga
+            // o detalhe; aqui cobre falhas fora dele (ex.: ObterConfiguracaoAsync).
+            Logger.Error("Falha na checagem/execução do backup automático.", ex);
         }
     }
 }

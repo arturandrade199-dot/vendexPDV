@@ -3,14 +3,13 @@ using System.Text.Json;
 using Vendex.Domain.Entities;
 using Vendex.Domain.Enums;
 using Vendex.Domain.Interfaces;
+using Vendex.Domain.Logging;
 using Vendex.Licensing;
 
 namespace Vendex.Application.Services;
 
 public class LicencaService : ILicencaService
 {
-    private const string SupabaseFunctionsBaseUrl = "https://debjnxiglpiqrdtiewrw.supabase.co/functions/v1";
-
     private const int ToleranciaOfflineDias = 7;
     private static readonly TimeSpan ToleranciaRelogio = TimeSpan.FromMinutes(5);
     private static readonly JsonSerializerOptions JsonOpcoes = new() { PropertyNameCaseInsensitive = true };
@@ -36,6 +35,7 @@ public class LicencaService : ILicencaService
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
+            Logger.Warn("Falha de conexão ao ativar licença.", ex);
             return new ResultadoAtivacao(false, "Não foi possível conectar. Verifique sua internet e tente novamente.");
         }
 
@@ -111,6 +111,7 @@ public class LicencaService : ILicencaService
         {
             // Sem internet — segue pra folga offline abaixo, usando a última
             // confirmação válida que o servidor já tinha dado.
+            Logger.Warn("Falha de conexão na verificação periódica de licença — usando folga offline.", ex);
         }
 
         _unitOfWork.Licencas.Atualizar(licenca);
@@ -134,7 +135,7 @@ public class LicencaService : ILicencaService
 
     private static async Task<RespostaFunction?> ChamarFunctionAsync(string nomeFuncao, string email, string fingerprint)
     {
-        var resposta = await Http.PostAsJsonAsync($"{SupabaseFunctionsBaseUrl}/{nomeFuncao}", new { email, fingerprint });
+        var resposta = await Http.PostAsJsonAsync($"{SupabaseFunctions.BaseUrl}/{nomeFuncao}", new { email, fingerprint });
         if (!resposta.IsSuccessStatusCode)
             return null;
 

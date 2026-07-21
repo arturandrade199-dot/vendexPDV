@@ -2,6 +2,7 @@ using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Markup;
+using System.Windows.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +11,7 @@ using Vendex.Application.Services;
 using Vendex.Data;
 using Vendex.Domain.Entities;
 using Vendex.Domain.Interfaces;
+using Vendex.Domain.Logging;
 
 namespace Vendex.App;
 
@@ -38,7 +40,31 @@ public partial class App : System.Windows.Application
             new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(culturaBr.IetfLanguageTag)));
 
         Directory.CreateDirectory(AppPaths.PastaDados);
+        Logger.Configure(AppPaths.PastaLogs);
+        Logger.Info("Vendex PDV iniciado.");
 
+        // Sem esses três handlers, uma exceção fora dos try/catch já existentes derruba o
+        // app sem deixar nenhum rastro — o problema que motivou o log local em arquivo.
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+
+        try
+        {
+            IniciarAplicacao();
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Falha ao iniciar o aplicativo.", ex);
+            MessageBox.Show(
+                $"Não foi possível iniciar o Vendex PDV. Os detalhes do erro foram salvos em:\n{AppPaths.PastaLogs}",
+                "Erro ao iniciar", MessageBoxButton.OK, MessageBoxImage.Error);
+            Shutdown();
+        }
+    }
+
+    private void IniciarAplicacao()
+    {
         // Autodeclaração de licença exigida pelo QuestPDF antes de gerar qualquer PDF —
         // Community é gratuita para empresas com faturamento anual abaixo de US$1M, o caso
         // de uso do Vendex (ver decisão registrada com o usuário para o módulo de Relatórios).
@@ -66,6 +92,8 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IFornecedorService, FornecedorService>();
                 services.AddSingleton<IBackupService, BackupService>();
                 services.AddSingleton<AgendadorBackup>();
+                services.AddSingleton<IRelatorioProblemaService, RelatorioProblemaService>();
+                services.AddSingleton<AgendadorRelatorioProblemas>();
                 services.AddSingleton<IRelatorioService, RelatorioService>();
                 services.AddSingleton<IConfiguracaoImpressaoService, ConfiguracaoImpressaoService>();
                 services.AddSingleton<ILicencaService, LicencaService>();
@@ -161,6 +189,7 @@ public partial class App : System.Windows.Application
         SeedModulos(contexto);
 
         _host.Services.GetRequiredService<AgendadorBackup>().Iniciar();
+        _host.Services.GetRequiredService<AgendadorRelatorioProblemas>().Iniciar();
 
         // Task.Run tira a chamada da thread de UI antes de bloquear nela: sem isso, o
         // await interno (chamada HTTP pro Supabase) tenta retomar na mesma thread que o
@@ -203,8 +232,37 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        Logger.Info("Vendex PDV encerrado.");
         _host?.Dispose();
         base.OnExit(e);
+    }
+
+    // Exceção não tratada na thread de UI (ex.: um Command de botão que deixou escapar uma
+    // exceção). Loga e deixa o app continuar em vez de fechar — parar de vender no meio do
+    // expediente por um erro pontual de tela é pior do que só perder aquela ação específica.
+    private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        Logger.Error("Exceção não tratada na interface.", e.Exception);
+        MessageBox.Show(
+            $"Ocorreu um erro inesperado. Os detalhes foram salvos em:\n{AppPaths.PastaLogs}\n\nSe o problema persistir, reinicie o Vendex PDV.",
+            "Erro inesperado", MessageBoxButton.OK, MessageBoxImage.Warning);
+        e.Handled = true;
+    }
+
+    // Exceção fatal fora da thread de UI (ex.: dentro do callback de um System.Threading.Timer).
+    // O runtime derruba o processo de qualquer forma quando IsTerminating é true — só dá pra logar.
+    private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        if (e.ExceptionObject is Exception ex)
+            Logger.Error("Exceção fatal não tratada.", ex);
+    }
+
+    // Exceção de uma Task cujo resultado ninguém observou (ex.: um "_ = MetodoAsync()" que falhou).
+    // Sem SetObserved, isso derrubaria o processo quando o GC coletasse a Task.
+    private static void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        Logger.Error("Exceção não observada em tarefa em segundo plano.", e.Exception);
+        e.SetObserved();
     }
 
     // Catálogo fixo de módulos para o controle de permissões por usuário (ver

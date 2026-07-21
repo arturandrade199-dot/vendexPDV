@@ -1,10 +1,12 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.IO;
 using System.Printing;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using Vendex.Application.Services;
+using Vendex.Domain.Logging;
 
 namespace Vendex.App.ViewModels;
 
@@ -14,6 +16,7 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
 
     private readonly IBackupService _backupService;
     private readonly IConfiguracaoImpressaoService _configuracaoImpressaoService;
+    private readonly IRelatorioProblemaService _relatorioProblemaService;
 
     [ObservableProperty] private bool ativo;
     [ObservableProperty] private string horarioTexto = "22:00";
@@ -36,10 +39,22 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
     [ObservableProperty] private string? mensagemErroImpressao;
     [ObservableProperty] private string? mensagemSucessoImpressao;
 
-    public ConfiguracaoBackupViewModel(IBackupService backupService, IConfiguracaoImpressaoService configuracaoImpressaoService)
+    [ObservableProperty] private string? descricaoProblema;
+    [ObservableProperty] private string? mensagemErroRelatorio;
+    [ObservableProperty] private string? mensagemSucessoRelatorio;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PodeEnviarRelatorio))]
+    private bool enviandoRelatorio;
+
+    public bool PodeEnviarRelatorio => !EnviandoRelatorio;
+
+    public ConfiguracaoBackupViewModel(
+        IBackupService backupService, IConfiguracaoImpressaoService configuracaoImpressaoService, IRelatorioProblemaService relatorioProblemaService)
     {
         _backupService = backupService;
         _configuracaoImpressaoService = configuracaoImpressaoService;
+        _relatorioProblemaService = relatorioProblemaService;
         _ = CarregarAsync();
         CarregarImpressoras();
         _ = CarregarConfiguracaoImpressaoAsync();
@@ -85,6 +100,7 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            Logger.Error("Falha ao salvar preferências de impressão.", ex);
             MensagemErroImpressao = ex.Message;
         }
     }
@@ -155,6 +171,7 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
         }
         catch (Exception ex)
         {
+            Logger.Error("Falha ao executar backup manual.", ex);
             MensagemErro = ex.Message;
             AtualizarStatusFormatado(DateTime.Now, false, ex.Message);
         }
@@ -162,5 +179,43 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
         {
             ExecutandoBackup = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task EnviarRelatorioAsync()
+    {
+        MensagemErroRelatorio = null;
+        MensagemSucessoRelatorio = null;
+
+        if (string.IsNullOrWhiteSpace(DescricaoProblema))
+        {
+            MensagemErroRelatorio = "Descreva o problema antes de enviar.";
+            return;
+        }
+
+        EnviandoRelatorio = true;
+        try
+        {
+            var (sucesso, erro) = await _relatorioProblemaService.EnviarAsync("manual", DescricaoProblema, LerLogDeHoje());
+            if (sucesso)
+            {
+                MensagemSucessoRelatorio = "Relatório enviado. Obrigado!";
+                DescricaoProblema = null;
+            }
+            else
+            {
+                MensagemErroRelatorio = erro ?? "Não foi possível enviar o relatório.";
+            }
+        }
+        finally
+        {
+            EnviandoRelatorio = false;
+        }
+    }
+
+    private static string? LerLogDeHoje()
+    {
+        var caminho = Path.Combine(AppPaths.PastaLogs, $"log-{DateTime.Now:yyyy-MM-dd}.txt");
+        return File.Exists(caminho) ? File.ReadAllText(caminho) : null;
     }
 }

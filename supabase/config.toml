@@ -1,7 +1,7 @@
 # O app desktop chama essas functions direto (email+fingerprint validados na lógica de
-# cada uma, contra a tabela licencas_assinatura) — sem usuário do Supabase Auth
-# envolvido, então verify_jwt precisa ficar desligado nas 3, senão o gateway do
-# Supabase exige um JWT válido antes até de a function rodar.
+# cada uma, contra a tabela licencas_assinatura ou relatorios_problema) — sem usuário do
+# Supabase Auth envolvido, então verify_jwt precisa ficar desligado nas 4, senão o gateway
+# do Supabase exige um JWT válido antes até de a function rodar.
 
 [functions.hotmart-webhook]
 verify_jwt = false
@@ -10,4 +10,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.verificar-licenca]
+verify_jwt = false
+
+[functions.reportar-problema]
 verify_jwt = false

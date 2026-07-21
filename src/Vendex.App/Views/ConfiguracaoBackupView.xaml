@@ -61,5 +61,22 @@
                            HorizontalAlignment="Right" Margin="0,20,0,0" />
             </StackPanel>
         </Border>
+
+        <Border Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" Padding="24" MaxWidth="520" HorizontalAlignment="Left" Margin="0,20,0,0">
+            <StackPanel>
+                <TextBlock Text="Reportar um problema" FontSize="16" FontWeight="SemiBold" Foreground="#1F2430" Margin="0,0,0,4" />
+                <TextBlock Text="Descreva o que aconteceu. Isso é enviado direto para o desenvolvedor, junto com o log técnico do dia."
+                           Foreground="#6B7280" TextWrapping="Wrap" Margin="0,0,0,16" />
+
+                <ui:TextBox Text="{Binding DescricaoProblema, UpdateSourceTrigger=PropertyChanged}"
+                            AcceptsReturn="True" TextWrapping="Wrap" Height="90" VerticalScrollBarVisibility="Auto" Margin="0,0,0,4" />
+
+                <TextBlock Text="{Binding MensagemErroRelatorio}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding MensagemSucessoRelatorio}" Foreground="#1B8A4B" Margin="0,12,0,0" TextWrapping="Wrap" />
+
+                <ui:Button Content="Enviar relatório" Appearance="Primary" Padding="24,8" Command="{Binding EnviarRelatorioCommand}"
+                           IsEnabled="{Binding PodeEnviarRelatorio}" HorizontalAlignment="Right" Margin="0,20,0,0" />
+            </StackPanel>
+        </Border>
     </StackPanel>
 </UserControl>

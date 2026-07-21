@@ -1,6 +1,7 @@
 using System.Management;
 using System.Security.Cryptography;
 using System.Text;
+using Vendex.Domain.Logging;
 
 namespace Vendex.Licensing;
 
@@ -34,9 +35,10 @@ public static class FingerprintProvider
                     return valor.Trim();
             }
         }
-        catch (ManagementException)
+        catch (ManagementException ex)
         {
             // Máquina sem WMI disponível (raro) — cai no valor fixo abaixo.
+            Logger.Warn($"WMI indisponível ao ler {propriedade} de {classe}.", ex);
         }
 
         return "INDISPONIVEL";
