@@ -12,19 +12,17 @@ namespace Vendex.Licensing;
 /// </summary>
 public static class AssinaturaVerifier
 {
-    // TODO: antes da primeira venda, gerar um par de chaves de produção
-    // (`openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048`) e trocar a
-    // chave pública abaixo. A privada correspondente vira o secret RSA_CHAVE_PRIVADA
-    // no Supabase — nunca commitar a privada aqui. Esta é a chave de desenvolvimento.
+    // Chave pública de PRODUÇÃO (par gerado em 2026-07-20). A privada correspondente
+    // foi cadastrada como secret RSA_CHAVE_PRIVADA no Supabase e nunca é commitada.
     private const string ChavePublicaPem = """
         -----BEGIN PUBLIC KEY-----
-        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuHN7RxO0h4BHB20S3fxL
-        YlznN3HKCToNOLeDFvvvGnhlbAM7jA41JSQcDvl/LeJbt4tkcG9bYBxnYa/gjTcz
-        USDsEwE2CY7v0e4CmHR0uwr7XVxA8dHmB+7RclvvJoK2K1uTnCBUz2Jas0d+bcTb
-        muxoav64vxPwl6KdNvv1XRIV25crW8joYAkX6lCHbbiDg2b3m6SCPbwTc3yVvlWK
-        G7viwoLzaFYMn0ZZIe8x8XWndgX0OOxwpRmRCdbjlCqhRU87qlwic9iXOyu4PREq
-        iPIUEz3qLpXujgYr2HeSx/V66GhNY7zp0DuHBbyP21l0GhkjYT4WApMMs8dG2EIy
-        iQIDAQAB
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApu5rdYcYJcF6j7C5UXEk
+        FKw/vJWUnOP+CEhMlB8gXNCaVWHZ4SGGgOfgur2Zm3xiurU/1oR+273qdHug2EQg
+        3svEWPYarf65ikr0gDRKdOioLr6F2lUEQSuVPnWRX+CC1kyrEHyHQ+kwT0jJrU5S
+        ISVeSpf4V+5y3kDuWdcx5b1C9EQPf3tHOLk27C66WujXNq8tDzny4ZGw6pmi91p+
+        bmyqwsMm0uZukZCuglRgCtM2kzYlMCBr7fcA9GSQFx67bDisjOLng7bpJJ9BR0SV
+        TK19L5IdW4Zti+Y9i6vLG7lGFqbPZ6w5ZFZeJdbEJraUzO/BY/vxL36hSeY2/8tM
+        xwIDAQAB
         -----END PUBLIC KEY-----
         """;
 

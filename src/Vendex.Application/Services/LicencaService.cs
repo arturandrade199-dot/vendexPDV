@@ -9,10 +9,7 @@ namespace Vendex.Application.Services;
 
 public class LicencaService : ILicencaService
 {
-    // TODO: preencher com a URL do projeto Supabase depois de criado (Painel do
-    // Supabase > Configurações do projeto > API > Project URL) e publicar as 3 Edge
-    // Functions (supabase/functions/) com verify_jwt desativado (supabase/config.toml).
-    private const string SupabaseFunctionsBaseUrl = "https://SEU-PROJETO.supabase.co/functions/v1";
+    private const string SupabaseFunctionsBaseUrl = "https://debjnxiglpiqrdtiewrw.supabase.co/functions/v1";
 
     private const int ToleranciaOfflineDias = 7;
     private static readonly TimeSpan ToleranciaRelogio = TimeSpan.FromMinutes(5);
