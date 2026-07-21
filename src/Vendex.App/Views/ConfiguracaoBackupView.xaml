@@ -5,78 +5,92 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d">
-    <StackPanel>
-        <Border Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" Padding="24" MaxWidth="520" HorizontalAlignment="Left" Margin="0,0,0,20">
-            <StackPanel>
-                <TextBlock Text="Backup automático" FontSize="16" FontWeight="SemiBold" Foreground="#1F2430" Margin="0,0,0,4" />
-                <TextBlock Text="O banco de dados e as fotos de perfil são compactados num arquivo .zip, salvo na pasta escolhida abaixo."
-                           Foreground="#6B7280" TextWrapping="Wrap" Margin="0,0,0,20" />
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <Border Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" Padding="24" MaxWidth="520" HorizontalAlignment="Left" Margin="0,0,0,20">
+                <StackPanel>
+                    <TextBlock Text="Backup automático" FontSize="16" FontWeight="SemiBold" Foreground="#1F2430" Margin="0,0,0,4" />
+                    <TextBlock Text="O banco de dados e as fotos de perfil são compactados num arquivo .zip, salvo na pasta escolhida abaixo."
+                               Foreground="#6B7280" TextWrapping="Wrap" Margin="0,0,0,20" />
 
-                <CheckBox Content="Ativar backup automático diário" IsChecked="{Binding Ativo}" Margin="0,0,0,16" />
+                    <CheckBox Content="Ativar backup automático diário" IsChecked="{Binding Ativo}" Margin="0,0,0,16" />
 
-                <TextBlock Text="Horário (HH:mm)" Margin="0,0,0,4" />
-                <ui:TextBox Text="{Binding HorarioTexto, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" Width="120" HorizontalAlignment="Left" />
+                    <TextBlock Text="Horário (HH:mm)" Margin="0,0,0,4" />
+                    <ui:TextBox Text="{Binding HorarioTexto, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16" Width="120" HorizontalAlignment="Left" />
 
-                <TextBlock Text="Pasta de destino" Margin="0,0,0,4" />
-                <Grid Margin="0,0,0,4">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                    </Grid.ColumnDefinitions>
-                    <ui:TextBox Grid.Column="0" Text="{Binding CaminhoDestino}" IsReadOnly="True" Margin="0,0,8,0" />
-                    <ui:Button Grid.Column="1" Content="Escolher pasta..." Command="{Binding EscolherPastaCommand}" />
-                </Grid>
+                    <TextBlock Text="Pasta de destino" Margin="0,0,0,4" />
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox Grid.Column="0" Text="{Binding CaminhoDestino}" IsReadOnly="True" Margin="0,0,8,0" />
+                        <ui:Button Grid.Column="1" Content="Escolher pasta..." Command="{Binding EscolherPastaCommand}" />
+                    </Grid>
 
-                <TextBlock Text="{Binding StatusUltimoBackupFormatado}" Foreground="#6B7280" FontSize="12"
-                           Margin="0,16,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding StatusUltimoBackupFormatado}" Foreground="#6B7280" FontSize="12"
+                               Margin="0,16,0,0" TextWrapping="Wrap" />
 
-                <TextBlock Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
 
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-                    <ui:Button Content="Fazer backup agora" Margin="0,0,12,0" Padding="18,8"
-                               Command="{Binding BackupAgoraCommand}" IsEnabled="{Binding PodeExecutarBackup}" />
-                    <ui:Button Content="Salvar" Appearance="Primary" Padding="24,8" Command="{Binding SalvarCommand}" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                        <ui:Button Content="Fazer backup agora" Margin="0,0,12,0" Padding="18,8"
+                                   Command="{Binding BackupAgoraCommand}" IsEnabled="{Binding PodeExecutarBackup}" />
+                        <ui:Button Content="Salvar" Appearance="Primary" Padding="24,8" Command="{Binding SalvarCommand}" />
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
-        </Border>
+            </Border>
 
-        <Border Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" Padding="24" MaxWidth="520" HorizontalAlignment="Left">
-            <StackPanel>
-                <TextBlock Text="Impressão" FontSize="16" FontWeight="SemiBold" Foreground="#1F2430" Margin="0,0,0,4" />
-                <TextBlock Text="Escolha a impressora não fiscal (Daruma, Epson, Elgin ou qualquer outra instalada no Windows) e quais comprovantes imprimir automaticamente."
-                           Foreground="#6B7280" TextWrapping="Wrap" Margin="0,0,0,20" />
+            <Border Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" Padding="24" MaxWidth="520" HorizontalAlignment="Left">
+                <StackPanel>
+                    <TextBlock Text="Impressão" FontSize="16" FontWeight="SemiBold" Foreground="#1F2430" Margin="0,0,0,4" />
+                    <TextBlock Text="Escolha a impressora não fiscal (Daruma, Epson, Elgin ou qualquer outra instalada no Windows) e quais comprovantes imprimir automaticamente."
+                               Foreground="#6B7280" TextWrapping="Wrap" Margin="0,0,0,20" />
 
-                <TextBlock Text="Impressora padrão" Margin="0,0,0,4" />
-                <ComboBox ItemsSource="{Binding ImpressorasDisponiveis}" SelectedItem="{Binding ImpressoraSelecionada}"
-                          Margin="0,0,0,16" HorizontalAlignment="Left" MinWidth="260" />
+                    <TextBlock Text="Impressora padrão" Margin="0,0,0,4" />
+                    <ComboBox ItemsSource="{Binding ImpressorasDisponiveis}" SelectedItem="{Binding ImpressoraSelecionada}"
+                              Margin="0,0,0,16" HorizontalAlignment="Left" MinWidth="260" />
 
-                <CheckBox Content="Imprimir automaticamente a abertura de caixa" IsChecked="{Binding ImprimirAberturaCaixa}" Margin="0,0,0,12" />
-                <CheckBox Content="Imprimir automaticamente o fechamento de caixa" IsChecked="{Binding ImprimirFechamentoCaixa}" Margin="0,0,0,12" />
-                <CheckBox Content="Imprimir automaticamente o cupom de venda" IsChecked="{Binding ImprimirVenda}" Margin="0,0,0,4" />
+                    <CheckBox Content="Imprimir automaticamente a abertura de caixa" IsChecked="{Binding ImprimirAberturaCaixa}" Margin="0,0,0,12" />
+                    <CheckBox Content="Imprimir automaticamente o fechamento de caixa" IsChecked="{Binding ImprimirFechamentoCaixa}" Margin="0,0,0,12" />
+                    <CheckBox Content="Imprimir automaticamente o cupom de venda" IsChecked="{Binding ImprimirVenda}" Margin="0,0,0,4" />
 
-                <TextBlock Text="{Binding MensagemErroImpressao}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
-                <TextBlock Text="{Binding MensagemSucessoImpressao}" Foreground="#1B8A4B" Margin="0,12,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding MensagemErroImpressao}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding MensagemSucessoImpressao}" Foreground="#1B8A4B" Margin="0,12,0,0" TextWrapping="Wrap" />
 
-                <ui:Button Content="Salvar" Appearance="Primary" Padding="24,8" Command="{Binding SalvarImpressaoCommand}"
-                           HorizontalAlignment="Right" Margin="0,20,0,0" />
-            </StackPanel>
-        </Border>
+                    <ui:Button Content="Salvar" Appearance="Primary" Padding="24,8" Command="{Binding SalvarImpressaoCommand}"
+                               HorizontalAlignment="Right" Margin="0,20,0,0" />
+                </StackPanel>
+            </Border>
 
-        <Border Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" Padding="24" MaxWidth="520" HorizontalAlignment="Left" Margin="0,20,0,0">
-            <StackPanel>
-                <TextBlock Text="Reportar um problema" FontSize="16" FontWeight="SemiBold" Foreground="#1F2430" Margin="0,0,0,4" />
-                <TextBlock Text="Descreva o que aconteceu. Isso é enviado direto para o desenvolvedor, junto com o log técnico do dia."
-                           Foreground="#6B7280" TextWrapping="Wrap" Margin="0,0,0,16" />
+            <Border Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" Padding="24" MaxWidth="520" HorizontalAlignment="Left" Margin="0,20,0,0">
+                <StackPanel>
+                    <TextBlock Text="Reportar um problema" FontSize="16" FontWeight="SemiBold" Foreground="#1F2430" Margin="0,0,0,4" />
+                    <TextBlock Text="Descreva o que aconteceu. Isso é enviado direto para o desenvolvedor, junto com o log técnico do dia."
+                               Foreground="#6B7280" TextWrapping="Wrap" Margin="0,0,0,16" />
 
-                <ui:TextBox Text="{Binding DescricaoProblema, UpdateSourceTrigger=PropertyChanged}"
-                            AcceptsReturn="True" TextWrapping="Wrap" Height="90" VerticalScrollBarVisibility="Auto" Margin="0,0,0,4" />
+                    <ui:TextBox Text="{Binding DescricaoProblema, UpdateSourceTrigger=PropertyChanged}"
+                                AcceptsReturn="True" TextWrapping="Wrap" Height="90" VerticalScrollBarVisibility="Auto" Margin="0,0,0,4" />
 
-                <TextBlock Text="{Binding MensagemErroRelatorio}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
-                <TextBlock Text="{Binding MensagemSucessoRelatorio}" Foreground="#1B8A4B" Margin="0,12,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding MensagemErroRelatorio}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding MensagemSucessoRelatorio}" Foreground="#1B8A4B" Margin="0,12,0,0" TextWrapping="Wrap" />
 
-                <ui:Button Content="Enviar relatório" Appearance="Primary" Padding="24,8" Command="{Binding EnviarRelatorioCommand}"
-                           IsEnabled="{Binding PodeEnviarRelatorio}" HorizontalAlignment="Right" Margin="0,20,0,0" />
-            </StackPanel>
-        </Border>
-    </StackPanel>
+                    <ui:Button Content="Enviar relatório" Appearance="Primary" Padding="24,8" Command="{Binding EnviarRelatorioCommand}"
+                               IsEnabled="{Binding PodeEnviarRelatorio}" HorizontalAlignment="Right" Margin="0,20,0,0" />
+                </StackPanel>
+            </Border>
+
+            <Border Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" Padding="24" MaxWidth="520" HorizontalAlignment="Left" Margin="0,20,0,0">
+                <StackPanel>
+                    <TextBlock Text="Atualizações" FontSize="16" FontWeight="SemiBold" Foreground="#1F2430" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding VersaoInstaladaFormatada}" Foreground="#6B7280" Margin="0,0,0,16" />
+
+                    <TextBlock Text="{Binding MensagemStatusAtualizacao}" Foreground="#1F2430" Margin="0,0,0,12" TextWrapping="Wrap" />
+
+                    <ui:Button Content="Verificar atualização agora" Command="{Binding VerificarAtualizacaoCommand}"
+                               IsEnabled="{Binding PodeVerificarAtualizacao}" HorizontalAlignment="Right" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

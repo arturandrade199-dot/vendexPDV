@@ -29,37 +29,70 @@ public class AgendadorAtualizacao
 
     public void Iniciar()
     {
-        _ = VerificarAsync();
+        _ = VerificarSilenciosamenteAsync();
         _timer = new System.Threading.Timer(
-            _ => _dispatcherUi.InvokeAsync(VerificarAsync),
+            _ => _dispatcherUi.InvokeAsync(VerificarSilenciosamenteAsync),
             null, TimeSpan.FromDays(7), TimeSpan.FromDays(7));
     }
 
-    private async Task VerificarAsync()
+    private async Task VerificarSilenciosamenteAsync()
     {
         try
         {
-            var info = await _atualizacaoService.ObterUltimaVersaoAsync();
-            if (info is null || !Version.TryParse(info.Versao, out var versaoDisponivel))
-                return;
-
-            var versaoAtual = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 0, 0, 0);
-            if (versaoDisponivel <= versaoAtual)
-                return;
-
-            var mensagem = $"Uma nova versão do Vendex PDV está disponível ({info.Versao}).";
-            if (!string.IsNullOrWhiteSpace(info.Notas))
-                mensagem += $"\n\n{info.Notas}";
-            mensagem += "\n\nDeseja atualizar agora? O sistema vai fechar e reabrir sozinho.";
-
-            var resposta = MessageBox.Show(mensagem, "Atualização disponível", MessageBoxButton.YesNo, MessageBoxImage.Information);
-            if (resposta == MessageBoxResult.Yes)
-                await BaixarEAplicarAsync(info);
+            var info = await ObterAtualizacaoDisponivelAsync();
+            if (info is not null)
+                await PerguntarEAplicarAsync(info);
         }
         catch (Exception ex)
         {
             Logger.Error("Falha na checagem de atualização.", ex);
         }
+    }
+
+    /// <summary>Chamado pelo botão "Verificar atualização agora" — ao contrário da checagem
+    /// automática (silenciosa quando não há nada novo), aqui sempre devolve um texto pra
+    /// mostrar na tela, mesmo quando já está tudo atualizado.</summary>
+    public async Task<string> VerificarManualmenteAsync()
+    {
+        try
+        {
+            var info = await ObterAtualizacaoDisponivelAsync();
+            if (info is null)
+                return "Você já está com a versão mais recente.";
+
+            await PerguntarEAplicarAsync(info);
+            return string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Falha na checagem manual de atualização.", ex);
+            return "Não foi possível verificar agora. Confira sua conexão e tente de novo.";
+        }
+    }
+
+    /// <summary>Devolve as informações da versão disponível só se ela for mais nova que a
+    /// instalada; null em qualquer outro caso (sem internet, nenhuma versão publicada ainda,
+    /// ou já atualizado) — quem chama decide o que fazer com esse "nada a fazer".</summary>
+    private async Task<InfoAtualizacao?> ObterAtualizacaoDisponivelAsync()
+    {
+        var info = await _atualizacaoService.ObterUltimaVersaoAsync();
+        if (info is null || !Version.TryParse(info.Versao, out var versaoDisponivel))
+            return null;
+
+        var versaoAtual = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 0, 0, 0);
+        return versaoDisponivel > versaoAtual ? info : null;
+    }
+
+    private async Task PerguntarEAplicarAsync(InfoAtualizacao info)
+    {
+        var mensagem = $"Uma nova versão do Vendex PDV está disponível ({info.Versao}).";
+        if (!string.IsNullOrWhiteSpace(info.Notas))
+            mensagem += $"\n\n{info.Notas}";
+        mensagem += "\n\nDeseja atualizar agora? O sistema vai fechar e reabrir sozinho.";
+
+        var resposta = MessageBox.Show(mensagem, "Atualização disponível", MessageBoxButton.YesNo, MessageBoxImage.Information);
+        if (resposta == MessageBoxResult.Yes)
+            await BaixarEAplicarAsync(info);
     }
 
     private async Task BaixarEAplicarAsync(InfoAtualizacao info)

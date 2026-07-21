@@ -67,11 +67,11 @@ public class MenuViewModel : ObservableObject
             modulos.Add(new ModuloTile("Usuários e Permissões", "Funcionários e acessos", SymbolRegular.PeopleSettings24, true,
                 new RelayCommand(() => navegacao.NavegarPara<UsuariosViewModel>("Usuários"))));
 
-            modulos.Add(new ModuloTile("Configurações", "Backup automático e preferências", SymbolRegular.Settings24, true,
-                new RelayCommand(() => navegacao.NavegarPara<ConfiguracaoBackupViewModel>("Configurações"))));
-
             modulos.Add(new ModuloTile("Relatórios", "Vendas, financeiro e auditoria", SymbolRegular.DocumentBulletList24, true,
                 new RelayCommand(() => navegacao.NavegarPara<RelatoriosViewModel>("Relatórios"))));
+
+            modulos.Add(new ModuloTile("Configurações", "Backup automático e preferências", SymbolRegular.Settings24, true,
+                new RelayCommand(() => navegacao.NavegarPara<ConfiguracaoBackupViewModel>("Configurações"))));
         }
 
         Modulos = new ObservableCollection<ModuloTile>(modulos);

@@ -17,6 +17,7 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
     private readonly IBackupService _backupService;
     private readonly IConfiguracaoImpressaoService _configuracaoImpressaoService;
     private readonly IRelatorioProblemaService _relatorioProblemaService;
+    private readonly AgendadorAtualizacao _agendadorAtualizacao;
 
     [ObservableProperty] private bool ativo;
     [ObservableProperty] private string horarioTexto = "22:00";
@@ -49,12 +50,28 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
 
     public bool PodeEnviarRelatorio => !EnviandoRelatorio;
 
+    [ObservableProperty] private string? mensagemStatusAtualizacao;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PodeVerificarAtualizacao))]
+    private bool verificandoAtualizacao;
+
+    public bool PodeVerificarAtualizacao => !VerificandoAtualizacao;
+
+    public string VersaoInstaladaFormatada { get; }
+
     public ConfiguracaoBackupViewModel(
-        IBackupService backupService, IConfiguracaoImpressaoService configuracaoImpressaoService, IRelatorioProblemaService relatorioProblemaService)
+        IBackupService backupService, IConfiguracaoImpressaoService configuracaoImpressaoService,
+        IRelatorioProblemaService relatorioProblemaService, AgendadorAtualizacao agendadorAtualizacao)
     {
         _backupService = backupService;
         _configuracaoImpressaoService = configuracaoImpressaoService;
         _relatorioProblemaService = relatorioProblemaService;
+        _agendadorAtualizacao = agendadorAtualizacao;
+
+        var versao = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        VersaoInstaladaFormatada = versao is null ? "Versão instalada: desconhecida" : $"Versão instalada: {versao.Major}.{versao.Minor}.{versao.Build}";
+
         _ = CarregarAsync();
         CarregarImpressoras();
         _ = CarregarConfiguracaoImpressaoAsync();
@@ -217,5 +234,20 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
     {
         var caminho = Path.Combine(AppPaths.PastaLogs, $"log-{DateTime.Now:yyyy-MM-dd}.txt");
         return File.Exists(caminho) ? File.ReadAllText(caminho) : null;
+    }
+
+    [RelayCommand]
+    private async Task VerificarAtualizacaoAsync()
+    {
+        MensagemStatusAtualizacao = null;
+        VerificandoAtualizacao = true;
+        try
+        {
+            MensagemStatusAtualizacao = await _agendadorAtualizacao.VerificarManualmenteAsync();
+        }
+        finally
+        {
+            VerificandoAtualizacao = false;
+        }
     }
 }
