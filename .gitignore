@@ -11,3 +11,5 @@ dados/
 
 publish/
 *.log
+
+installer/output/

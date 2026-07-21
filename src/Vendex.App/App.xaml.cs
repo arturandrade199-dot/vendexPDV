@@ -162,23 +162,19 @@ public partial class App : System.Windows.Application
 
         _host.Services.GetRequiredService<AgendadorBackup>().Iniciar();
 
-        // Licenciamento por assinatura comentado por enquanto (backend do Supabase
-        // ainda não configurado) — retomar depois de construir os próximos módulos.
-        // Ver supabase/README.md pra reativar quando o backend estiver no ar.
-        //
-        // var licencaService = _host.Services.GetRequiredService<ILicencaService>();
-        // var licencaLiberada = licencaService.VerificarELiberarAsync().GetAwaiter().GetResult();
-        // if (!licencaLiberada)
-        // {
-        //     var ativacaoWindow = _host.Services.GetRequiredService<AtivacaoWindow>();
-        //     if (ativacaoWindow.ShowDialog() != true)
-        //     {
-        //         Shutdown();
-        //         return;
-        //     }
-        // }
-        //
-        // _host.Services.GetRequiredService<AgendadorLicenca>().Iniciar();
+        var licencaService = _host.Services.GetRequiredService<ILicencaService>();
+        var licencaLiberada = licencaService.VerificarELiberarAsync().GetAwaiter().GetResult();
+        if (!licencaLiberada)
+        {
+            var ativacaoWindow = _host.Services.GetRequiredService<AtivacaoWindow>();
+            if (ativacaoWindow.ShowDialog() != true)
+            {
+                Shutdown();
+                return;
+            }
+        }
+
+        _host.Services.GetRequiredService<AgendadorLicenca>().Iniciar();
 
         var loginWindow = _host.Services.GetRequiredService<LoginWindow>();
         if (loginWindow.ShowDialog() != true)
