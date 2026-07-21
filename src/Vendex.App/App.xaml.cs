@@ -162,8 +162,12 @@ public partial class App : System.Windows.Application
 
         _host.Services.GetRequiredService<AgendadorBackup>().Iniciar();
 
+        // Task.Run tira a chamada da thread de UI antes de bloquear nela: sem isso, o
+        // await interno (chamada HTTP pro Supabase) tenta retomar na mesma thread que o
+        // GetResult() já travou esperando — trava o app pra sempre sem nenhuma janela
+        // (reproduzido com uma licença já ativada, que força o caminho de rede aqui).
         var licencaService = _host.Services.GetRequiredService<ILicencaService>();
-        var licencaLiberada = licencaService.VerificarELiberarAsync().GetAwaiter().GetResult();
+        var licencaLiberada = Task.Run(() => licencaService.VerificarELiberarAsync()).GetAwaiter().GetResult();
         if (!licencaLiberada)
         {
             var ativacaoWindow = _host.Services.GetRequiredService<AtivacaoWindow>();
