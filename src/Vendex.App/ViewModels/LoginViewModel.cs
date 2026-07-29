@@ -1,3 +1,4 @@
+using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Vendex.App.Navigation;
@@ -8,6 +9,14 @@ namespace Vendex.App.ViewModels;
 
 public partial class LoginViewModel : ObservableObject
 {
+#if DEBUG
+    // Bypass só para build de Debug — nunca compilado em Release, nunca vai pro cliente.
+    // Loga como um usuário "Desenvolvedor" com permissão total, independente do que estiver
+    // digitado no campo Login. Troque a senha abaixo por algo só seu se quiser.
+    private const string LoginUsuarioDev = "dev";
+    private const string SenhaDev = "vendex2026#";
+#endif
+
     private readonly IUsuarioService _usuarioService;
     private readonly SessaoUsuario _sessao;
 
@@ -41,6 +50,14 @@ public partial class LoginViewModel : ObservableObject
             return;
         }
 
+#if DEBUG
+        if (Senha == SenhaDev)
+        {
+            await EntrarComoDevAsync();
+            return;
+        }
+#endif
+
         var usuario = await _usuarioService.ValidarLoginAsync(Login.Trim(), Senha);
         if (usuario is null)
         {
@@ -54,6 +71,21 @@ public partial class LoginViewModel : ObservableObject
         _sessao.DefinirPermissoes(permissoes);
         Autenticado?.Invoke();
     }
+
+#if DEBUG
+    private async Task EntrarComoDevAsync()
+    {
+        var usuarios = await _usuarioService.ListarAsync();
+        var usuarioDev = usuarios.FirstOrDefault(u => u.Login == LoginUsuarioDev)
+            ?? await _usuarioService.CriarUsuarioAsync("Desenvolvedor", LoginUsuarioDev, Guid.NewGuid().ToString(), TipoUsuario.Administrador);
+
+        MensagemErro = null;
+        _sessao.UsuarioLogado = usuarioDev;
+        var permissoes = await _usuarioService.ObterPermissoesModulosAsync(usuarioDev.Id);
+        _sessao.DefinirPermissoes(permissoes);
+        Autenticado?.Invoke();
+    }
+#endif
 
     [RelayCommand]
     private async Task CriarAdministradorAsync()

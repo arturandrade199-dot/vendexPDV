@@ -8,7 +8,10 @@ public class VendaItem : EntidadeBase
     public int ProdutoId { get; set; }
     public Produto Produto { get; set; } = null!;
 
-    public int Quantidade { get; set; }
+    public int? ProdutoVarianteId { get; set; }
+    public ProdutoVariante? ProdutoVariante { get; set; }
+
+    public decimal Quantidade { get; set; }
     public decimal PrecoUnitario { get; set; }
     public decimal PrecoCustoUnitario { get; set; }
     public decimal Subtotal { get; set; }

@@ -35,7 +35,7 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Foreground="#1F2430">
-                                        <Run Text="{Binding Quantidade, Mode=OneWay}" />
+                                        <Run Text="{Binding QuantidadeFormatada, Mode=OneWay}" />
                                         <Run Text="× " />
                                         <Run Text="{Binding Nome, Mode=OneWay}" />
                                     </TextBlock>

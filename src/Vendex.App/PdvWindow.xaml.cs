@@ -18,5 +18,7 @@ public partial class PdvWindow : FluentWindow
             if (configuracao.ImprimirVenda)
                 ReciboControl.ImprimirAutomaticamente(configuracao.ImpressoraPadrao);
         };
+
+        viewModel.SairSolicitado += Close;
     }
 }

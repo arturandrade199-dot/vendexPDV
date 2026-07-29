@@ -67,7 +67,9 @@ public partial class VendasViewModel : ObservableObject
     private static ReciboVenda MontarRecibo(Venda venda)
     {
         var itens = venda.Itens
-            .Select(i => new ItemCarrinhoViewModel(i.Produto.Nome, i.ProdutoId, i.PrecoUnitario, i.PrecoCustoUnitario, i.Quantidade))
+            .Select(i => new ItemCarrinhoViewModel(
+                i.ProdutoVariante is null ? i.Produto.Nome : $"{i.Produto.Nome} — {i.ProdutoVariante.Nome}",
+                i.ProdutoId, i.ProdutoVarianteId, i.PrecoUnitario, i.PrecoCustoUnitario, i.Quantidade))
             .ToList();
 
         // Troco não é persistido (VendaPagamento guarda só o valor aplicado à venda) — uma

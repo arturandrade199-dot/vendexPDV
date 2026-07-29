@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         mc:Ignorable="d"
-        Title="{Binding Titulo}" Height="520" Width="440"
+        Title="{Binding Titulo}" Height="640" Width="480"
         WindowStartupLocation="CenterOwner"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica">
@@ -17,18 +17,74 @@
 
         <ui:TitleBar Grid.Row="0" Title="{Binding Titulo}" />
 
-        <StackPanel Grid.Row="1" Margin="0,16,0,0">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="0,16,0,0">
             <TextBlock Text="Nome" Margin="0,0,0,4" />
             <ui:TextBox Text="{Binding Nome, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
 
-            <TextBlock Text="Descrição" Margin="0,0,0,4" />
-            <ui:TextBox Text="{Binding Descricao, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+            <TextBlock Text="Unidade de medida" Margin="0,0,0,4" />
+            <ComboBox ItemsSource="{Binding UnidadesDisponiveis}" SelectedItem="{Binding UnidadeSelecionada}"
+                      Padding="8" Margin="0,0,0,12" />
 
-            <TextBlock Text="Código de barras (opcional)" Margin="0,0,0,4" />
-            <ui:TextBox Text="{Binding CodigoBarras, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+            <CheckBox Content="Produto com grade (tamanhos/variações)" IsChecked="{Binding TemGrade}" Margin="0,0,0,12" />
+
+            <!-- Produto simples: código de barras + estoque únicos -->
+            <StackPanel Visibility="{Binding TemGrade, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <TextBlock Text="Código de barras (opcional)" Margin="0,0,0,4" />
+                <ui:TextBox Text="{Binding CodigoBarras, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+
+                <TextBlock Text="Estoque" Margin="0,0,0,4" />
+                <ui:TextBox Text="{Binding EstoqueTexto, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
+            </StackPanel>
+
+            <!-- Produto com grade: uma linha por variação, cada uma com seu próprio código e estoque -->
+            <StackPanel Visibility="{Binding TemGrade, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,0,0,12">
+                <TextBlock Text="Variações" FontWeight="SemiBold" Foreground="#1F2430" Margin="0,0,0,8" />
+
+                <ItemsControl ItemsSource="{Binding Variantes}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="#F7F7FB" CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="8" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Nome (ex: P, M, G)" FontSize="11" Foreground="#6B7280" />
+                                        <ui:TextBox Text="{Binding Nome, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Código de barras" FontSize="11" Foreground="#6B7280" />
+                                        <ui:TextBox Text="{Binding CodigoBarras, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="4">
+                                        <TextBlock Text="Estoque" FontSize="11" Foreground="#6B7280" />
+                                        <ui:TextBox Text="{Binding EstoqueTexto, UpdateSourceTrigger=PropertyChanged}" />
+                                    </StackPanel>
+                                    <ui:Button Grid.Column="6" Content="Remover" VerticalAlignment="Bottom"
+                                               Command="{Binding DataContext.RemoverVarianteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                               CommandParameter="{Binding}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <ui:Button Content="+ Adicionar variação" Appearance="Secondary" Command="{Binding AdicionarVarianteCommand}"
+                           HorizontalAlignment="Left" Padding="12,6" />
+            </StackPanel>
 
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="12" />
                     <ColumnDefinition Width="*" />
@@ -38,18 +94,20 @@
                     <ui:TextBox Text="{Binding PrecoCustoTexto, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
                 <StackPanel Grid.Column="2">
+                    <TextBlock Text="Markup (%)" Margin="0,0,0,4" />
+                    <ui:TextBox Text="{Binding PercentualTexto, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+                <StackPanel Grid.Column="4">
                     <TextBlock Text="Preço de venda (R$)" Margin="0,0,0,4" />
                     <ui:TextBox Text="{Binding PrecoVendaTexto, UpdateSourceTrigger=PropertyChanged}" />
                 </StackPanel>
             </Grid>
-
-            <TextBlock Text="Estoque" Margin="0,0,0,4" />
-            <ui:TextBox Text="{Binding EstoqueTexto, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,12" />
 
             <TextBlock Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,0,0,12" TextWrapping="Wrap" />
 
             <ui:Button Content="Salvar" Appearance="Primary" Command="{Binding SalvarCommand}"
                        HorizontalAlignment="Right" Padding="24,8" />
         </StackPanel>
+        </ScrollViewer>
     </Grid>
 </ui:FluentWindow>

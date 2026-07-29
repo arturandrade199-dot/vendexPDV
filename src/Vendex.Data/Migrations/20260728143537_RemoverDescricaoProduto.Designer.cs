@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vendex.Data;
 
@@ -10,9 +11,11 @@ using Vendex.Data;
 namespace Vendex.Data.Migrations
 {
     [DbContext(typeof(VendexDbContext))]
-    partial class VendexDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260728143537_RemoverDescricaoProduto")]
+    partial class RemoverDescricaoProduto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -521,9 +524,8 @@ namespace Vendex.Data.Migrations
                     b.Property<string>("CodigoBarras")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("EstoqueAtual")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("TEXT");
+                    b.Property<int>("EstoqueAtual")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Nome")
                         .IsRequired()
@@ -537,42 +539,9 @@ namespace Vendex.Data.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("TemGrade")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("UnidadeMedida")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.ToTable("Produtos");
-                });
-
-            modelBuilder.Entity("Vendex.Domain.Entities.ProdutoVariante", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("CodigoBarras")
-                        .HasColumnType("TEXT");
-
-                    b.Property<decimal>("EstoqueAtual")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ProdutoId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProdutoId");
-
-                    b.ToTable("ProdutoVariantes");
                 });
 
             modelBuilder.Entity("Vendex.Domain.Entities.Usuario", b =>
@@ -695,12 +664,8 @@ namespace Vendex.Data.Migrations
                     b.Property<int>("ProdutoId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("ProdutoVarianteId")
+                    b.Property<int>("Quantidade")
                         .HasColumnType("INTEGER");
-
-                    b.Property<decimal>("Quantidade")
-                        .HasPrecision(18, 3)
-                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("Subtotal")
                         .HasPrecision(18, 2)
@@ -712,8 +677,6 @@ namespace Vendex.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProdutoId");
-
-                    b.HasIndex("ProdutoVarianteId");
 
                     b.HasIndex("VendaId");
 
@@ -861,17 +824,6 @@ namespace Vendex.Data.Migrations
                     b.Navigation("Usuario");
                 });
 
-            modelBuilder.Entity("Vendex.Domain.Entities.ProdutoVariante", b =>
-                {
-                    b.HasOne("Vendex.Domain.Entities.Produto", "Produto")
-                        .WithMany("Variantes")
-                        .HasForeignKey("ProdutoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Produto");
-                });
-
             modelBuilder.Entity("Vendex.Domain.Entities.UsuarioPermissao", b =>
                 {
                     b.HasOne("Vendex.Domain.Entities.Modulo", "Modulo")
@@ -916,10 +868,6 @@ namespace Vendex.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Vendex.Domain.Entities.ProdutoVariante", "ProdutoVariante")
-                        .WithMany()
-                        .HasForeignKey("ProdutoVarianteId");
-
                     b.HasOne("Vendex.Domain.Entities.Venda", "Venda")
                         .WithMany("Itens")
                         .HasForeignKey("VendaId")
@@ -927,8 +875,6 @@ namespace Vendex.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Produto");
-
-                    b.Navigation("ProdutoVariante");
 
                     b.Navigation("Venda");
                 });
@@ -966,11 +912,6 @@ namespace Vendex.Data.Migrations
             modelBuilder.Entity("Vendex.Domain.Entities.Modulo", b =>
                 {
                     b.Navigation("Permissoes");
-                });
-
-            modelBuilder.Entity("Vendex.Domain.Entities.Produto", b =>
-                {
-                    b.Navigation("Variantes");
                 });
 
             modelBuilder.Entity("Vendex.Domain.Entities.Usuario", b =>

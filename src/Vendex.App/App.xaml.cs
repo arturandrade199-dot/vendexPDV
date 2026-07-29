@@ -126,6 +126,12 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.AtivacaoViewModel>();
                 services.AddTransient<AtivacaoWindow>();
 
+                services.AddTransient<Func<string, string, AutorizacaoWindow>>(provedor => (nomeModulo, mensagem) =>
+                {
+                    var viewModel = new ViewModels.AutorizacaoWindowViewModel(provedor.GetRequiredService<IUsuarioService>(), nomeModulo, mensagem);
+                    return new AutorizacaoWindow(viewModel);
+                });
+
                 services.AddTransient<ViewModels.PdvViewModel>();
                 services.AddTransient<PdvWindow>();
                 services.AddTransient<Func<PdvWindow>>(provedor => () => provedor.GetRequiredService<PdvWindow>());

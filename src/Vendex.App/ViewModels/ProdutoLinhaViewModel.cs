@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Windows.Media;
 using Vendex.Domain.Entities;
+using Vendex.Domain.Enums;
 
 namespace Vendex.App.ViewModels;
 
@@ -22,11 +23,12 @@ public class ProdutoLinhaViewModel
         PrecoVenda = produto.PrecoVenda;
         PrecoCustoFormatado = produto.PrecoCusto.ToString("C2", CulturaBr);
         PrecoVendaFormatado = produto.PrecoVenda.ToString("C2", CulturaBr);
-        Estoque = produto.EstoqueAtual;
-        Descricao = produto.Descricao ?? string.Empty;
+        var estoqueTotal = produto.EstoqueTotal();
+        EstoqueFormatado = estoqueTotal.ToString("0.###", CulturaBr);
+        UnidadeTexto = produto.UnidadeMedida.ParaTexto();
         Ativo = produto.Ativo;
 
-        EstoqueCor = produto.EstoqueAtual <= EstoqueBaixoLimite
+        EstoqueCor = estoqueTotal <= EstoqueBaixoLimite
             ? Color.FromRgb(0xC4, 0x2B, 0x1E)
             : Color.FromRgb(0x1F, 0x24, 0x30);
 
@@ -38,12 +40,12 @@ public class ProdutoLinhaViewModel
     public int Id { get; }
     public string Nome { get; }
     public string CodigoBarras { get; }
-    public string Descricao { get; }
     public decimal PrecoCusto { get; }
     public decimal PrecoVenda { get; }
     public string PrecoCustoFormatado { get; }
     public string PrecoVendaFormatado { get; }
-    public int Estoque { get; }
+    public string EstoqueFormatado { get; }
+    public string UnidadeTexto { get; }
     public Color EstoqueCor { get; }
     public bool Ativo { get; }
     public string SituacaoTexto { get; }

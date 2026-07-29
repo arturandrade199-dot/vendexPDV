@@ -13,6 +13,7 @@ public class VendexDbContext : DbContext
     public DbSet<Modulo> Modulos => Set<Modulo>();
     public DbSet<UsuarioPermissao> UsuarioPermissoes => Set<UsuarioPermissao>();
     public DbSet<Produto> Produtos => Set<Produto>();
+    public DbSet<ProdutoVariante> ProdutoVariantes => Set<ProdutoVariante>();
     public DbSet<Cliente> Clientes => Set<Cliente>();
     public DbSet<Fornecedor> Fornecedores => Set<Fornecedor>();
     public DbSet<Venda> Vendas => Set<Venda>();
@@ -57,6 +58,13 @@ public class VendexDbContext : DbContext
         {
             e.Property(p => p.PrecoCusto).HasPrecision(18, 2);
             e.Property(p => p.PrecoVenda).HasPrecision(18, 2);
+            e.Property(p => p.EstoqueAtual).HasPrecision(18, 3);
+            e.HasMany(p => p.Variantes).WithOne(v => v.Produto).HasForeignKey(v => v.ProdutoId);
+        });
+
+        modelBuilder.Entity<ProdutoVariante>(e =>
+        {
+            e.Property(v => v.EstoqueAtual).HasPrecision(18, 3);
         });
 
         modelBuilder.Entity<Cliente>(e =>
@@ -73,11 +81,13 @@ public class VendexDbContext : DbContext
 
         modelBuilder.Entity<VendaItem>(e =>
         {
+            e.Property(i => i.Quantidade).HasPrecision(18, 3);
             e.Property(i => i.PrecoUnitario).HasPrecision(18, 2);
             e.Property(i => i.PrecoCustoUnitario).HasPrecision(18, 2);
             e.Property(i => i.Subtotal).HasPrecision(18, 2);
             e.HasOne(i => i.Venda).WithMany(v => v.Itens).HasForeignKey(i => i.VendaId);
             e.HasOne(i => i.Produto).WithMany().HasForeignKey(i => i.ProdutoId);
+            e.HasOne(i => i.ProdutoVariante).WithMany().HasForeignKey(i => i.ProdutoVarianteId).IsRequired(false);
         });
 
         modelBuilder.Entity<VendaPagamento>(e =>

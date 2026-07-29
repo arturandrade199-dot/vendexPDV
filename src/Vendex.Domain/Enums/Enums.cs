@@ -56,3 +56,23 @@ public enum TipoAcaoAuditoria
     FechamentoCaixa,
     TentativaAcessoNegado
 }
+
+public enum UnidadeMedida
+{
+    UN,
+    KG,
+    G,
+    L,
+    ML,
+    CX,
+    PC,
+    PAR,
+    DZ,
+    M,
+    M2,
+    M3,
+    RL,
+    FD,
+    SC,
+    KIT
+}

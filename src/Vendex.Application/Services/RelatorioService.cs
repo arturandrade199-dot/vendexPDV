@@ -3,6 +3,7 @@ using ClosedXML.Excel;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using Vendex.Domain.Entities;
 using Vendex.Domain.Enums;
 using Vendex.Domain.Interfaces;
 
@@ -53,14 +54,14 @@ public class RelatorioService : IRelatorioService
             .Select(p => (IReadOnlyList<string>)new[]
             {
                 p.Nome,
-                p.EstoqueAtual.ToString(CulturaBr),
+                p.EstoqueTotal().ToString(CulturaBr),
                 p.PrecoCusto.ToString("C2", CulturaBr),
                 p.PrecoVenda.ToString("C2", CulturaBr),
-                (p.EstoqueAtual * p.PrecoCusto).ToString("C2", CulturaBr)
+                (p.EstoqueTotal() * p.PrecoCusto).ToString("C2", CulturaBr)
             })
             .ToList();
 
-        var totalEstoque = produtos.Sum(p => p.EstoqueAtual * p.PrecoCusto);
+        var totalEstoque = produtos.Sum(p => p.EstoqueTotal() * p.PrecoCusto);
 
         return new RelatorioResultado(
             "Estoque de produtos",
@@ -84,7 +85,7 @@ public class RelatorioService : IRelatorioService
             .GroupBy(i => i.ProdutoId)
             .ToDictionary(g => g.Key, g => (Quantidade: g.Sum(i => i.Quantidade), Total: g.Sum(i => i.Subtotal), Nome: g.First().Produto.Nome));
 
-        List<(string Nome, int Quantidade, decimal Total)> linhasBase;
+        List<(string Nome, decimal Quantidade, decimal Total)> linhasBase;
 
         if (maisVendidos)
         {

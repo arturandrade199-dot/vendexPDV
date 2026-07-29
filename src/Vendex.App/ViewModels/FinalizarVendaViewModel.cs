@@ -242,7 +242,7 @@ public partial class FinalizarVendaViewModel : ObservableObject
         }
 
         var itensDto = _itens
-            .Select(i => new ItemCarrinho(i.ProdutoId, i.Quantidade, i.PrecoUnitario, i.PrecoCusto))
+            .Select(i => new ItemCarrinho(i.ProdutoId, i.ProdutoVarianteId, i.Quantidade, i.PrecoUnitario, i.PrecoCusto))
             .ToList();
 
         var pagamentosDto = Pagamentos

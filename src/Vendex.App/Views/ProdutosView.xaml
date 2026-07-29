@@ -86,10 +86,17 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
+                            <GridViewColumn Header="Un." Width="60">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding UnidadeTexto}" Foreground="#1F2430" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                             <GridViewColumn Header="Estoque" Width="90">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Text="{Binding Estoque}">
+                                        <TextBlock Text="{Binding EstoqueFormatado}">
                                             <TextBlock.Foreground>
                                                 <SolidColorBrush Color="{Binding EstoqueCor}" />
                                             </TextBlock.Foreground>

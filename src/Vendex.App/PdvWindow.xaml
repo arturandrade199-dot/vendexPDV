@@ -14,7 +14,7 @@
 
     <ui:FluentWindow.InputBindings>
         <KeyBinding Key="F2" Command="{Binding FinalizarVendaCommand}" />
-        <KeyBinding Key="Escape" Command="{Binding CancelarVendaCommand}" />
+        <KeyBinding Key="Escape" Command="{Binding SolicitarSaidaCommand}" />
     </ui:FluentWindow.InputBindings>
 
     <Grid Background="#F3F4F8">
@@ -83,7 +83,7 @@
                                                           CommandParameter="{Binding}" />
                                         </Border.InputBindings>
                                         <StackPanel>
-                                            <TextBlock Text="{Binding Nome}" FontWeight="Medium" Foreground="#1F2430" />
+                                            <TextBlock Text="{Binding NomeExibicao}" FontWeight="Medium" Foreground="#1F2430" />
                                             <TextBlock Text="{Binding PrecoVenda, StringFormat='Preço: {0:C2}'}" Foreground="#6B7280" FontSize="12" />
                                         </StackPanel>
                                     </Border>
@@ -111,7 +111,19 @@
                                     <GridViewColumn Header="Produto" Width="320">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding Nome}" Foreground="#1F2430" FontSize="14" Padding="0,6" />
+                                                <TextBlock Text="{Binding Nome}" FontSize="14" Padding="0,6">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="#1F2430" />
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Removido}" Value="True">
+                                                                    <Setter Property="Foreground" Value="#9CA3AF" />
+                                                                    <Setter Property="TextDecorations" Value="Strikethrough" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
@@ -125,7 +137,7 @@
                                     <GridViewColumn Header="Quantidade" Width="140">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <TextBlock Text="{Binding Quantidade}" Foreground="#1F2430" />
+                                                <TextBlock Text="{Binding QuantidadeFormatada}" Foreground="#1F2430" />
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
@@ -139,9 +151,15 @@
                                     <GridViewColumn Header="" Width="120">
                                         <GridViewColumn.CellTemplate>
                                             <DataTemplate>
-                                                <ui:Button Content="Remover"
-                                                           Command="{Binding DataContext.RemoverItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                           CommandParameter="{Binding}" />
+                                                <Grid>
+                                                    <ui:Button Content="Remover"
+                                                               Visibility="{Binding Removido, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                                               Command="{Binding DataContext.RemoverItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                               CommandParameter="{Binding}" />
+                                                    <TextBlock Text="Removido" Foreground="#9CA3AF" FontStyle="Italic"
+                                                               VerticalAlignment="Center"
+                                                               Visibility="{Binding Removido, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                                </Grid>
                                             </DataTemplate>
                                         </GridViewColumn.CellTemplate>
                                     </GridViewColumn>
@@ -220,12 +238,70 @@
                     <TextBlock Text="{Binding TotalFormatado}" FontSize="24" FontWeight="Bold" Foreground="#1F2430" />
                 </StackPanel>
 
-                <ui:Button Grid.Column="2" Content="Cancelar Venda (Esc)" Margin="0,0,12,0" Padding="16,10"
+                <ui:Button Grid.Column="2" Content="Cancelar Venda" Margin="0,0,12,0" Padding="16,10"
+                           Visibility="{Binding TemItens, Converter={StaticResource BoolToVisibilityConverter}}"
                            Command="{Binding CancelarVendaCommand}" />
 
                 <ui:Button Grid.Column="3" Content="Finalizar Venda (F2)" Appearance="Primary" Padding="16,10"
                            Command="{Binding FinalizarVendaCommand}" />
             </Grid>
         </Border>
+
+        <!-- Confirmação de cancelamento da venda -->
+        <Grid Grid.Row="0" Grid.RowSpan="4" Background="#66000000"
+              Visibility="{Binding MostrarConfirmacaoCancelamento, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="White" CornerRadius="12" Padding="24" Width="360" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.25" Color="Black" />
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Cancelar venda" FontWeight="SemiBold" FontSize="16" Foreground="#1F2430" Margin="0,0,0,12" />
+                    <TextBlock Text="Tem certeza que deseja cancelar esta venda? Os itens do carrinho serão perdidos."
+                               TextWrapping="Wrap" Foreground="#6B7280" Margin="0,0,0,20" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <ui:Button Content="Voltar" Margin="0,0,8,0" Command="{Binding FecharConfirmacaoCancelamentoCommand}" />
+                        <ui:Button Content="Cancelar Venda" Appearance="Danger" Command="{Binding ConfirmarCancelamentoVendaCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Confirmação de saída da tela de vendas (Esc) -->
+        <Grid Grid.Row="0" Grid.RowSpan="4" Background="#66000000"
+              Visibility="{Binding MostrarConfirmacaoSair, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="White" CornerRadius="12" Padding="24" Width="360" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.25" Color="Black" />
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Sair da tela de vendas" FontWeight="SemiBold" FontSize="16" Foreground="#1F2430" Margin="0,0,0,12" />
+                    <TextBlock Text="Deseja sair da tela de vendas?"
+                               TextWrapping="Wrap" Foreground="#6B7280" Margin="0,0,0,20" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <ui:Button Content="Continuar vendendo" Margin="0,0,8,0" Command="{Binding FecharConfirmacaoSairCommand}" />
+                        <ui:Button Content="Sair" Appearance="Danger" Command="{Binding ConfirmarSaidaCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Confirmação de remoção de item -->
+        <Grid Grid.Row="0" Grid.RowSpan="4" Background="#66000000"
+              Visibility="{Binding MostrarConfirmacaoRemocaoItem, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="White" CornerRadius="12" Padding="24" Width="360" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.25" Color="Black" />
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Remover item" FontWeight="SemiBold" FontSize="16" Foreground="#1F2430" Margin="0,0,0,12" />
+                    <TextBlock Text="{Binding MensagemConfirmacaoRemocaoItem}"
+                               TextWrapping="Wrap" Foreground="#6B7280" Margin="0,0,0,20" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <ui:Button Content="Voltar" Margin="0,0,8,0" Command="{Binding FecharConfirmacaoRemocaoItemCommand}" />
+                        <ui:Button Content="Remover" Appearance="Danger" Command="{Binding ConfirmarRemocaoItemCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </ui:FluentWindow>

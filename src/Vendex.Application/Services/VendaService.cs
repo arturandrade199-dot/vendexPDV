@@ -13,15 +13,51 @@ public class VendaService : IVendaService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<IReadOnlyList<Produto>> BuscarProdutosAsync(string termo)
+    public async Task<IReadOnlyList<ResultadoBuscaProduto>> BuscarProdutosAsync(string termo)
     {
         var produtos = await _unitOfWork.Produtos.ObterTodosAsync();
-        return produtos
-            .Where(p => p.Ativo && (
-                p.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase) ||
-                (p.CodigoBarras is not null && p.CodigoBarras.Contains(termo, StringComparison.OrdinalIgnoreCase))))
-            .OrderBy(p => p.Nome)
-            .ToList();
+        var resultados = new List<ResultadoBuscaProduto>();
+
+        foreach (var produto in produtos.Where(p => p.Ativo))
+        {
+            if (!produto.TemGrade)
+            {
+                var bateNomeOuCodigo = produto.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase) ||
+                    (produto.CodigoBarras is not null && produto.CodigoBarras.Contains(termo, StringComparison.OrdinalIgnoreCase));
+
+                if (bateNomeOuCodigo)
+                {
+                    resultados.Add(new ResultadoBuscaProduto(
+                        produto.Id, produto.Nome, null, null, produto.CodigoBarras,
+                        produto.PrecoVenda, produto.PrecoCusto, produto.EstoqueAtual));
+                }
+
+                continue;
+            }
+
+            var variantePorCodigo = produto.Variantes.FirstOrDefault(v =>
+                v.CodigoBarras is not null && v.CodigoBarras.Contains(termo, StringComparison.OrdinalIgnoreCase));
+
+            if (variantePorCodigo is not null)
+            {
+                resultados.Add(new ResultadoBuscaProduto(
+                    produto.Id, produto.Nome, variantePorCodigo.Id, variantePorCodigo.Nome, variantePorCodigo.CodigoBarras,
+                    produto.PrecoVenda, produto.PrecoCusto, variantePorCodigo.EstoqueAtual));
+                continue;
+            }
+
+            var bateNomeProdutoOuVariante = produto.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase) ||
+                produto.Variantes.Any(v => v.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase));
+
+            if (bateNomeProdutoOuVariante)
+            {
+                resultados.AddRange(produto.Variantes.Select(v => new ResultadoBuscaProduto(
+                    produto.Id, produto.Nome, v.Id, v.Nome, v.CodigoBarras,
+                    produto.PrecoVenda, produto.PrecoCusto, v.EstoqueAtual)));
+            }
+        }
+
+        return resultados.OrderBy(r => r.NomeExibicao).ToList();
     }
 
     public async Task<Venda> FinalizarVendaAsync(
@@ -56,6 +92,7 @@ public class VendaService : IVendaService
             venda.Itens.Add(new VendaItem
             {
                 ProdutoId = item.ProdutoId,
+                ProdutoVarianteId = item.ProdutoVarianteId,
                 Quantidade = item.Quantidade,
                 PrecoUnitario = item.PrecoUnitario,
                 PrecoCustoUnitario = item.PrecoCustoUnitario,
@@ -65,7 +102,17 @@ public class VendaService : IVendaService
             var produto = await _unitOfWork.Produtos.ObterPorIdAsync(item.ProdutoId);
             if (produto is not null)
             {
-                produto.EstoqueAtual -= item.Quantidade;
+                if (item.ProdutoVarianteId is int varianteId)
+                {
+                    var variante = produto.Variantes.FirstOrDefault(v => v.Id == varianteId);
+                    if (variante is not null)
+                        variante.EstoqueAtual -= item.Quantidade;
+                }
+                else
+                {
+                    produto.EstoqueAtual -= item.Quantidade;
+                }
+
                 _unitOfWork.Produtos.Atualizar(produto);
             }
         }

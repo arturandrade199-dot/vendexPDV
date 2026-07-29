@@ -4,24 +4,27 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Vendex.App.Navigation;
 using Vendex.Application.Services;
-using Vendex.Domain.Entities;
 using Vendex.Domain.Enums;
 
 namespace Vendex.App.ViewModels;
 
 public partial class PdvViewModel : ObservableObject
 {
+    private const string NomeModulo = "PDV";
+
     private static readonly CultureInfo CulturaBr = CultureInfo.GetCultureInfo("pt-BR");
 
     private readonly IVendaService _vendaService;
     private readonly ICaixaService _caixaService;
+    private readonly IAuditoriaService _auditoriaService;
     private readonly SessaoUsuario _sessao;
     private readonly Func<CaixaWindow> _caixaWindowFactory;
     private readonly Func<IReadOnlyList<ItemCarrinhoViewModel>, FinalizarVendaViewModel> _finalizarVendaViewModelFactory;
+    private readonly Func<string, string, AutorizacaoWindow> _autorizacaoWindowFactory;
 
     private TipoMovimentacaoCaixa _tipoMovimentacaoAtual;
 
-    public ObservableCollection<Produto> ResultadosBusca { get; } = new();
+    public ObservableCollection<ResultadoBuscaProduto> ResultadosBusca { get; } = new();
     public ObservableCollection<ItemCarrinhoViewModel> Itens { get; } = new();
 
     [ObservableProperty] private string termoBusca = string.Empty;
@@ -35,6 +38,19 @@ public partial class PdvViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(MostrarCarrinho))]
     [NotifyPropertyChangedFor(nameof(MostrarBloqueioSemCaixa))]
     private bool caixaAberto;
+
+    [ObservableProperty] private bool mostrarConfirmacaoCancelamento;
+    [ObservableProperty] private bool mostrarConfirmacaoSair;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(MostrarConfirmacaoRemocaoItem))]
+    [NotifyPropertyChangedFor(nameof(MensagemConfirmacaoRemocaoItem))]
+    private ItemCarrinhoViewModel? itemParaRemover;
+
+    public bool MostrarConfirmacaoRemocaoItem => ItemParaRemover is not null;
+    public string MensagemConfirmacaoRemocaoItem => ItemParaRemover is null
+        ? string.Empty
+        : $"Remover \"{ItemParaRemover.Nome}\" da venda?";
 
     [ObservableProperty] private bool mostrarPainelMovimentacao;
     [ObservableProperty] private string tituloMovimentacao = string.Empty;
@@ -63,15 +79,19 @@ public partial class PdvViewModel : ObservableObject
     public PdvViewModel(
         IVendaService vendaService,
         ICaixaService caixaService,
+        IAuditoriaService auditoriaService,
         SessaoUsuario sessao,
         Func<CaixaWindow> caixaWindowFactory,
-        Func<IReadOnlyList<ItemCarrinhoViewModel>, FinalizarVendaViewModel> finalizarVendaViewModelFactory)
+        Func<IReadOnlyList<ItemCarrinhoViewModel>, FinalizarVendaViewModel> finalizarVendaViewModelFactory,
+        Func<string, string, AutorizacaoWindow> autorizacaoWindowFactory)
     {
         _vendaService = vendaService;
         _caixaService = caixaService;
+        _auditoriaService = auditoriaService;
         _sessao = sessao;
         _caixaWindowFactory = caixaWindowFactory;
         _finalizarVendaViewModelFactory = finalizarVendaViewModelFactory;
+        _autorizacaoWindowFactory = autorizacaoWindowFactory;
         _ = AtualizarStatusCaixaAsync();
     }
 
@@ -95,16 +115,16 @@ public partial class PdvViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void AdicionarProduto(Produto produto)
+    private void AdicionarProduto(ResultadoBuscaProduto resultado)
     {
-        if (!int.TryParse(QuantidadeTexto, out var quantidade) || quantidade <= 0)
+        if (!decimal.TryParse(QuantidadeTexto, out var quantidade) || quantidade <= 0)
             quantidade = 1;
 
-        var existente = Itens.FirstOrDefault(i => i.ProdutoId == produto.Id);
+        var existente = Itens.FirstOrDefault(i => !i.Removido && i.ProdutoId == resultado.ProdutoId && i.ProdutoVarianteId == resultado.VarianteId);
         if (existente is not null)
             existente.Quantidade += quantidade;
         else
-            Itens.Add(new ItemCarrinhoViewModel(produto, quantidade));
+            Itens.Add(new ItemCarrinhoViewModel(resultado, quantidade));
 
         AtualizarResumo();
         TermoBusca = string.Empty;
@@ -123,20 +143,43 @@ public partial class PdvViewModel : ObservableObject
     [RelayCommand]
     private void RemoverItem(ItemCarrinhoViewModel item)
     {
-        Itens.Remove(item);
-        AtualizarResumo();
+        if (item.Removido)
+            return;
+
+        ItemParaRemover = item;
+    }
+
+    [RelayCommand]
+    private void FecharConfirmacaoRemocaoItem() => ItemParaRemover = null;
+
+    [RelayCommand]
+    private async Task ConfirmarRemocaoItemAsync()
+    {
+        var item = ItemParaRemover;
+        if (item is null)
+            return;
+
+        ItemParaRemover = null;
+
+        await ExecutarComPermissaoAsync("remover um item da venda", () =>
+        {
+            item.Removido = true;
+            AtualizarResumo();
+            return Task.CompletedTask;
+        });
     }
 
     [RelayCommand]
     private void FinalizarVenda()
     {
-        if (Itens.Count == 0)
+        var itensValidos = Itens.Where(i => !i.Removido).ToList();
+        if (itensValidos.Count == 0)
         {
             Mensagem = "Adicione ao menos um produto antes de finalizar.";
             return;
         }
 
-        var pagamento = _finalizarVendaViewModelFactory(Itens.ToList());
+        var pagamento = _finalizarVendaViewModelFactory(itensValidos);
         pagamento.Voltar += () => PagamentoAtual = null;
         pagamento.Confirmado += () => OnVendaConfirmada(pagamento);
         PagamentoAtual = pagamento;
@@ -146,6 +189,41 @@ public partial class PdvViewModel : ObservableObject
     /// decidir se imprime automaticamente (config em Configurações), sem o ViewModel
     /// precisar conhecer PrintDialog/Visual (isso é responsabilidade da View).</summary>
     public event Action<ReciboVenda>? VendaFinalizada;
+
+    /// <summary>Fecha a janela do PDV — disparado depois que o operador confirma a saída
+    /// no popup do Esc. O ViewModel não conhece Window/Close(), então quem trata isso é o
+    /// code-behind do PdvWindow.</summary>
+    public event Action? SairSolicitado;
+
+    [RelayCommand]
+    private void SolicitarSaida()
+    {
+        // Esc fecha o que estiver aberto na hora (popup de confirmação de cancelamento/
+        // remoção) antes de virar um pedido de saída da tela inteira.
+        if (MostrarConfirmacaoCancelamento)
+        {
+            MostrarConfirmacaoCancelamento = false;
+            return;
+        }
+
+        if (MostrarConfirmacaoRemocaoItem)
+        {
+            ItemParaRemover = null;
+            return;
+        }
+
+        // Só permite sair da tela com o carrinho vazio — com itens no pedido, Esc não faz nada.
+        if (Itens.Any(i => !i.Removido))
+            return;
+
+        MostrarConfirmacaoSair = !MostrarConfirmacaoSair;
+    }
+
+    [RelayCommand]
+    private void FecharConfirmacaoSair() => MostrarConfirmacaoSair = false;
+
+    [RelayCommand]
+    private void ConfirmarSaida() => SairSolicitado?.Invoke();
 
     private void OnVendaConfirmada(FinalizarVendaViewModel pagamento)
     {
@@ -172,11 +250,49 @@ public partial class PdvViewModel : ObservableObject
             return;
         }
 
-        Itens.Clear();
-        AtualizarResumo();
-        TermoBusca = string.Empty;
-        ResultadosBusca.Clear();
-        Mensagem = "Venda cancelada.";
+        MostrarConfirmacaoCancelamento = true;
+    }
+
+    [RelayCommand]
+    private void FecharConfirmacaoCancelamento() => MostrarConfirmacaoCancelamento = false;
+
+    [RelayCommand]
+    private async Task ConfirmarCancelamentoVendaAsync()
+    {
+        MostrarConfirmacaoCancelamento = false;
+
+        await ExecutarComPermissaoAsync("cancelar a venda", async () =>
+        {
+            var quantidadeItens = Itens.Count(i => !i.Removido);
+            Itens.Clear();
+            AtualizarResumo();
+            TermoBusca = string.Empty;
+            ResultadosBusca.Clear();
+            Mensagem = "Venda cancelada.";
+
+            if (_sessao.UsuarioLogado is not null)
+            {
+                await _auditoriaService.RegistrarAsync(
+                    _sessao.UsuarioLogado.Id, NomeModulo, TipoAcaoAuditoria.CancelamentoVenda,
+                    "Venda", null, $"Venda cancelada no PDV com {quantidadeItens} item(ns).");
+            }
+        });
+    }
+
+    /// <summary>Só quem tem permissão de exclusão no módulo PDV pode cancelar a venda ou
+    /// remover um item direto; sem ela, abre um diálogo pedindo login/senha de alguém que
+    /// tenha — sem trocar o usuário da sessão atual.</summary>
+    private async Task ExecutarComPermissaoAsync(string acaoDescricao, Func<Task> acao)
+    {
+        if (_sessao.PodeExcluir(NomeModulo))
+        {
+            await acao();
+            return;
+        }
+
+        var janela = _autorizacaoWindowFactory(NomeModulo, $"Você não tem permissão para {acaoDescricao}.");
+        if (janela.ShowDialog() == true)
+            await acao();
     }
 
     [RelayCommand]
@@ -233,7 +349,7 @@ public partial class PdvViewModel : ObservableObject
 
     private void AtualizarResumo()
     {
-        var total = Itens.Sum(i => i.Subtotal);
+        var total = Itens.Where(i => !i.Removido).Sum(i => i.Subtotal);
         TotalFormatado = total.ToString("C2", CulturaBr);
         TemItens = Itens.Count > 0;
     }

@@ -4,7 +4,7 @@ namespace Vendex.Application.Services;
 
 public interface IVendaService
 {
-    Task<IReadOnlyList<Produto>> BuscarProdutosAsync(string termo);
+    Task<IReadOnlyList<ResultadoBuscaProduto>> BuscarProdutosAsync(string termo);
 
     /// <summary>
     /// Finaliza a venda com uma ou mais formas de pagamento (pagamento misto). A soma de
