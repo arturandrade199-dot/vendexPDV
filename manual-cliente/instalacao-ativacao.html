@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Vendex PDV — Guia de Instalação e Ativação</title>
+<style>
+    :root {
+        --primary: #085441;
+        --secondary: #5DCAA5;
+        --text-primary: #1c1917;
+        --text-secondary: #57534e;
+        --border: #e7e5e4;
+        --surface-alt: #f8f8f7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+        color: var(--text-primary);
+        line-height: 1.55;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-bottom: 3px solid var(--primary);
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .header img {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin: 0;
+    }
+
+    .header p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+    }
+
+    h2 {
+        color: var(--primary);
+        font-size: 1.2rem;
+        border-left: 4px solid var(--secondary);
+        padding-left: 0.6rem;
+        margin-top: 2.2rem;
+        margin-bottom: 0.8rem;
+        break-after: avoid;
+    }
+
+    h3 {
+        font-size: 1rem;
+        margin-bottom: 0.4rem;
+    }
+
+    p { margin: 0.5rem 0; }
+
+    ol, ul {
+        margin: 0.5rem 0;
+        padding-left: 1.4rem;
+    }
+
+    li { margin-bottom: 0.5rem; }
+
+    .box {
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin: 1rem 0;
+        break-inside: avoid;
+    }
+
+    .box strong { color: var(--primary); }
+
+    .field-label {
+        display: inline-block;
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.1rem 0.5rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0.75rem 0 1.25rem;
+        font-size: 0.92rem;
+    }
+
+    th, td {
+        border: 1px solid var(--border);
+        padding: 0.55rem 0.7rem;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    th {
+        background: var(--surface-alt);
+        color: var(--primary);
+    }
+
+    tr, .box { break-inside: avoid; }
+
+    .fill-in {
+        background: #fff9db;
+        border: 1px dashed #d4b106;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+
+    .footer {
+        margin-top: 2.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-align: center;
+    }
+
+    @media print {
+        body { padding: 0; max-width: 100%; }
+        a { color: inherit; text-decoration: none; }
+    }
+
+    @page {
+        size: A4;
+        margin: 18mm 16mm;
+    }
+</style>
+</head>
+<body>
+
+    <div class="header">
+        <img src="assets/vendex-icon.png" alt="Vendex">
+        <div>
+            <h1>Vendex PDV — Guia de Instalação e Ativação</h1>
+            <p>Passo a passo para instalar o sistema e ativar sua assinatura.</p>
+        </div>
+    </div>
+
+    <h2>O que você vai precisar</h2>
+    <ul>
+        <li>Um computador com Windows 10 ou Windows 11.</li>
+        <li>Conexão com a internet — só para baixar o programa e para ativar (depois disso, o Vendex funciona offline no dia a dia).</li>
+        <li>O <strong>e-mail que você usou na compra</strong>. Não é preciso senha nem número de série — só o e-mail.</li>
+    </ul>
+
+    <h2>1. Baixando o instalador</h2>
+    <p>Depois que sua assinatura é aprovada, o arquivo de instalação fica disponível na área de acesso do produto na Hotmart. Baixe o arquivo chamado algo como:</p>
+    <div class="box"><span class="field-label">VendexPDV-Setup.exe</span></div>
+    <p>Salve-o em um lugar fácil de achar, como a pasta <strong>Downloads</strong> ou a <strong>Área de Trabalho</strong>.</p>
+
+    <h2>2. Instalando o programa</h2>
+    <ol>
+        <li>Dê dois cliques no arquivo <span class="field-label">VendexPDV-Setup.exe</span> que você baixou.</li>
+        <li>
+            O Windows pode mostrar um aviso azul de segurança ("O Windows protegeu o computador" / SmartScreen), comum em programas novos.
+            Isso é normal — clique em <strong>"Mais informações"</strong> e depois em <strong>"Executar assim mesmo"</strong>.
+        </li>
+        <li>Siga as telas do instalador (já vem em português). Você pode marcar a opção de criar um ícone na área de trabalho.</li>
+        <li>Clique em <strong>Instalar</strong> e aguarde terminar.</li>
+        <li>Ao final, o próprio instalador já abre o Vendex PDV automaticamente.</li>
+    </ol>
+    <div class="box">
+        Não é preciso ser administrador do computador para instalar — o Vendex é instalado só para o seu usuário do Windows.
+    </div>
+
+    <h2>3. Ativando sua assinatura</h2>
+    <p>Na primeira vez que o Vendex PDV abrir, vai aparecer a tela <strong>"Vendex PDV — Ativação"</strong>, com o título <strong>"Ativar assinatura"</strong>.</p>
+    <ol>
+        <li>Digite, no campo <span class="field-label">Email</span>, o mesmo e-mail que você usou para comprar/assinar o Vendex.</li>
+        <li>Clique no botão <strong>"Ativar"</strong> (ou aperte Enter).</li>
+        <li>Aguarde alguns segundos — o sistema confere sua assinatura pela internet automaticamente.</li>
+        <li>Se estiver tudo certo, a tela fecha sozinha e o Vendex PDV abre normalmente, pronto para uso.</li>
+    </ol>
+    <div class="box">
+        <strong>Importante:</strong> é preciso estar conectado à internet só nesse momento da ativação. Depois de ativado, o Vendex funciona offline no uso diário, e confirma sua assinatura sozinho em segundo plano sempre que encontrar internet disponível.
+    </div>
+
+    <h2>4. Criando seu usuário administrador</h2>
+    <p>Depois que a ativação terminar, o Vendex PDV abre direto na tela <strong>"Bem-vindo! Crie o usuário administrador"</strong> — isso só aparece uma vez, na primeira abertura, porque ainda não existe nenhum usuário cadastrado no sistema.</p>
+    <ol>
+        <li>Preencha <span class="field-label">Nome</span> com seu nome (ou o nome de quem vai administrar o sistema).</li>
+        <li>Escolha um <span class="field-label">Login</span> — é o que você vai digitar para entrar no Vendex daqui pra frente.</li>
+        <li>Defina uma <span class="field-label">Senha</span> (mínimo 4 caracteres) e repita no campo <span class="field-label">Confirmar senha</span>.</li>
+        <li>Clique em <strong>"Criar Administrador"</strong>.</li>
+    </ol>
+    <div class="box">
+        <strong>Guarde esse login e senha em um lugar seguro.</strong> É você quem escolhe as duas informações — não existe usuário ou senha padrão do Vendex. Esse primeiro usuário é do tipo <em>Administrador</em>, com acesso completo ao sistema; outros usuários (para funcionários, por exemplo) podem ser cadastrados depois, dentro do próprio Vendex, com permissões mais restritas.
+    </div>
+    <p>Depois de criar o administrador, você já entra automaticamente — sem precisar fazer login de novo — direto na tela principal do Vendex PDV, pronto para cadastrar produtos e começar a vender.</p>
+
+    <h2>5. Mensagens de erro mais comuns</h2>
+    <table>
+        <tr><th>Mensagem na tela</th><th>O que fazer</th></tr>
+        <tr>
+            <td>"Informe o email usado na compra."</td>
+            <td>O campo de e-mail ficou em branco. Digite o e-mail e clique em Ativar novamente.</td>
+        </tr>
+        <tr>
+            <td>"Não foi possível conectar. Verifique sua internet e tente novamente."</td>
+            <td>O computador está sem internet no momento. Conecte-se e clique em Ativar de novo.</td>
+        </tr>
+        <tr>
+            <td>"Email não encontrado ou assinatura não está ativa — confirme sua compra."</td>
+            <td>
+                Confira se digitou exatamente o e-mail usado na compra (sem espaços, sem erro de digitação).
+                Se a compra foi feita há poucos minutos, aguarde um pouco — a confirmação de pagamento pode demorar um pouco para chegar.
+                Se o problema continuar, confirme se a assinatura está mesmo ativa (não cancelada ou em atraso).
+            </td>
+        </tr>
+        <tr>
+            <td>"Não foi possível ativar nesta máquina."</td>
+            <td>
+                Cada assinatura do Vendex funciona em <strong>um computador por vez</strong>. Essa mensagem aparece se você já ativou em outro
+                computador e está tentando ativar em um segundo. Para trocar de computador, entre em contato pelo suporte abaixo.
+            </td>
+        </tr>
+        <tr>
+            <td>"Resposta do servidor inválida. Tente novamente mais tarde."</td>
+            <td>Erro temporário. Espere alguns minutos e tente ativar de novo. Se persistir, fale com o suporte.</td>
+        </tr>
+    </table>
+
+    <h2>6. Como funciona a licença, no dia a dia</h2>
+    <ul>
+        <li>A assinatura fica vinculada a <strong>1 computador</strong> por vez.</li>
+        <li>O Vendex funciona <strong>offline</strong> normalmente — ele só precisa achar internet de vez em quando para confirmar que a assinatura continua ativa (isso acontece sozinho, em segundo plano).</li>
+        <li>Se o computador ficar muito tempo sem internet (mais de 7 dias seguidos) sem conseguir confirmar, o sistema pode pedir para reconectar.</li>
+        <li>Se a assinatura for cancelada ou o pagamento atrasar, o Vendex avisa e para de funcionar até a situação ser regularizada.</li>
+    </ul>
+
+    <h2>Precisa de ajuda?</h2>
+    <p>
+        Se tiver qualquer dificuldade na instalação ou ativação, entre em contato:<br>
+        E-mail: vendex.contato@gmail.com
+    </p>
+
+    <div class="footer">
+        Vendex PDV — Sistema de ponto de venda para o pequeno comércio.
+    </div>
+
+</body>
+</html>
