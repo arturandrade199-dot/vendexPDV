@@ -71,7 +71,11 @@ public partial class ContasReceberViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void CancelarRecebimento() => MostrarConfirmacaoRecebimento = false;
+    private void CancelarRecebimento()
+    {
+        MostrarConfirmacaoRecebimento = false;
+        ContaParaReceber = null;
+    }
 
     [RelayCommand]
     private async Task ConfirmarRecebimentoAsync()

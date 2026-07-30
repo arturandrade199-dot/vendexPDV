@@ -37,6 +37,10 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
     [ObservableProperty] private bool imprimirAberturaCaixa = true;
     [ObservableProperty] private bool imprimirFechamentoCaixa = true;
     [ObservableProperty] private bool imprimirVenda = true;
+    [ObservableProperty] private bool usarLayoutTermico;
+    [ObservableProperty] private string? nomeLoja;
+    [ObservableProperty] private string? enderecoLoja;
+    [ObservableProperty] private string? cnpjLoja;
     [ObservableProperty] private string? mensagemErroImpressao;
     [ObservableProperty] private string? mensagemSucessoImpressao;
 
@@ -102,6 +106,10 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
         ImprimirAberturaCaixa = configuracao.ImprimirAberturaCaixa;
         ImprimirFechamentoCaixa = configuracao.ImprimirFechamentoCaixa;
         ImprimirVenda = configuracao.ImprimirVenda;
+        UsarLayoutTermico = configuracao.UsarLayoutTermico;
+        NomeLoja = configuracao.NomeLoja;
+        EnderecoLoja = configuracao.EnderecoLoja;
+        CnpjLoja = configuracao.CnpjLoja;
     }
 
     [RelayCommand]
@@ -112,7 +120,8 @@ public partial class ConfiguracaoBackupViewModel : ObservableObject
         try
         {
             await _configuracaoImpressaoService.SalvarConfiguracaoAsync(
-                ImpressoraSelecionada, ImprimirAberturaCaixa, ImprimirFechamentoCaixa, ImprimirVenda);
+                ImpressoraSelecionada, ImprimirAberturaCaixa, ImprimirFechamentoCaixa, ImprimirVenda,
+                UsarLayoutTermico, NomeLoja, EnderecoLoja, CnpjLoja);
             MensagemSucessoImpressao = "Preferências de impressão salvas.";
         }
         catch (Exception ex)

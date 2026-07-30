@@ -5,6 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d">
+    <UserControl.InputBindings>
+        <KeyBinding Key="Return" Command="{Binding ConfirmarPagamentoCommand}" />
+        <KeyBinding Key="Escape" Command="{Binding CancelarPagamentoCommand}" />
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -57,7 +61,7 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <ui:Button Grid.Column="0" Content="+ Adicionar" Appearance="Primary"
+                <ui:Button Grid.Column="0" Content="+ Adicionar (Ctrl+N)" Appearance="Primary"
                            Command="{Binding AdicionarCommand}" Padding="18,8"
                            Visibility="{Binding PodeCriar, Converter={StaticResource BoolToVisibilityConverter}}" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
@@ -157,8 +161,8 @@
                               Padding="8" Margin="0,0,0,20" />
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <ui:Button Content="Cancelar" Margin="0,0,8,0" Command="{Binding CancelarPagamentoCommand}" />
-                        <ui:Button Content="Confirmar" Appearance="Primary" Command="{Binding ConfirmarPagamentoCommand}" />
+                        <ui:Button Content="Cancelar (Esc)" Margin="0,0,8,0" Command="{Binding CancelarPagamentoCommand}" />
+                        <ui:Button Content="Confirmar (Enter)" Appearance="Primary" Command="{Binding ConfirmarPagamentoCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

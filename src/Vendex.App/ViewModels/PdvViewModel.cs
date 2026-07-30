@@ -136,6 +136,17 @@ public partial class PdvViewModel : ObservableObject
     [RelayCommand]
     private void AdicionarPrimeiroResultado()
     {
+        // O foco costuma ficar em TxtBusca durante o uso normal do PDV, e o KeyBinding local
+        // dele pra Enter é avaliado antes do KeyBinding de Enter da janela (mais próximo do
+        // foco vence primeiro) — sem isso, o Enter dos diálogos de confirmação (Cancelar
+        // Venda, Sair, Remover item) fica "engolido" aqui sem fazer nada quando o foco ainda
+        // está na busca.
+        if (MostrarConfirmacaoCancelamento || MostrarConfirmacaoRemocaoItem || MostrarConfirmacaoSair)
+        {
+            _ = ConfirmarDialogoAtivoAsync();
+            return;
+        }
+
         if (ResultadosBusca.Count == 1)
             AdicionarProduto(ResultadosBusca[0]);
     }
@@ -230,6 +241,29 @@ public partial class PdvViewModel : ObservableObject
 
     [RelayCommand]
     private void ConfirmarSaida() => SairSolicitado?.Invoke();
+
+    /// <summary>Atalho de Enter da janela: os diálogos de confirmação (cancelamento, sair,
+    /// remover item) são overlays comuns — não Popup — então dá pra ter um único KeyBinding
+    /// de Enter na janela que decide qual "Confirmar" chamar de acordo com o que está aberto
+    /// no momento. Sem diálogo aberto, não faz nada.</summary>
+    [RelayCommand]
+    private async Task ConfirmarDialogoAtivoAsync()
+    {
+        if (MostrarConfirmacaoCancelamento)
+        {
+            await ConfirmarCancelamentoVendaAsync();
+            return;
+        }
+
+        if (MostrarConfirmacaoRemocaoItem)
+        {
+            await ConfirmarRemocaoItemAsync();
+            return;
+        }
+
+        if (MostrarConfirmacaoSair)
+            ConfirmarSaida();
+    }
 
     private void OnVendaConfirmada(FinalizarVendaViewModel pagamento)
     {

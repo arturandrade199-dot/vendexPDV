@@ -29,15 +29,35 @@
 
             <!-- Barra de ações -->
             <Grid Grid.Row="0" Margin="0,0,0,16">
-                <ui:Button Content="+ Adicionar" Appearance="Primary"
-                           Command="{Binding AdicionarCommand}" Padding="18,8"
-                           HorizontalAlignment="Left"
-                           Visibility="{Binding PodeCriar, Converter={StaticResource BoolToVisibilityConverter}}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                    <ui:Button Content="+ Adicionar (Ctrl+N)" Appearance="Primary"
+                               Command="{Binding AdicionarCommand}" Padding="18,8" Margin="0,0,8,0"
+                               Visibility="{Binding PodeCriar, Converter={StaticResource BoolToVisibilityConverter}}" />
+
+                    <ui:Button x:Name="BtnAtalhos" Content="⌨ Atalhos" Appearance="Transparent" Padding="10,8"
+                               Click="BtnAtalhos_Click" />
+                    <Popup x:Name="PopupAtalhos" PlacementTarget="{Binding ElementName=BtnAtalhos}"
+                           Placement="Bottom" StaysOpen="False" AllowsTransparency="True">
+                        <Border Background="White" CornerRadius="10" BorderBrush="#E5E7EB" BorderThickness="1"
+                                Padding="16" Width="300" Margin="0,4,0,0">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.15" Color="Black" />
+                            </Border.Effect>
+                            <StackPanel>
+                                <TextBlock Text="Atalhos de teclado" FontWeight="SemiBold" FontSize="14" Margin="0,0,0,8" />
+                                <TextBlock Text="Ctrl+N — Adicionar fornecedor" Margin="0,0,0,4" TextWrapping="Wrap" />
+                                <TextBlock Text="Selecione uma linha e pressione Enter — Editar" Margin="0,0,0,4" TextWrapping="Wrap" />
+                                <TextBlock Text="Selecione uma linha e pressione Delete — Remover" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </Popup>
+                </StackPanel>
             </Grid>
 
             <!-- Tabela -->
             <Border Grid.Row="1" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1">
-                <ListView ItemsSource="{Binding Fornecedores}" BorderThickness="0" Background="Transparent">
+                <ListView ItemsSource="{Binding Fornecedores}" SelectedItem="{Binding ItemSelecionado}"
+                          BorderThickness="0" Background="Transparent">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Nome" Width="200">

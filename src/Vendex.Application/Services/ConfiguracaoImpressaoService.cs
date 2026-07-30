@@ -26,13 +26,19 @@ public class ConfiguracaoImpressaoService : IConfiguracaoImpressaoService
         return configuracao;
     }
 
-    public async Task SalvarConfiguracaoAsync(string? impressoraPadrao, bool imprimirAberturaCaixa, bool imprimirFechamentoCaixa, bool imprimirVenda)
+    public async Task SalvarConfiguracaoAsync(
+        string? impressoraPadrao, bool imprimirAberturaCaixa, bool imprimirFechamentoCaixa, bool imprimirVenda,
+        bool usarLayoutTermico, string? nomeLoja, string? enderecoLoja, string? cnpjLoja)
     {
         var configuracao = await ObterConfiguracaoAsync();
         configuracao.ImpressoraPadrao = impressoraPadrao;
         configuracao.ImprimirAberturaCaixa = imprimirAberturaCaixa;
         configuracao.ImprimirFechamentoCaixa = imprimirFechamentoCaixa;
         configuracao.ImprimirVenda = imprimirVenda;
+        configuracao.UsarLayoutTermico = usarLayoutTermico;
+        configuracao.NomeLoja = nomeLoja;
+        configuracao.EnderecoLoja = enderecoLoja;
+        configuracao.CnpjLoja = cnpjLoja;
 
         _unitOfWork.ConfiguracoesImpressao.Atualizar(configuracao);
         await _unitOfWork.SalvarAlteracoesAsync();

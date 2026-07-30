@@ -5,11 +5,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:views="clr-namespace:Vendex.App.Views"
+        xmlns:local="clr-namespace:Vendex.App"
         mc:Ignorable="d"
         Title="Cupom da venda" Height="600" Width="480"
         WindowStartupLocation="CenterOwner"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica">
+
+    <ui:FluentWindow.InputBindings>
+        <KeyBinding Key="P" Modifiers="Control" Command="{x:Static local:ReciboWindow.ImprimirCupomCommand}" />
+    </ui:FluentWindow.InputBindings>
+
     <Grid Margin="24,0,24,24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -18,6 +24,6 @@
 
         <ui:TitleBar Grid.Row="0" Title="Cupom da venda" />
 
-        <views:ReciboView Grid.Row="1" PermitirNovaVenda="False" />
+        <views:ReciboView x:Name="ReciboControl" Grid.Row="1" PermitirNovaVenda="False" />
     </Grid>
 </ui:FluentWindow>

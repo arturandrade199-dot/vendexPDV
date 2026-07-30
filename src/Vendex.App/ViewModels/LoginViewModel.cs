@@ -13,8 +13,8 @@ public partial class LoginViewModel : ObservableObject
     // Bypass só para build de Debug — nunca compilado em Release, nunca vai pro cliente.
     // Loga como um usuário "Desenvolvedor" com permissão total, independente do que estiver
     // digitado no campo Login. Troque a senha abaixo por algo só seu se quiser.
-    private const string LoginUsuarioDev = "dev";
-    private const string SenhaDev = "vendex2026#";
+    private const string LoginUsuarioDev = "admin";
+    private const string SenhaDev = "admin";
 #endif
 
     private readonly IUsuarioService _usuarioService;

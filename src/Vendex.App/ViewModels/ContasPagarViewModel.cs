@@ -71,7 +71,11 @@ public partial class ContasPagarViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void CancelarPagamento() => MostrarConfirmacaoPagamento = false;
+    private void CancelarPagamento()
+    {
+        MostrarConfirmacaoPagamento = false;
+        ContaParaPagar = null;
+    }
 
     [RelayCommand]
     private async Task ConfirmarPagamentoAsync()

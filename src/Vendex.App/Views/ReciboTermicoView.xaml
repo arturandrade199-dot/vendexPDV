@@ -1,0 +1,100 @@
+<UserControl x:Class="Vendex.App.Views.ReciboTermicoView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d">
+    <!-- Layout de bobina térmica (~80mm), pensado só pra impressão — nunca aparece na
+         tela. Sem elementos de documento fiscal (chave de acesso, QR code, protocolo):
+         é deliberadamente um comprovante não fiscal, pra impressoras Daruma/Elgin/Epson
+         comuns em quem não emite NFC-e pelo PDV. -->
+    <!-- Sem largura fixa aqui: quem define é o UserControl.Width, setado em código
+         (ReciboView.CriarVisualImpressao) de acordo com a área imprimível real da
+         impressora selecionada — largura fixa demais corta o conteúdo à direita. -->
+    <StackPanel Background="White" Margin="10"
+                TextElement.FontFamily="Consolas" TextElement.FontSize="11" TextElement.Foreground="Black">
+
+        <TextBlock Text="{Binding DadosLoja.Nome}" FontWeight="Bold" FontSize="13"
+                   TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,2"
+                   Visibility="{Binding DadosLoja.Nome, Converter={StaticResource NullToVisibilityConverter}}" />
+        <TextBlock Text="{Binding DadosLoja.Endereco}" TextAlignment="Center" TextWrapping="Wrap" Margin="0,0,0,2"
+                   Visibility="{Binding DadosLoja.Endereco, Converter={StaticResource NullToVisibilityConverter}}" />
+        <TextBlock TextAlignment="Center" Margin="0,0,0,2"
+                   Visibility="{Binding DadosLoja.Cnpj, Converter={StaticResource NullToVisibilityConverter}}">
+            <Run Text="CNPJ: " /><Run Text="{Binding DadosLoja.Cnpj, Mode=OneWay}" />
+        </TextBlock>
+
+        <TextBlock Text="------------------------------------" TextAlignment="Center" Margin="0,6,0,4" />
+        <TextBlock Text="COMPROVANTE DE VENDA" FontWeight="Bold" TextAlignment="Center" />
+        <TextBlock Text="(não é documento fiscal)" TextAlignment="Center" FontSize="9" Foreground="#555" Margin="0,2,0,0" />
+        <TextBlock Text="------------------------------------" TextAlignment="Center" Margin="0,4,0,6" />
+
+        <ItemsControl ItemsSource="{Binding Recibo.Itens}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Margin="0,0,0,6">
+                        <TextBlock Text="{Binding Nome}" TextWrapping="Wrap" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Foreground="#333">
+                                <Run Text="{Binding QuantidadeFormatada, Mode=OneWay}" />
+                                <Run Text=" x " />
+                                <Run Text="{Binding PrecoUnitarioFormatado, Mode=OneWay}" />
+                            </TextBlock>
+                            <TextBlock Grid.Column="1" Text="{Binding SubtotalFormatado}" FontWeight="Bold" />
+                        </Grid>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock Text="------------------------------------" TextAlignment="Center" Margin="0,0,0,6" />
+
+        <Grid Margin="0,0,0,2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="QTD. TOTAL DE ITENS" />
+            <TextBlock Grid.Column="1" Text="{Binding Recibo.Itens.Count}" />
+        </Grid>
+        <Grid Margin="0,0,0,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="VALOR TOTAL" FontWeight="Bold" />
+            <TextBlock Grid.Column="1" Text="{Binding Recibo.TotalFormatado}" FontWeight="Bold" />
+        </Grid>
+
+        <TextBlock Text="------------------------------------" TextAlignment="Center" Margin="0,0,0,4" />
+        <TextBlock Text="FORMA DE PAGAMENTO" FontWeight="Bold" Margin="0,0,0,2" />
+        <ItemsControl ItemsSource="{Binding Recibo.PagamentosTexto}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Margin="0,0,0,2" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock Margin="0,2,0,0" FontWeight="Bold"
+                   Visibility="{Binding Recibo.TrocoTotalFormatado, Converter={StaticResource NullToVisibilityConverter}}">
+            <Run Text="Troco: " /><Run Text="{Binding Recibo.TrocoTotalFormatado, Mode=OneWay}" />
+        </TextBlock>
+        <TextBlock Margin="0,2,0,0"
+                   Visibility="{Binding Recibo.ClienteTexto, Converter={StaticResource NullToVisibilityConverter}}">
+            <Run Text="Cliente: " /><Run Text="{Binding Recibo.ClienteTexto, Mode=OneWay}" />
+        </TextBlock>
+
+        <TextBlock Text="------------------------------------" TextAlignment="Center" Margin="0,6,0,4" />
+        <TextBlock TextAlignment="Center">
+            <Run Text="Venda nº " /><Run Text="{Binding Recibo.NumeroVenda, Mode=OneWay}" />
+        </TextBlock>
+        <TextBlock Text="{Binding Recibo.DataHora, StringFormat='dd/MM/yyyy HH:mm'}" TextAlignment="Center" Margin="0,2,0,0" />
+
+        <TextBlock Text="Vendex PDV" TextAlignment="Center" Foreground="#999" FontSize="9" Margin="0,14,0,0" />
+    </StackPanel>
+</UserControl>

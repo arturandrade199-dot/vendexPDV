@@ -118,7 +118,8 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.VendasViewModel>();
                 services.AddTransient<MainWindow>();
 
-                services.AddTransient<Func<ViewModels.ReciboVenda, ReciboWindow>>(provedor => recibo => new ReciboWindow(recibo));
+                services.AddTransient<Func<ViewModels.ReciboVenda, ReciboWindow>>(provedor => recibo =>
+                    new ReciboWindow(recibo, provedor.GetRequiredService<IConfiguracaoImpressaoService>()));
 
                 services.AddTransient<ViewModels.LoginViewModel>();
                 services.AddTransient<LoginWindow>();

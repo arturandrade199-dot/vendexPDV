@@ -18,6 +18,7 @@ public partial class ClientesViewModel : ObservableObject
     public ObservableCollection<ClienteLinhaViewModel> Clientes { get; } = new();
 
     [ObservableProperty] private int totalClientes;
+    [ObservableProperty] private ClienteLinhaViewModel? itemSelecionado;
 
     public bool PodeCriar => _sessao.PodeCriar(NomeModulo);
     public bool PodeEditar => _sessao.PodeEditar(NomeModulo);
@@ -43,9 +44,9 @@ public partial class ClientesViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task EditarAsync(ClienteLinhaViewModel linha)
+    private async Task EditarAsync(ClienteLinhaViewModel? linha)
     {
-        if (!PodeEditar) return;
+        if (!PodeEditar || linha is null) return;
 
         var clientes = await _clienteService.ListarAsync();
         var alvo = clientes.FirstOrDefault(c => c.Id == linha.Id);

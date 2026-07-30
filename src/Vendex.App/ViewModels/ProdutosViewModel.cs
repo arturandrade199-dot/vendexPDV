@@ -24,6 +24,7 @@ public partial class ProdutosViewModel : ObservableObject
     [ObservableProperty] private int ativos;
     [ObservableProperty] private int estoqueBaixo;
     [ObservableProperty] private string valorEmEstoqueFormatado = "R$ 0,00";
+    [ObservableProperty] private ProdutoLinhaViewModel? itemSelecionado;
 
     public bool PodeCriar => _sessao.PodeCriar(NomeModulo);
     public bool PodeEditar => _sessao.PodeEditar(NomeModulo);
@@ -50,9 +51,11 @@ public partial class ProdutosViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task EditarAsync(ProdutoLinhaViewModel linha)
+    private async Task EditarAsync(ProdutoLinhaViewModel? linha)
     {
-        if (!PodeEditar) return;
+        // linha vem null quando disparado pelo atalho de teclado (Enter) sem nenhuma linha
+        // selecionada no grid — clique no botão "Editar" sempre manda uma linha concreta.
+        if (!PodeEditar || linha is null) return;
 
         var produto = await _produtoService.ListarAsync();
         var alvo = produto.FirstOrDefault(p => p.Id == linha.Id);
@@ -67,9 +70,9 @@ public partial class ProdutosViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task AlternarAtivoAsync(ProdutoLinhaViewModel linha)
+    private async Task AlternarAtivoAsync(ProdutoLinhaViewModel? linha)
     {
-        if (!PodeExcluir) return;
+        if (!PodeExcluir || linha is null) return;
 
         await _produtoService.AlternarAtivoAsync(linha.Id);
         await CarregarAsync();

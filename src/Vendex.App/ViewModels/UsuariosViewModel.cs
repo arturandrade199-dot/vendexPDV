@@ -14,6 +14,7 @@ public partial class UsuariosViewModel : ObservableObject
     public ObservableCollection<UsuarioLinhaViewModel> Usuarios { get; } = new();
 
     [ObservableProperty] private int totalUsuarios;
+    [ObservableProperty] private UsuarioLinhaViewModel? itemSelecionado;
 
     public UsuariosViewModel(IUsuarioService usuarioService, Func<Usuario?, UsuarioWindow> usuarioWindowFactory)
     {
@@ -33,8 +34,10 @@ public partial class UsuariosViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task EditarAsync(UsuarioLinhaViewModel linha)
+    private async Task EditarAsync(UsuarioLinhaViewModel? linha)
     {
+        if (linha is null) return;
+
         var usuarios = await _usuarioService.ListarAsync();
         var alvo = usuarios.FirstOrDefault(u => u.Id == linha.Id);
         if (alvo is null)
@@ -48,8 +51,10 @@ public partial class UsuariosViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task AlternarAtivoAsync(UsuarioLinhaViewModel linha)
+    private async Task AlternarAtivoAsync(UsuarioLinhaViewModel? linha)
     {
+        if (linha is null) return;
+
         await _usuarioService.AlternarAtivoAsync(linha.Id);
         await CarregarAsync();
     }

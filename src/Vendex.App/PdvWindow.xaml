@@ -5,6 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:views="clr-namespace:Vendex.App.Views"
+        xmlns:local="clr-namespace:Vendex.App"
         mc:Ignorable="d"
         Title="Vendex PDV — Venda" Height="800" Width="1280"
         WindowState="Maximized"
@@ -18,6 +19,9 @@
         <KeyBinding Key="F5" Command="{Binding AbrirSangriaCommand}" />
         <KeyBinding Key="F6" Command="{Binding AbrirSuprimentoCommand}" />
         <KeyBinding Key="F7" Command="{Binding AbrirCaixaJanelaCommand}" />
+        <KeyBinding Key="F4" Command="{Binding NovaVendaCommand}" />
+        <KeyBinding Key="P" Modifiers="Control" Command="{x:Static local:PdvWindow.ImprimirCupomCommand}" />
+        <KeyBinding Key="Return" Command="{Binding ConfirmarDialogoAtivoCommand}" />
         <KeyBinding Key="Escape" Command="{Binding SolicitarSaidaCommand}" />
     </ui:FluentWindow.InputBindings>
 
@@ -215,7 +219,15 @@
                             <Border.Effect>
                                 <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.15" Color="Black" />
                             </Border.Effect>
+                            <!-- KeyBinding local (não no nível da janela): conteúdo de Popup roda em cima de um
+                                 PresentationSource próprio e nunca borbulha até o FluentWindow.InputBindings.
+                                 Ctrl+Enter em vez de só Enter porque o Motivo é multi-linha (AcceptsReturn) —
+                                 Enter sozinho tem que continuar quebrando linha ali, não confirmar o formulário. -->
                             <StackPanel>
+                                <StackPanel.InputBindings>
+                                    <KeyBinding Key="Return" Modifiers="Control" Command="{Binding ConfirmarMovimentacaoCommand}" />
+                                </StackPanel.InputBindings>
+
                                 <TextBlock Text="{Binding TituloMovimentacao}" FontWeight="SemiBold" FontSize="16"
                                            Foreground="#1F2430" Margin="0,0,0,12" />
 
@@ -229,8 +241,8 @@
                                 <TextBlock Text="{Binding MensagemErroMovimentacao}" Foreground="#C4291E" Margin="0,0,0,12" TextWrapping="Wrap" />
 
                                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                    <ui:Button Content="Cancelar" Margin="0,0,8,0" Command="{Binding CancelarMovimentacaoCommand}" />
-                                    <ui:Button Content="Confirmar" Appearance="Primary" Command="{Binding ConfirmarMovimentacaoCommand}" />
+                                    <ui:Button Content="Cancelar (Esc)" Margin="0,0,8,0" Command="{Binding CancelarMovimentacaoCommand}" />
+                                    <ui:Button Content="Confirmar (Ctrl+Enter)" Appearance="Primary" Command="{Binding ConfirmarMovimentacaoCommand}" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
@@ -264,8 +276,8 @@
                     <TextBlock Text="Tem certeza que deseja cancelar esta venda? Os itens do carrinho serão perdidos."
                                TextWrapping="Wrap" Foreground="#6B7280" Margin="0,0,0,20" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <ui:Button Content="Voltar" Margin="0,0,8,0" Command="{Binding FecharConfirmacaoCancelamentoCommand}" />
-                        <ui:Button Content="Cancelar Venda" Appearance="Danger" Command="{Binding ConfirmarCancelamentoVendaCommand}" />
+                        <ui:Button Content="Voltar (Esc)" Margin="0,0,8,0" Command="{Binding FecharConfirmacaoCancelamentoCommand}" />
+                        <ui:Button Content="Cancelar Venda (Enter)" Appearance="Danger" Command="{Binding ConfirmarCancelamentoVendaCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -283,8 +295,8 @@
                     <TextBlock Text="Deseja sair da tela de vendas?"
                                TextWrapping="Wrap" Foreground="#6B7280" Margin="0,0,0,20" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <ui:Button Content="Continuar vendendo" Margin="0,0,8,0" Command="{Binding FecharConfirmacaoSairCommand}" />
-                        <ui:Button Content="Sair" Appearance="Danger" Command="{Binding ConfirmarSaidaCommand}" />
+                        <ui:Button Content="Continuar vendendo (Esc)" Margin="0,0,8,0" Command="{Binding FecharConfirmacaoSairCommand}" />
+                        <ui:Button Content="Sair (Enter)" Appearance="Danger" Command="{Binding ConfirmarSaidaCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>
@@ -302,8 +314,8 @@
                     <TextBlock Text="{Binding MensagemConfirmacaoRemocaoItem}"
                                TextWrapping="Wrap" Foreground="#6B7280" Margin="0,0,0,20" />
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <ui:Button Content="Voltar" Margin="0,0,8,0" Command="{Binding FecharConfirmacaoRemocaoItemCommand}" />
-                        <ui:Button Content="Remover" Appearance="Danger" Command="{Binding ConfirmarRemocaoItemCommand}" />
+                        <ui:Button Content="Voltar (Esc)" Margin="0,0,8,0" Command="{Binding FecharConfirmacaoRemocaoItemCommand}" />
+                        <ui:Button Content="Remover (Enter)" Appearance="Danger" Command="{Binding ConfirmarRemocaoItemCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

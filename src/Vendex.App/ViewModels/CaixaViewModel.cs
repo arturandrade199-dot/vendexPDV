@@ -130,10 +130,22 @@ public partial class CaixaViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void Sangria() => _movimentacaoWindowFactory(TipoMovimentacaoCaixa.Sangria).ShowDialog();
+    private void Sangria()
+    {
+        // Guarda contra o atalho de teclado (F5) disparando isso em outro estado da tela —
+        // o botão só existe visualmente na tela de resumo do caixa aberto.
+        if (Estado != EstadoTela.FecharResumo) return;
+
+        _movimentacaoWindowFactory(TipoMovimentacaoCaixa.Sangria).ShowDialog();
+    }
 
     [RelayCommand]
-    private void Suprimento() => _movimentacaoWindowFactory(TipoMovimentacaoCaixa.Reforco).ShowDialog();
+    private void Suprimento()
+    {
+        if (Estado != EstadoTela.FecharResumo) return;
+
+        _movimentacaoWindowFactory(TipoMovimentacaoCaixa.Reforco).ShowDialog();
+    }
 
     [RelayCommand]
     private async Task IniciarFechamentoAsync()

@@ -14,6 +14,20 @@
         WindowBackdropType="Mica"
         WindowCornerPreference="Round">
 
+    <!-- Atalhos genéricos por módulo: ConteudoAtual troca de tipo a cada navegação, então
+         o binding só "pega" quando a tela ativa realmente expõe aquele comando/propriedade
+         (reflection do WPF) — nas outras telas o binding não resolve nada e o KeyBinding
+         fica inerte, sem crashar nem disparar comando errado. -->
+    <ui:FluentWindow.InputBindings>
+        <KeyBinding Key="N" Modifiers="Control" Command="{Binding ConteudoAtual.AdicionarCommand}" />
+        <KeyBinding Key="Return" Command="{Binding ConteudoAtual.EditarCommand}" CommandParameter="{Binding ConteudoAtual.ItemSelecionado}" />
+        <KeyBinding Key="Return" Command="{Binding ConteudoAtual.GerarCommand}" />
+        <KeyBinding Key="Delete" Command="{Binding ConteudoAtual.AlternarAtivoCommand}" CommandParameter="{Binding ConteudoAtual.ItemSelecionado}" />
+        <KeyBinding Key="Delete" Command="{Binding ConteudoAtual.RemoverCommand}" CommandParameter="{Binding ConteudoAtual.ItemSelecionado}" />
+        <KeyBinding Key="E" Modifiers="Control" Command="{Binding ConteudoAtual.ExportarExcelCommand}" />
+        <KeyBinding Key="P" Modifiers="Control" Command="{Binding ConteudoAtual.ExportarPdfCommand}" />
+    </ui:FluentWindow.InputBindings>
+
     <ui:FluentWindow.Resources>
         <Style x:Key="IconeContasPagar" TargetType="Border" BasedOn="{StaticResource IconeMenu}">
             <Setter Property="Background" Value="Transparent" />

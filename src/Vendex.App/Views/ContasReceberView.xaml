@@ -5,6 +5,10 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d">
+    <UserControl.InputBindings>
+        <KeyBinding Key="Return" Command="{Binding ConfirmarRecebimentoCommand}" />
+        <KeyBinding Key="Escape" Command="{Binding CancelarRecebimentoCommand}" />
+    </UserControl.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -53,7 +57,7 @@
 
             <!-- Barra de ações -->
             <Grid Grid.Row="0" Margin="0,0,0,16">
-                <ui:Button Content="+ Adicionar" Appearance="Primary"
+                <ui:Button Content="+ Adicionar (Ctrl+N)" Appearance="Primary"
                            Command="{Binding AdicionarCommand}" Padding="18,8"
                            HorizontalAlignment="Left"
                            Visibility="{Binding PodeCriar, Converter={StaticResource BoolToVisibilityConverter}}" />
@@ -149,8 +153,8 @@
                               Padding="8" Margin="0,0,0,20" />
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <ui:Button Content="Cancelar" Margin="0,0,8,0" Command="{Binding CancelarRecebimentoCommand}" />
-                        <ui:Button Content="Confirmar" Appearance="Primary" Command="{Binding ConfirmarRecebimentoCommand}" />
+                        <ui:Button Content="Cancelar (Esc)" Margin="0,0,8,0" Command="{Binding CancelarRecebimentoCommand}" />
+                        <ui:Button Content="Confirmar (Enter)" Appearance="Primary" Command="{Binding ConfirmarRecebimentoCommand}" />
                     </StackPanel>
                 </StackPanel>
             </Border>

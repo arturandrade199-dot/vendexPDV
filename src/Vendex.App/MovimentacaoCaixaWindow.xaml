@@ -27,7 +27,7 @@
 
             <TextBlock Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,0,0,12" TextWrapping="Wrap" />
 
-            <ui:Button Content="Confirmar" Appearance="Primary" Command="{Binding ConfirmarCommand}"
+            <ui:Button Content="Confirmar (Enter)" Appearance="Primary" Command="{Binding ConfirmarCommand}" IsDefault="True"
                        HorizontalAlignment="Right" Padding="24,8" />
         </StackPanel>
     </Grid>

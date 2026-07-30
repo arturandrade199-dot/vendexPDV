@@ -18,6 +18,7 @@ public partial class FornecedoresViewModel : ObservableObject
     public ObservableCollection<FornecedorLinhaViewModel> Fornecedores { get; } = new();
 
     [ObservableProperty] private int totalFornecedores;
+    [ObservableProperty] private FornecedorLinhaViewModel? itemSelecionado;
 
     public bool PodeCriar => _sessao.PodeCriar(NomeModulo);
     public bool PodeEditar => _sessao.PodeEditar(NomeModulo);
@@ -44,9 +45,9 @@ public partial class FornecedoresViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task EditarAsync(FornecedorLinhaViewModel linha)
+    private async Task EditarAsync(FornecedorLinhaViewModel? linha)
     {
-        if (!PodeEditar) return;
+        if (!PodeEditar || linha is null) return;
 
         var fornecedores = await _fornecedorService.ListarAsync();
         var alvo = fornecedores.FirstOrDefault(f => f.Id == linha.Id);
@@ -61,9 +62,9 @@ public partial class FornecedoresViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task RemoverAsync(FornecedorLinhaViewModel linha)
+    private async Task RemoverAsync(FornecedorLinhaViewModel? linha)
     {
-        if (!PodeExcluir) return;
+        if (!PodeExcluir || linha is null) return;
 
         var confirmar = System.Windows.MessageBox.Show(
             $"Remover o fornecedor \"{linha.Nome}\"?",

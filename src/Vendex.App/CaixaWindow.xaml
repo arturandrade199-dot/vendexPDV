@@ -5,11 +5,18 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:vm="clr-namespace:Vendex.App.ViewModels"
+        xmlns:local="clr-namespace:Vendex.App"
         mc:Ignorable="d"
         Title="Caixa" Height="720" Width="640"
         WindowStartupLocation="CenterOwner"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica">
+
+    <ui:FluentWindow.InputBindings>
+        <KeyBinding Key="F5" Command="{Binding SangriaCommand}" />
+        <KeyBinding Key="F6" Command="{Binding SuprimentoCommand}" />
+        <KeyBinding Key="P" Modifiers="Control" Command="{x:Static local:CaixaWindow.ImprimirCommand}" />
+    </ui:FluentWindow.InputBindings>
 
     <ui:FluentWindow.Resources>
         <DataTemplate x:Key="ModeloLinhaCedula" DataType="{x:Type vm:CedulaLinhaViewModel}">
@@ -93,7 +100,7 @@
                     </Grid>
                 </Border>
                 <TextBlock Grid.Row="3" Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
-                <ui:Button Grid.Row="4" Content="Abrir Caixa" Appearance="Primary" Command="{Binding AbrirCommand}"
+                <ui:Button Grid.Row="4" Content="Abrir Caixa (Enter)" Appearance="Primary" Command="{Binding AbrirCommand}" IsDefault="True"
                            HorizontalAlignment="Right" Padding="24,8" Margin="0,16,0,0" />
             </Grid>
 
@@ -127,8 +134,8 @@
                 </Border>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,0">
-                    <ui:Button Content="Imprimir" Padding="16,10" Click="ImprimirAbertura_Click" Margin="0,0,16,0" />
-                    <ui:Button Content="Concluir" Appearance="Primary" Padding="24,10" Command="{Binding ConcluirCommand}" />
+                    <ui:Button Content="Imprimir (Ctrl+P)" Padding="16,10" Click="ImprimirAbertura_Click" Margin="0,0,16,0" />
+                    <ui:Button Content="Concluir (Enter)" Appearance="Primary" Padding="24,10" Command="{Binding ConcluirCommand}" IsDefault="True" />
                 </StackPanel>
             </StackPanel>
 
@@ -142,10 +149,10 @@
                     <Run Text=" — valor inicial de " /><Run Text="{Binding ResumoAberturaValorFormatado, Mode=OneWay}" />
                 </TextBlock>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,16">
-                    <ui:Button Content="Sangria" Padding="18,10" Margin="0,0,12,0" Command="{Binding SangriaCommand}" />
-                    <ui:Button Content="Suprimento" Padding="18,10" Command="{Binding SuprimentoCommand}" />
+                    <ui:Button Content="Sangria (F5)" Padding="18,10" Margin="0,0,12,0" Command="{Binding SangriaCommand}" />
+                    <ui:Button Content="Suprimento (F6)" Padding="18,10" Command="{Binding SuprimentoCommand}" />
                 </StackPanel>
-                <ui:Button Content="Fechar Caixa" Appearance="Primary" Padding="24,10"
+                <ui:Button Content="Fechar Caixa (Enter)" Appearance="Primary" Padding="24,10" IsDefault="True"
                            HorizontalAlignment="Center" Command="{Binding IniciarFechamentoCommand}" />
             </StackPanel>
 
@@ -184,7 +191,7 @@
                     </Grid>
                 </Border>
                 <TextBlock Grid.Row="4" Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,12,0,0" TextWrapping="Wrap" />
-                <ui:Button Grid.Row="5" Content="Confirmar Fechamento" Appearance="Primary" Command="{Binding FecharCommand}"
+                <ui:Button Grid.Row="5" Content="Confirmar Fechamento (Enter)" Appearance="Primary" Command="{Binding FecharCommand}" IsDefault="True"
                            HorizontalAlignment="Right" Padding="24,8" Margin="0,16,0,0" />
             </Grid>
 
@@ -274,8 +281,8 @@
                     </Border>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20,0,20">
-                        <ui:Button Content="Imprimir" Padding="16,10" Click="ImprimirFechamento_Click" Margin="0,0,16,0" />
-                        <ui:Button Content="Concluir" Appearance="Primary" Padding="24,10" Command="{Binding ConcluirCommand}" />
+                        <ui:Button Content="Imprimir (Ctrl+P)" Padding="16,10" Click="ImprimirFechamento_Click" Margin="0,0,16,0" />
+                        <ui:Button Content="Concluir (Enter)" Appearance="Primary" Padding="24,10" Command="{Binding ConcluirCommand}" IsDefault="True" />
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

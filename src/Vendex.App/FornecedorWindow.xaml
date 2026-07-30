@@ -39,7 +39,7 @@
 
             <TextBlock Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,0,0,12" TextWrapping="Wrap" />
 
-            <ui:Button Content="Salvar" Appearance="Primary" Command="{Binding SalvarCommand}"
+            <ui:Button Content="Salvar (Enter)" Appearance="Primary" Command="{Binding SalvarCommand}" IsDefault="True"
                        HorizontalAlignment="Right" Padding="24,8" />
         </StackPanel>
     </Grid>

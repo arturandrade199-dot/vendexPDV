@@ -8,4 +8,7 @@ public partial class FornecedoresView : UserControl
     {
         InitializeComponent();
     }
+
+    private void BtnAtalhos_Click(object sender, System.Windows.RoutedEventArgs e) =>
+        PopupAtalhos.IsOpen = !PopupAtalhos.IsOpen;
 }
