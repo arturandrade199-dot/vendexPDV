@@ -59,8 +59,28 @@ Deno.serve(async (req) => {
     return respostaJson({ ok: true, ignorado: evento });
   }
 
+  // A Hotmart só manda `data.subscription` pra produtos recorrentes (mensal). Uma
+  // compra anual é pagamento único e não tem esse campo — é assim que distinguimos
+  // os dois planos sem depender de um código de produto fixo no código.
+  const ehRecorrente = Boolean(payload?.data?.subscription);
+  const plano = ehRecorrente ? "mensal" : "anual";
+
   const supabase = criarClienteAdmin();
-  const agora = new Date().toISOString();
+  const agoraDate = new Date();
+  const agora = agoraDate.toISOString();
+
+  // Mensal: sem prazo fixo (null) — a Hotmart mesma avisa (cobrança recorrente
+  // aprovada, atrasada, cancelada) e isso já mantém `status` em dia. Anual: pagamento
+  // único, a Hotmart nunca mais avisa nada depois do "aprovado", então fixamos 365
+  // dias de acesso a partir de agora (renovar = comprar de novo com o mesmo email,
+  // que reseta esta data via upsert). No evento de ativação sempre gravamos um dos
+  // dois (nunca deixamos `undefined`), pra se o mesmo email trocar de plano depois
+  // não sobrar um `expira_em` de anual vencido barrando uma assinatura mensal nova.
+  const expiraEm = novoStatus !== "ativo"
+    ? undefined
+    : ehRecorrente
+      ? null
+      : new Date(agoraDate.getTime() + 365 * 24 * 60 * 60 * 1000).toISOString();
 
   const { error } = await supabase
     .from("licencas_assinatura")
@@ -69,6 +89,8 @@ Deno.serve(async (req) => {
         email: email.toLowerCase().trim(),
         nome: nome ?? null,
         status: novoStatus,
+        plano,
+        expira_em: expiraEm,
         hotmart_assinatura_id: assinaturaId ?? null,
         data_ultima_cobranca: novoStatus === "ativo" ? agora : undefined,
         atualizado_em: agora,

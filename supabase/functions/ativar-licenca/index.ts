@@ -26,7 +26,12 @@ Deno.serve(async (req) => {
     return respostaJson({ erro: "falha ao consultar assinatura" }, 500);
   }
 
-  if (!linha || linha.status !== "ativo") {
+  // expira_em é null pra assinatura mensal (recorrente); pra compra anual é a data
+  // de corte do pagamento único — depois dela o acesso não é mais válido mesmo que
+  // o status ainda esteja 'ativo' (a Hotmart não avisa quando um pagamento único vence).
+  const expirou = !!linha?.expira_em && new Date(linha.expira_em) <= new Date();
+
+  if (!linha || linha.status !== "ativo" || expirou) {
     return respostaJson(
       { erro: "email não encontrado ou assinatura não está ativa — confirme sua compra na Hotmart" },
       404,

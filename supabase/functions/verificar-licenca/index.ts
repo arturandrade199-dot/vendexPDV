@@ -27,7 +27,11 @@ Deno.serve(async (req) => {
     return respostaJson({ erro: "falha ao consultar assinatura" }, 500);
   }
 
-  const ativo = !!linha && linha.status === "ativo" && linha.fingerprint === fingerprint;
+  // expira_em é null pra assinatura mensal (recorrente — controlada só pelo status,
+  // que a Hotmart mantém via webhook); pra compra anual, é a data de corte do
+  // pagamento único, que aqui vira "não tá mais ativo" mesmo com status = 'ativo'.
+  const expirou = !!linha?.expira_em && new Date(linha.expira_em) <= new Date();
+  const ativo = !!linha && linha.status === "ativo" && !expirou && linha.fingerprint === fingerprint;
 
   const validoAte = new Date();
   if (ativo) validoAte.setDate(validoAte.getDate() + 7);

@@ -88,6 +88,33 @@ Em `src/Vendex.Application/SupabaseFunctions.cs`, troque `BaseUrl` pela Project 
 Esse valor é usado por todos os serviços (`LicencaService`, `RelatorioProblemaService`,
 `AtualizacaoService`).
 
+## Planos: mensal (recorrente) x anual (pagamento único)
+
+`licencas_assinatura` tem duas colunas extras (migration `0004_plano_expiracao_licenca.sql`)
+pra suportar os dois planos com a mesma tabela/functions:
+
+- `plano` (`'mensal'` ou `'anual'`) — só informativo, pra você conseguir olhar a tabela
+  no painel e saber qual plano cada cliente tem.
+- `expira_em` — data de corte do acesso. **Null pra assinatura mensal** (continua
+  controlada só pela coluna `status`, que a Hotmart mantém em dia sozinha via webhook
+  de cobrança recorrente/atraso/cancelamento). **Preenchida pra compra anual**
+  (`data da compra + 365 dias`), porque um pagamento único só gera um webhook de
+  "aprovado" — sem essa data, o cliente do anual ficaria com acesso vitalício por
+  engano depois de passar o ano.
+
+`hotmart-webhook` decide o plano sozinho, olhando se o payload da Hotmart tem
+`data.subscription` (só existe em produto recorrente) — não depende de nenhum código
+de produto fixo no código, então funciona automaticamente com produtos novos criados
+na Hotmart, desde que um seja configurado como assinatura e o outro como pagamento
+único. `ativar-licenca` e `verificar-licenca` checam `expira_em` além do `status` na
+hora de decidir se a licença está ativa.
+
+Pra vender os dois planos, você precisa de **dois produtos separados na Hotmart**
+(um recorrente, um pagamento único — a Hotmart não deixa converter um produto
+existente de um tipo pro outro) — ver histórico de decisão em `landing-page/` e na
+memória do projeto. O mesmo webhook (`hotmart-webhook`) atende os dois, só precisa
+estar cadastrado nos dois produtos.
+
 ## Relatório de problemas dos clientes
 
 `reportar-problema` recebe dois tipos de relatório do app:
