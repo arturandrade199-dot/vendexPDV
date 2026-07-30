@@ -14,6 +14,10 @@
 
     <ui:FluentWindow.InputBindings>
         <KeyBinding Key="F2" Command="{Binding FinalizarVendaCommand}" />
+        <KeyBinding Key="F3" Command="{Binding CancelarVendaCommand}" />
+        <KeyBinding Key="F5" Command="{Binding AbrirSangriaCommand}" />
+        <KeyBinding Key="F6" Command="{Binding AbrirSuprimentoCommand}" />
+        <KeyBinding Key="F7" Command="{Binding AbrirCaixaJanelaCommand}" />
         <KeyBinding Key="Escape" Command="{Binding SolicitarSaidaCommand}" />
     </ui:FluentWindow.InputBindings>
 
@@ -188,19 +192,20 @@
                 Visibility="{Binding MostrarCarrinho, Converter={StaticResource BoolToVisibilityConverter}}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" MinWidth="0" />
+                    <ColumnDefinition Width="Auto" MinWidth="150" />
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock Text="{Binding Mensagem}" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,16,0" />
+                    <TextBlock Text="{Binding Mensagem}" Foreground="#6B7280" VerticalAlignment="Center" Margin="0,0,16,0"
+                               MaxWidth="260" TextTrimming="CharacterEllipsis" />
                     <StackPanel x:Name="PainelBotoesMovimentacao" Orientation="Horizontal">
-                        <ui:Button Content="Sangria" Margin="0,0,8,0" Command="{Binding AbrirSangriaCommand}" />
-                        <ui:Button Content="Suprimento" Margin="0,0,8,0" Command="{Binding AbrirSuprimentoCommand}" />
+                        <ui:Button Content="Sangria (F5)" Margin="0,0,8,0" Command="{Binding AbrirSangriaCommand}" />
+                        <ui:Button Content="Suprimento (F6)" Margin="0,0,8,0" Command="{Binding AbrirSuprimentoCommand}" />
                     </StackPanel>
-                    <ui:Button Content="Caixa" Command="{Binding AbrirCaixaJanelaCommand}" />
+                    <ui:Button Content="Caixa (F7)" Command="{Binding AbrirCaixaJanelaCommand}" />
 
                     <Popup IsOpen="{Binding MostrarPainelMovimentacao, Mode=TwoWay}"
                            PlacementTarget="{Binding ElementName=PainelBotoesMovimentacao}"
@@ -238,7 +243,7 @@
                     <TextBlock Text="{Binding TotalFormatado}" FontSize="24" FontWeight="Bold" Foreground="#1F2430" />
                 </StackPanel>
 
-                <ui:Button Grid.Column="2" Content="Cancelar Venda" Margin="0,0,12,0" Padding="16,10"
+                <ui:Button Grid.Column="2" Content="Cancelar Venda (F3)" Margin="0,0,12,0" Padding="16,10"
                            Visibility="{Binding TemItens, Converter={StaticResource BoolToVisibilityConverter}}"
                            Command="{Binding CancelarVendaCommand}" />
 

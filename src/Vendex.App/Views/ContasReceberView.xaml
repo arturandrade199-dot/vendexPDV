@@ -129,5 +129,31 @@
                 </ListView>
             </Border>
         </Grid>
+
+        <!-- Confirmação de recebimento: escolhe a forma de pagamento antes de marcar como recebido -->
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="#66000000"
+              Visibility="{Binding MostrarConfirmacaoRecebimento, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="White" CornerRadius="12" Padding="24" Width="360" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.25" Color="Black" />
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Marcar como recebido" FontWeight="SemiBold" FontSize="16" Foreground="#1F2430" Margin="0,0,0,4" />
+                    <TextBlock Foreground="#6B7280" TextWrapping="Wrap" Margin="0,0,0,16">
+                        <Run Text="{Binding ContaParaReceber.ClienteNome, Mode=OneWay}" />
+                        <Run Text=" — " /><Run Text="{Binding ContaParaReceber.TotalFormatado, Mode=OneWay}" />
+                    </TextBlock>
+
+                    <TextBlock Text="Forma de pagamento" Margin="0,0,0,6" />
+                    <ComboBox ItemsSource="{Binding FormasPagamentoDisponiveis}" SelectedItem="{Binding FormaPagamentoSelecionada}"
+                              Padding="8" Margin="0,0,0,20" />
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <ui:Button Content="Cancelar" Margin="0,0,8,0" Command="{Binding CancelarRecebimentoCommand}" />
+                        <ui:Button Content="Confirmar" Appearance="Primary" Command="{Binding ConfirmarRecebimentoCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

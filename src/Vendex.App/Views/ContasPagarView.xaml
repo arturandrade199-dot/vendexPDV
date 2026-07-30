@@ -137,5 +137,31 @@
                 </ListView>
             </Border>
         </Grid>
+
+        <!-- Confirmação de pagamento: escolhe a forma de pagamento antes de marcar como pago -->
+        <Grid Grid.Row="0" Grid.RowSpan="2" Background="#66000000"
+              Visibility="{Binding MostrarConfirmacaoPagamento, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Border Background="White" CornerRadius="12" Padding="24" Width="360" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="4" Opacity="0.25" Color="Black" />
+                </Border.Effect>
+                <StackPanel>
+                    <TextBlock Text="Marcar como pago" FontWeight="SemiBold" FontSize="16" Foreground="#1F2430" Margin="0,0,0,4" />
+                    <TextBlock Foreground="#6B7280" TextWrapping="Wrap" Margin="0,0,0,16">
+                        <Run Text="{Binding ContaParaPagar.FornecedorNome, Mode=OneWay}" />
+                        <Run Text=" — " /><Run Text="{Binding ContaParaPagar.TotalFormatado, Mode=OneWay}" />
+                    </TextBlock>
+
+                    <TextBlock Text="Forma de pagamento" Margin="0,0,0,6" />
+                    <ComboBox ItemsSource="{Binding FormasPagamentoDisponiveis}" SelectedItem="{Binding FormaPagamentoSelecionada}"
+                              Padding="8" Margin="0,0,0,20" />
+
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <ui:Button Content="Cancelar" Margin="0,0,8,0" Command="{Binding CancelarPagamentoCommand}" />
+                        <ui:Button Content="Confirmar" Appearance="Primary" Command="{Binding ConfirmarPagamentoCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </UserControl>

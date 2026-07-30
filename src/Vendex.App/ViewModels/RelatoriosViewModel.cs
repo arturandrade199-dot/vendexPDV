@@ -46,6 +46,24 @@ public partial class RelatoriosViewModel : ObservableObject
         opcaoSelecionada = Opcoes[0];
     }
 
+    partial void OnOpcaoSelecionadaChanged(OpcaoRelatorio value)
+    {
+        // "Contas a receber/pagar no período" filtram pela data de VENCIMENTO, que pra contas
+        // em aberto normalmente está no futuro (ex.: venda fiado vence em 30 dias). O padrão
+        // "últimos 30 dias até hoje" usado pelos relatórios históricos nunca encontra nada
+        // aqui, então esses dois usam uma janela bem mais larga por padrão.
+        if (value.Tipo is TipoRelatorio.ContasAReceber or TipoRelatorio.ContasAPagar)
+        {
+            DataInicio = DateTime.Today.AddDays(-180);
+            DataFim = DateTime.Today.AddDays(180);
+        }
+        else
+        {
+            DataInicio = DateTime.Today.AddDays(-30);
+            DataFim = DateTime.Today;
+        }
+    }
+
     [RelayCommand]
     private async Task GerarAsync()
     {

@@ -5,6 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
              mc:Ignorable="d">
+    <UserControl.InputBindings>
+        <KeyBinding Key="F2" Command="{Binding ConfirmarCommand}" />
+    </UserControl.InputBindings>
     <Grid Margin="32" HorizontalAlignment="Center" VerticalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="580" />
@@ -75,7 +78,11 @@
                           Padding="8" Margin="0,0,0,16" />
 
                 <TextBlock Text="Valor (R$)" Margin="0,0,0,6" />
-                <ui:TextBox Text="{Binding ValorTexto, UpdateSourceTrigger=PropertyChanged}" Padding="10" FontSize="16" />
+                <ui:TextBox Text="{Binding ValorTexto, UpdateSourceTrigger=PropertyChanged}" Padding="10" FontSize="16">
+                    <ui:TextBox.InputBindings>
+                        <KeyBinding Key="Return" Command="{Binding AdicionarPagamentoCommand}" />
+                    </ui:TextBox.InputBindings>
+                </ui:TextBox>
                 <TextBlock Text="{Binding PreviaTroco}" Foreground="#1B8A4B" FontWeight="SemiBold" Margin="0,8,0,0" />
 
                 <!-- Fiado: cliente + vencimento -->
@@ -97,7 +104,7 @@
                                HorizontalAlignment="Left" Margin="0,0,0,8" />
                 </StackPanel>
 
-                <ui:Button Content="+ Adicionar pagamento" Appearance="Secondary" Command="{Binding AdicionarPagamentoCommand}"
+                <ui:Button Content="+ Adicionar pagamento (Enter)" Appearance="Primary" Command="{Binding AdicionarPagamentoCommand}"
                            HorizontalAlignment="Stretch" Padding="0,10" Margin="0,16,0,0" />
 
                 <TextBlock Text="{Binding MensagemErro}" Foreground="#C4291E" TextWrapping="Wrap" Margin="0,12,0,0" />
@@ -106,7 +113,7 @@
 
                 <ui:Button Content="← Voltar ao carrinho" Command="{Binding VoltarAoCarrinhoCommand}"
                            HorizontalAlignment="Stretch" Padding="0,10" Margin="0,0,0,8" />
-                <ui:Button Content="Confirmar Venda" Appearance="Primary" Command="{Binding ConfirmarCommand}"
+                <ui:Button Content="Confirmar Venda (F2)" Appearance="Primary" Command="{Binding ConfirmarCommand}"
                            IsEnabled="{Binding PodeConfirmar}" HorizontalAlignment="Stretch" Padding="0,12" />
             </StackPanel>
         </Border>

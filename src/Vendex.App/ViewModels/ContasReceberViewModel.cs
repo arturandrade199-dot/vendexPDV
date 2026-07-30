@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Vendex.App.Navigation;
 using Vendex.Application.Services;
+using Vendex.Domain.Enums;
 
 namespace Vendex.App.ViewModels;
 
@@ -19,11 +20,21 @@ public partial class ContasReceberViewModel : ObservableObject
 
     public ObservableCollection<ContaReceberLinhaViewModel> Contas { get; } = new();
 
+    public ObservableCollection<string> FormasPagamentoDisponiveis { get; } = new()
+    {
+        FormaPagamento.Dinheiro.ParaTexto(), FormaPagamento.CartaoCredito.ParaTexto(),
+        FormaPagamento.CartaoDebito.ParaTexto(), FormaPagamento.Pix.ParaTexto(), FormaPagamento.Beneficios.ParaTexto()
+    };
+
     [ObservableProperty] private string vencidosFormatado = "R$ 0,00";
     [ObservableProperty] private string vencemHojeFormatado = "R$ 0,00";
     [ObservableProperty] private string aVencerFormatado = "R$ 0,00";
     [ObservableProperty] private string recebidosFormatado = "R$ 0,00";
     [ObservableProperty] private string totalPeriodoFormatado = "R$ 0,00";
+
+    [ObservableProperty] private bool mostrarConfirmacaoRecebimento;
+    [ObservableProperty] private ContaReceberLinhaViewModel? contaParaReceber;
+    [ObservableProperty] private string formaPagamentoSelecionada;
 
     public bool PodeCriar => _sessao.PodeCriar(NomeModulo);
     public bool PodeEditar => _sessao.PodeEditar(NomeModulo);
@@ -33,6 +44,7 @@ public partial class ContasReceberViewModel : ObservableObject
         _contaReceberService = contaReceberService;
         _novaContaReceberWindowFactory = novaContaReceberWindowFactory;
         _sessao = sessao;
+        formaPagamentoSelecionada = FormasPagamentoDisponiveis[0];
         _ = CarregarAsync();
     }
 
@@ -49,13 +61,32 @@ public partial class ContasReceberViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task MarcarComoRecebidoAsync(ContaReceberLinhaViewModel linha)
+    private void MarcarComoRecebido(ContaReceberLinhaViewModel linha)
     {
         if (!PodeEditar) return;
 
-        await _contaReceberService.MarcarComoRecebidoAsync(linha.Id);
+        ContaParaReceber = linha;
+        FormaPagamentoSelecionada = FormasPagamentoDisponiveis[0];
+        MostrarConfirmacaoRecebimento = true;
+    }
+
+    [RelayCommand]
+    private void CancelarRecebimento() => MostrarConfirmacaoRecebimento = false;
+
+    [RelayCommand]
+    private async Task ConfirmarRecebimentoAsync()
+    {
+        if (ContaParaReceber is null)
+            return;
+
+        MostrarConfirmacaoRecebimento = false;
+        await _contaReceberService.MarcarComoRecebidoAsync(ContaParaReceber.Id, MapForma(FormaPagamentoSelecionada));
+        ContaParaReceber = null;
         await CarregarAsync();
     }
+
+    private static FormaPagamento MapForma(string texto) =>
+        Enum.GetValues<FormaPagamento>().FirstOrDefault(f => f.ParaTexto() == texto, FormaPagamento.Dinheiro);
 
     private async Task CarregarAsync()
     {

@@ -15,10 +15,46 @@ public class VendaService : IVendaService
 
     public async Task<IReadOnlyList<ResultadoBuscaProduto>> BuscarProdutosAsync(string termo)
     {
-        var produtos = await _unitOfWork.Produtos.ObterTodosAsync();
+        var produtos = (await _unitOfWork.Produtos.ObterTodosAsync()).Where(p => p.Ativo).ToList();
+
+        // Um código de barras é um identificador exato: se o termo bate em cheio com algum
+        // código (do produto ou de uma variante), essa é a intenção do operador (leitor de
+        // código de barras ou digitação do código) e teve prioridade sobre busca por nome —
+        // senão um código curto (ex.: "2") acaba batendo por Contains() num nome de outro
+        // produto que só por coincidência tem esse dígito (ex.: "coca cola 250ml").
+        var correspondenciasExatas = new List<ResultadoBuscaProduto>();
+
+        foreach (var produto in produtos)
+        {
+            if (!produto.TemGrade)
+            {
+                if (produto.CodigoBarras is not null && produto.CodigoBarras.Equals(termo, StringComparison.OrdinalIgnoreCase))
+                {
+                    correspondenciasExatas.Add(new ResultadoBuscaProduto(
+                        produto.Id, produto.Nome, null, null, produto.CodigoBarras,
+                        produto.PrecoVenda, produto.PrecoCusto, produto.EstoqueAtual));
+                }
+
+                continue;
+            }
+
+            var variante = produto.Variantes.FirstOrDefault(v =>
+                v.CodigoBarras is not null && v.CodigoBarras.Equals(termo, StringComparison.OrdinalIgnoreCase));
+
+            if (variante is not null)
+            {
+                correspondenciasExatas.Add(new ResultadoBuscaProduto(
+                    produto.Id, produto.Nome, variante.Id, variante.Nome, variante.CodigoBarras,
+                    produto.PrecoVenda, produto.PrecoCusto, variante.EstoqueAtual));
+            }
+        }
+
+        if (correspondenciasExatas.Count > 0)
+            return correspondenciasExatas.OrderBy(r => r.NomeExibicao).ToList();
+
         var resultados = new List<ResultadoBuscaProduto>();
 
-        foreach (var produto in produtos.Where(p => p.Ativo))
+        foreach (var produto in produtos)
         {
             if (!produto.TemGrade)
             {
@@ -35,26 +71,32 @@ public class VendaService : IVendaService
                 continue;
             }
 
-            var variantePorCodigo = produto.Variantes.FirstOrDefault(v =>
-                v.CodigoBarras is not null && v.CodigoBarras.Contains(termo, StringComparison.OrdinalIgnoreCase));
+            var variantesPorCodigo = produto.Variantes
+                .Where(v => v.CodigoBarras is not null && v.CodigoBarras.Contains(termo, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
-            if (variantePorCodigo is not null)
+            if (variantesPorCodigo.Count > 0)
             {
-                resultados.Add(new ResultadoBuscaProduto(
-                    produto.Id, produto.Nome, variantePorCodigo.Id, variantePorCodigo.Nome, variantePorCodigo.CodigoBarras,
-                    produto.PrecoVenda, produto.PrecoCusto, variantePorCodigo.EstoqueAtual));
+                resultados.AddRange(variantesPorCodigo.Select(v => new ResultadoBuscaProduto(
+                    produto.Id, produto.Nome, v.Id, v.Nome, v.CodigoBarras,
+                    produto.PrecoVenda, produto.PrecoCusto, v.EstoqueAtual)));
                 continue;
             }
 
-            var bateNomeProdutoOuVariante = produto.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase) ||
-                produto.Variantes.Any(v => v.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase));
-
-            if (bateNomeProdutoOuVariante)
+            // Nome do produto bate: mostra todas as variações. Só o nome de uma variante
+            // específica bate (ex.: buscar "M"): mostra só essa variante, não a grade inteira.
+            if (produto.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase))
             {
                 resultados.AddRange(produto.Variantes.Select(v => new ResultadoBuscaProduto(
                     produto.Id, produto.Nome, v.Id, v.Nome, v.CodigoBarras,
                     produto.PrecoVenda, produto.PrecoCusto, v.EstoqueAtual)));
+                continue;
             }
+
+            var variantesPorNome = produto.Variantes.Where(v => v.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase));
+            resultados.AddRange(variantesPorNome.Select(v => new ResultadoBuscaProduto(
+                produto.Id, produto.Nome, v.Id, v.Nome, v.CodigoBarras,
+                produto.PrecoVenda, produto.PrecoCusto, v.EstoqueAtual)));
         }
 
         return resultados.OrderBy(r => r.NomeExibicao).ToList();

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Vendex.App.Navigation;
 using Vendex.Application.Services;
+using Vendex.Domain.Enums;
 
 namespace Vendex.App.ViewModels;
 
@@ -19,11 +20,21 @@ public partial class ContasPagarViewModel : ObservableObject
 
     public ObservableCollection<ContaPagarLinhaViewModel> Contas { get; } = new();
 
+    public ObservableCollection<string> FormasPagamentoDisponiveis { get; } = new()
+    {
+        FormaPagamento.Dinheiro.ParaTexto(), FormaPagamento.CartaoCredito.ParaTexto(),
+        FormaPagamento.CartaoDebito.ParaTexto(), FormaPagamento.Pix.ParaTexto(), FormaPagamento.Beneficios.ParaTexto()
+    };
+
     [ObservableProperty] private string vencidosFormatado = "R$ 0,00";
     [ObservableProperty] private string vencemHojeFormatado = "R$ 0,00";
     [ObservableProperty] private string aVencerFormatado = "R$ 0,00";
     [ObservableProperty] private string pagosFormatado = "R$ 0,00";
     [ObservableProperty] private string totalPeriodoFormatado = "R$ 0,00";
+
+    [ObservableProperty] private bool mostrarConfirmacaoPagamento;
+    [ObservableProperty] private ContaPagarLinhaViewModel? contaParaPagar;
+    [ObservableProperty] private string formaPagamentoSelecionada;
 
     public bool PodeCriar => _sessao.PodeCriar(NomeModulo);
     public bool PodeEditar => _sessao.PodeEditar(NomeModulo);
@@ -33,6 +44,7 @@ public partial class ContasPagarViewModel : ObservableObject
         _contaPagarService = contaPagarService;
         _novaContaPagarWindowFactory = novaContaPagarWindowFactory;
         _sessao = sessao;
+        formaPagamentoSelecionada = FormasPagamentoDisponiveis[0];
         _ = CarregarAsync();
     }
 
@@ -49,13 +61,32 @@ public partial class ContasPagarViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task MarcarComoPagoAsync(ContaPagarLinhaViewModel linha)
+    private void MarcarComoPago(ContaPagarLinhaViewModel linha)
     {
         if (!PodeEditar) return;
 
-        await _contaPagarService.MarcarComoPagoAsync(linha.Id);
+        ContaParaPagar = linha;
+        FormaPagamentoSelecionada = FormasPagamentoDisponiveis[0];
+        MostrarConfirmacaoPagamento = true;
+    }
+
+    [RelayCommand]
+    private void CancelarPagamento() => MostrarConfirmacaoPagamento = false;
+
+    [RelayCommand]
+    private async Task ConfirmarPagamentoAsync()
+    {
+        if (ContaParaPagar is null)
+            return;
+
+        MostrarConfirmacaoPagamento = false;
+        await _contaPagarService.MarcarComoPagoAsync(ContaParaPagar.Id, MapForma(FormaPagamentoSelecionada));
+        ContaParaPagar = null;
         await CarregarAsync();
     }
+
+    private static FormaPagamento MapForma(string texto) =>
+        Enum.GetValues<FormaPagamento>().FirstOrDefault(f => f.ParaTexto() == texto, FormaPagamento.Dinheiro);
 
     private async Task CarregarAsync()
     {

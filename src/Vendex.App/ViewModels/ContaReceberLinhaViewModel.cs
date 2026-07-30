@@ -22,7 +22,7 @@ public class ContaReceberLinhaViewModel
         TotalFormatado = conta.ValorTotal.ToString("C2", CulturaBr);
         PodeMarcarComoRecebido = conta.Status != StatusContaFinanceira.Pago;
 
-        (SituacaoTexto, SituacaoFundo, SituacaoCor) = conta.Status switch
+        (SituacaoTexto, SituacaoFundo, SituacaoCor) = conta.StatusEfetivo switch
         {
             StatusContaFinanceira.Pago => ("Recebido", Color.FromRgb(0xDC, 0xF5, 0xE3), Color.FromRgb(0x1B, 0x8A, 0x4B)),
             StatusContaFinanceira.Atrasado => ("Atrasado", Color.FromRgb(0xFD, 0xE4, 0xE1), Color.FromRgb(0xC4, 0x2B, 0x1E)),

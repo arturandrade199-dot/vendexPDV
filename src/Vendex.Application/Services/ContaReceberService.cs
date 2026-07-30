@@ -49,7 +49,7 @@ public class ContaReceberService : IContaReceberService
         return conta;
     }
 
-    public async Task MarcarComoRecebidoAsync(int contaReceberId)
+    public async Task MarcarComoRecebidoAsync(int contaReceberId, FormaPagamento formaPagamento)
     {
         var conta = await _unitOfWork.ContasReceber.ObterPorIdAsync(contaReceberId);
         if (conta is null || conta.Status == StatusContaFinanceira.Pago)
@@ -60,7 +60,7 @@ public class ContaReceberService : IContaReceberService
             ContaReceberId = contaReceberId,
             ValorPago = conta.ValorTotal,
             DataPagamento = DateTime.Now,
-            FormaPagamento = FormaPagamento.Dinheiro
+            FormaPagamento = formaPagamento
         };
 
         await _unitOfWork.ContasReceberPagamentos.AdicionarAsync(pagamento);

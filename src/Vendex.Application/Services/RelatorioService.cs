@@ -162,7 +162,7 @@ public class RelatorioService : IRelatorioService
                 c.DataVencimento.ToString("dd/MM/yyyy", CulturaBr),
                 c.Descricao,
                 c.Fornecedor?.Nome ?? "—",
-                FormatarStatus(c.Status),
+                FormatarStatus(c.StatusEfetivo),
                 c.ValorTotal.ToString("C2", CulturaBr)
             })
             .ToList();
@@ -220,7 +220,7 @@ public class RelatorioService : IRelatorioService
                 c.DataVencimento.ToString("dd/MM/yyyy", CulturaBr),
                 c.Descricao,
                 c.Cliente.Nome,
-                FormatarStatus(c.Status),
+                FormatarStatus(c.StatusEfetivo),
                 c.ValorTotal.ToString("C2", CulturaBr)
             })
             .ToList();

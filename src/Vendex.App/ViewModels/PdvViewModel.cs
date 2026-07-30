@@ -172,6 +172,12 @@ public partial class PdvViewModel : ObservableObject
     [RelayCommand]
     private void FinalizarVenda()
     {
+        // Já em pagamento: o F2 daqui é o atalho global da janela, mas quem deve tratá-lo
+        // nesse estado é o PagamentoView (ConfirmarCommand). Reentrar aqui recriaria o
+        // painel de pagamento do zero e perderia os lançamentos já feitos.
+        if (EstaEmPagamento)
+            return;
+
         var itensValidos = Itens.Where(i => !i.Removido).ToList();
         if (itensValidos.Count == 0)
         {

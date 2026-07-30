@@ -50,7 +50,7 @@ public class ContaPagarService : IContaPagarService
         return conta;
     }
 
-    public async Task MarcarComoPagoAsync(int contaPagarId)
+    public async Task MarcarComoPagoAsync(int contaPagarId, FormaPagamento formaPagamento)
     {
         var conta = await _unitOfWork.ContasPagar.ObterPorIdAsync(contaPagarId);
         if (conta is null || conta.Status == StatusContaFinanceira.Pago)
@@ -61,7 +61,7 @@ public class ContaPagarService : IContaPagarService
             ContaPagarId = contaPagarId,
             ValorPago = conta.ValorTotal,
             DataPagamento = DateTime.Now,
-            FormaPagamento = FormaPagamento.Dinheiro
+            FormaPagamento = formaPagamento
         };
 
         await _unitOfWork.ContasPagarPagamentos.AdicionarAsync(pagamento);
