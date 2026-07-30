@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VENDEX | O Ponto de Venda para o Pequeno Comércio</title>
+    <meta name="description" content="Simplifique a gestão do seu negócio com VENDEX. Controle vendas, estoque e finanças sem mensalidade e sem precisar de internet. Ideal para o pequeno comerciante.">
+
+    <meta property="og:title" content="VENDEX | O Ponto de Venda para o Pequeno Comércio">
+    <meta property="og:description" content="Controle vendas, estoque e finanças sem mensalidade e sem precisar de internet.">
+    <meta property="og:image" content="https://pdv.vendex-contato.workers.dev/assets/vendex-icon.png">
+    <meta property="og:url" content="https://pdv.vendex-contato.workers.dev/">
+    <meta property="og:type" content="website">
+
+    <link rel="icon" type="image/png" href="assets/vendex-icon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '523564352819488');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=523564352819488&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+
+    <style>
+        :root {
+            --primary: #085441;
+            --secondary: #5DCAA5;
+            --background: #fdfdfc;
+            --text-primary: #1c1917;
+            --text-secondary: #57534e;
+            --surface: #ffffff;
+            --border: #e7e5e4;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Geist Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        h1, h2, h3 {
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            color: var(--primary);
+        }
+
+        h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+        }
+
+        p {
+            line-height: 1.6;
+            color: var(--text-secondary);
+            max-width: 65ch;
+        }
+
+        .section {
+            padding: 6rem 0;
+        }
+
+        /* !important nas propriedades visuais: mantido por consistência com planos.html
+           (lá o widget de checkout da Hotmart injeta seu próprio CSS depois deste <style>
+           e vencia o nosso no empate de especificidade — aqui nesta página não tem mais
+           widget, mas os botões só navegam pra planos.html mesmo assim). */
+        .button {
+            display: inline-block !important;
+            background-color: var(--primary) !important;
+            background-image: none !important;
+            color: white !important;
+            padding: 1rem 2rem !important;
+            border-radius: 8px !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            font-family: inherit !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none !important;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #064232 !important;
+            transform: scale(1.05);
+        }
+
+        .button:active {
+            transform: scale(0.98);
+        }
+
+        /* Header */
+        .header {
+            padding: 1.25rem 0;
+            background: rgba(253, 253, 252, 0.8);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        /* Hero */
+        .hero {
+            padding-top: 4rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            margin-bottom: 1rem;
+        }
+
+        .hero .subtitle {
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Carousel */
+        .carousel-wrapper {
+            margin-top: 4rem;
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
+            border: 1px solid var(--border);
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .carousel-slide {
+            flex: 0 0 100%;
+            width: 100%;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: all 0.2s ease;
+        }
+
+        .carousel-button:hover {
+            background-color: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-button.prev { left: 16px; }
+        .carousel-button.next { right: 16px; }
+
+        .carousel-button svg {
+            width: 24px;
+            height: 24px;
+            color: var(--text-primary);
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .carousel-dot.active {
+            background-color: white;
+        }
+
+        /* Benefits */
+        .benefits {
+            background-color: #f8f8f7;
+        }
+
+        .benefits h2 {
+            margin-bottom: 4rem;
+        }
+
+        .spotlight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .spotlight-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .spotlight-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .spotlight-card::before {
+            content: "";
+            position: absolute;
+            top: var(--py, 50%);
+            left: var(--px, 50%);
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--secondary) 0%, rgba(255, 255, 255, 0) 60%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .spotlight-card:hover::before {
+            opacity: 0.15;
+        }
+
+        .spotlight-card .icon {
+            width: 48px;
+            height: 48px;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .spotlight-card h3 {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Sticky Stack */
+        .sticky-section {
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: flex-start;
+        }
+
+        .sticky-section-content {
+            position: sticky;
+            top: 10rem;
+            height: 300px;
+        }
+
+        .sticky-section-content h2 {
+            text-align: left;
+            margin-bottom: 1rem;
+        }
+
+        .sticky-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .stack-card {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            padding: 2rem;
+            border-radius: 12px;
+            opacity: 0.5;
+            transition: opacity 0.5s ease;
+            transform: scale(0.98);
+        }
+
+        .stack-card.is-active {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .stack-card p {
+            max-width: none;
+        }
+
+        /* CTA */
+        .cta-section {
+            background-color: var(--primary);
+            color: white;
+            text-align: center;
+        }
+
+        .cta-section h2 {
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .cta-section p {
+            color: rgba(255,255,255,0.8);
+            margin: 0 auto 2.5rem;
+        }
+
+        .cta-section .button {
+            background-color: white !important;
+            color: var(--primary) !important;
+            font-size: 1.125rem !important;
+            padding: 1.25rem 2.5rem !important;
+        }
+
+        .cta-section .button:hover {
+            background-color: #f0f0f0 !important;
+        }
+
+        /* Footer */
+        .footer {
+            padding: 3rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer p {
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .section { padding: 4rem 0; }
+            h1 { font-size: 2rem; }
+            h2 { font-size: 1.75rem; }
+            .hero { padding-top: 2rem; }
+            .sticky-section { grid-template-columns: 1fr; }
+            .sticky-section-content {
+                position: static;
+                height: auto;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <a href="#" class="logo"><img src="assets/vendex-icon.png" alt="VENDEX"> VENDEX</a>
+            <a href="planos.html" class="button">Comprar Agora</a>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Diga adeus ao caderno. Tenha o controle total do seu comércio.</h1>
+                <p class="subtitle">O Vendex é o sistema de ponto de venda (PDV) completo, feito para quem tem mercadinho, quitanda ou loja e quer parar de perder dinheiro para a desorganização.</p>
+                <a href="planos.html" class="button">Quero organizar meu negócio</a>
+
+                <div class="carousel-wrapper">
+                    <div class="carousel-track">
+                        <div class="carousel-slide"><img src="assets/screenshot-vendas.jpg" alt="Tela de vendas do Vendex PDV aberta em um notebook" loading="lazy" width="1024" height="768"></div>
+                        <div class="carousel-slide"><img src="assets/screenshot-menu.jpg" alt="Menu do Vendex PDV em um terminal de checkout" loading="lazy" width="1024" height="768"></div>
+                        <div class="carousel-slide"><img src="assets/screenshot-caixa.jpg" alt="Operador usando a tela touchscreen do Vendex PDV no caixa" loading="lazy" width="1024" height="768"></div>
+                    </div>
+                    <button class="carousel-button prev" aria-label="Anterior">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path>
+                        </svg>
+                    </button>
+                    <button class="carousel-button next" aria-label="Próximo">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path>
+                        </svg>
+                    </button>
+                    <div class="carousel-dots"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section benefits" id="features">
+            <div class="container">
+                <h2>Tudo que você precisa, sem complicação.</h2>
+                <div class="spotlight-grid">
+                    <div class="spotlight-card">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-15c-.621 0-1.125-.504-1.125-1.125V6.375c0-.621.504-1.125 1.125-1.125h.375m18 0v-.375a60.097 60.097 0 0 0-15.797-2.101c-.727-.198-1.453.342-1.453 1.096v1.096"></path></svg>
+                        <h3>Frente de Caixa Rápida</h3>
+                        <p>Registre vendas com agilidade, aceitando dinheiro, cartão, PIX e vales. Menos filas, mais clientes satisfeitos.</p>
+                    </div>
+                    <div class="spotlight-card">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5-3.75a1.5 1.5 0 0 1-1.5 1.5h-13.5a1.5 1.5 0 0 1-1.5-1.5m16.5 0a1.5 1.5 0 0 0-1.5-1.5h-13.5a1.5 1.5 0 0 0-1.5 1.5"></path></svg>
+                        <h3>Controle de Estoque</h3>
+                        <p>Saiba exatamente o que entra e o que sai. Evite perdas e nunca mais deixe de vender por falta de produto.</p>
+                    </div>
+                    <div class="spotlight-card">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 21Z"></path></svg>
+                        <h3>Gestão Financeira</h3>
+                        <p>Controle contas a pagar e a receber. Venda fiado com segurança e nunca mais perca o prazo de um fornecedor.</p>
+                    </div>
+                    <div class="spotlight-card">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.7-.936C10.74 16.96 10.186 16.12 9.53 16.122ZM12 18.75a6 6 0 0 1 7.23-6.556 2.25 2.25 0 0 1 1.94 1.127 4.5 4.5 0 0 0 .112 5.082l-.26.26C20.151 21.6 18.463 22.5 16.5 22.5c-2.73 0-5.1-1.285-6.75-3.25l-.25-.25Z"></path></svg>
+                        <h3>Cadastro de Produtos com Grade</h3>
+                        <p>Gerencie roupas, calçados e outros itens com variações de tamanho, cor e modelo. Controle nome, código de barras e estoque por variação de forma integrada ao PDV.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container sticky-section">
+                <div class="sticky-section-content">
+                    <h2>Seu negócio, suas regras.</h2>
+                    <p>Veja como o Vendex coloca o poder nas suas mãos, sem depender de internet e com total segurança.</p>
+                </div>
+                <div class="sticky-stack">
+                    <div class="stack-card is-active">
+                        <h3>Controle total do caixa</h3>
+                        <p>Abra o caixa com contagem de cédulas e moedas. No fim do dia, veja o faturamento e o lucro calculados automaticamente. Simples e à prova de erros.</p>
+                    </div>
+                    <div class="stack-card">
+                        <h3>Funciona 100% Offline</h3>
+                        <p>A internet caiu? Sem problemas. O Vendex é instalado no seu computador e não para de funcionar. Suas vendas não podem esperar.</p>
+                    </div>
+                    <div class="stack-card">
+                        <h3>Segurança e Controle de Acesso</h3>
+                        <p>Crie usuários para seus funcionários e decida o que cada um pode ver e fazer no sistema. A informação mais importante do seu negócio fica protegida.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section cta-section" id="buy">
+            <div class="container">
+                <h2>Chega de "anotar no caderninho".</h2>
+                <p>Tenha o controle real do seu negócio com uma ferramenta profissional.</p>
+                <a href="planos.html" class="button">Garantir Minha Licença VENDEX</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VENDEX. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Spotlight card hover effect
+            document.querySelectorAll('.spotlight-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    card.style.setProperty('--px', `${e.clientX - rect.left}px`);
+                    card.style.setProperty('--py', `${e.clientY - rect.top}px`);
+                });
+            });
+
+            // Sticky stack scroll effect
+            const stackCards = document.querySelectorAll('.stack-card');
+            if (stackCards.length > 0) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            stackCards.forEach(card => card.classList.remove('is-active'));
+                            entry.target.classList.add('is-active');
+                        }
+                    });
+                }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
+
+                stackCards.forEach(card => observer.observe(card));
+            }
+
+            // Carousel
+            const track = document.querySelector('.carousel-track');
+            if (track) {
+                const slides = Array.from(track.children);
+                const nextButton = document.querySelector('.carousel-button.next');
+                const prevButton = document.querySelector('.carousel-button.prev');
+                const dotsNav = document.querySelector('.carousel-dots');
+
+                slides.forEach((_, index) => {
+                    const dot = document.createElement('button');
+                    dot.classList.add('carousel-dot');
+                    if (index === 0) dot.classList.add('active');
+                    dotsNav.appendChild(dot);
+                });
+
+                const dots = Array.from(dotsNav.children);
+                let currentIndex = 0;
+
+                const updateCarousel = () => {
+                    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                    dots.forEach((dot, index) => dot.classList.toggle('active', index === currentIndex));
+                };
+
+                prevButton.addEventListener('click', () => {
+                    currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                    updateCarousel();
+                });
+
+                nextButton.addEventListener('click', () => {
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    updateCarousel();
+                });
+
+                dotsNav.addEventListener('click', (e) => {
+                    const targetDot = e.target.closest('button');
+                    if (!targetDot) return;
+                    currentIndex = dots.indexOf(targetDot);
+                    updateCarousel();
+                });
+
+                setInterval(() => {
+                    currentIndex = (currentIndex + 1) % slides.length;
+                    updateCarousel();
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

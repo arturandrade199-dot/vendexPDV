@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escolha seu plano | VENDEX</title>
+    <meta name="description" content="Assine o Vendex PDV mensal ou anual e tenha controle total de vendas, estoque e financeiro do seu negócio.">
+
+    <link rel="icon" type="image/png" href="assets/vendex-icon.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Meta Pixel Code -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '523564352819488');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=523564352819488&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
+
+    <style>
+        :root {
+            --primary: #085441;
+            --secondary: #5DCAA5;
+            --background: #fdfdfc;
+            --text-primary: #1c1917;
+            --text-secondary: #57534e;
+            --surface: #ffffff;
+            --border: #e7e5e4;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Geist Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* !important nas propriedades visuais: o widget de checkout da Hotmart injeta
+           seu próprio hotmart-fb.min.css depois deste <style>, e como os botões também
+           têm a classe .hotmart-fb, no empate de especificidade o CSS deles carregado
+           por último vencia o nosso (mesmo problema já visto em index.html). */
+        .button {
+            display: inline-block !important;
+            width: 100% !important;
+            text-align: center !important;
+            background-color: var(--primary) !important;
+            background-image: none !important;
+            color: white !important;
+            padding: 1rem 2rem !important;
+            border-radius: 8px !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+            font-size: 1rem !important;
+            font-family: inherit !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border: none !important;
+            cursor: pointer;
+        }
+
+        .button:hover {
+            background-color: #064232 !important;
+            transform: scale(1.02);
+        }
+
+        .header {
+            padding: 1.25rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo img {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+        }
+
+        .back-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        .intro {
+            text-align: center;
+            padding: 3.5rem 0 1rem;
+        }
+
+        .intro h1 {
+            font-size: clamp(2rem, 4vw, 2.75rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .intro p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        .plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.75rem;
+            padding: 3rem 0 5rem;
+            align-items: stretch;
+        }
+
+        .plan-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.25rem 2rem;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .plan-card.destaque {
+            border: 2px solid var(--secondary);
+            box-shadow: 0 20px 40px -12px rgba(8, 84, 65, 0.15);
+        }
+
+        .badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--secondary);
+            color: var(--primary);
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 0.35rem 1rem;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .plan-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.75rem;
+        }
+
+        .plan-price-riscado {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            text-decoration: line-through;
+            margin-bottom: 0.1rem;
+        }
+
+        .plan-price {
+            display: flex;
+            align-items: baseline;
+            gap: 0.4rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .plan-price .valor {
+            font-size: 2.75rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--primary);
+        }
+
+        .plan-price .periodo {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .plan-economia {
+            display: inline-block;
+            background: #dcfce7;
+            color: #065f46;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.25rem 0.7rem;
+            border-radius: 6px;
+            margin-bottom: 1.25rem;
+            width: fit-content;
+        }
+
+        .plan-subtitulo {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .plan-beneficios {
+            list-style: none;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+        }
+
+        .plan-beneficios li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            margin-bottom: 0.85rem;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .plan-beneficios svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            color: var(--secondary);
+            margin-top: 0.1rem;
+        }
+
+        .rodape-plano {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.75rem;
+        }
+
+        .garantia {
+            text-align: center;
+            padding-bottom: 4rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer {
+            padding: 2.5rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 640px) {
+            .plans { padding: 2rem 0 3rem; }
+            .plan-card { padding: 1.75rem 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo"><img src="assets/vendex-icon.png" alt="VENDEX"> VENDEX</a>
+            <a href="index.html" class="back-link">← Voltar</a>
+        </div>
+    </header>
+
+    <section class="intro">
+        <div class="container">
+            <h1>Escolha como quer assinar o Vendex</h1>
+            <p>Os dois planos dão acesso completo ao sistema — a diferença é só a forma de pagamento.</p>
+        </div>
+    </section>
+
+    <div class="container">
+        <div class="plans">
+
+            <div class="plan-card">
+                <div class="plan-name">Mensal</div>
+                <div class="plan-price">
+                    <span class="valor">R$ 49,90</span>
+                    <span class="periodo">/mês</span>
+                </div>
+                <p class="plan-subtitulo">Cobrança recorrente. Cancele quando quiser, sem multa.</p>
+                <ul class="plan-beneficios">
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                        Acesso completo a todas as funcionalidades do Vendex
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                        Atualizações e suporte incluídos
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                        Sem contrato de fidelidade
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                        Ideal para testar o sistema no seu negócio antes de decidir
+                    </li>
+                </ul>
+                <a href="https://pay.hotmart.com/E106950907E?checkoutMode=2" onclick="return false;" class="button hotmart-fb hotmart__button-checkout" data-plano="mensal">Assinar Mensal</a>
+                <p class="rodape-plano">Cobrado todo mês no cartão</p>
+            </div>
+
+            <div class="plan-card destaque">
+                <span class="badge">Mais econômico</span>
+                <div class="plan-name">Anual</div>
+                <div class="plan-price-riscado">R$ 598,80</div>
+                <div class="plan-price">
+                    <span class="valor">R$ 500</span>
+                    <span class="periodo">à vista /ano</span>
+                </div>
+                <span class="plan-economia">Economize R$ 98,80 (quase 2 meses grátis)</span>
+                <p class="plan-subtitulo">Um pagamento só. Equivale a R$ 41,67/mês.</p>
+                <ul class="plan-beneficios">
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                        Tudo do plano mensal incluído
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                        Sem se preocupar com cobrança todo mês
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                        Menor custo por mês entre os dois planos
+                    </li>
+                    <li>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                        Ideal para quem já decidiu profissionalizar o negócio
+                    </li>
+                </ul>
+                <a href="https://pay.hotmart.com/F106817852V?checkoutMode=2" onclick="return false;" class="button hotmart-fb hotmart__button-checkout" data-plano="anual">Assinar Anual</a>
+                <p class="rodape-plano">Ou em até 6x no cartão</p>
+            </div>
+
+        </div>
+
+        <p class="garantia">Dúvidas? Fale com a gente: vendex.contato@gmail.com</p>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 VENDEX. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Widget de checkout da Hotmart (modal de pagamento nos botões .hotmart-fb)
+        function importHotmart() {
+            var imported = document.createElement('script');
+            imported.src = 'https://static.hotmart.com/checkout/widget.min.js';
+            document.head.appendChild(imported);
+            var link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = 'https://static.hotmart.com/css/hotmart-fb.min.css';
+            document.head.appendChild(link);
+        }
+        importHotmart();
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Meta Pixel: dispara InitiateCheckout ao clicar em qualquer botão de compra,
+            // com o plano escolhido (mensal/anual) pra segmentar campanhas depois.
+            document.querySelectorAll('.hotmart-fb').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (typeof fbq === 'function') {
+                        fbq('track', 'InitiateCheckout', { plano: btn.dataset.plano });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
