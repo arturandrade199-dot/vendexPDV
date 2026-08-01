@@ -29,6 +29,7 @@ public class UnitOfWork : IUnitOfWork
         Licencas = new LicencaRepository(_contexto);
         ConfiguracoesBackup = new Repository<ConfiguracaoBackup>(_contexto);
         ConfiguracoesImpressao = new Repository<ConfiguracaoImpressao>(_contexto);
+        Devolucoes = new DevolucaoRepository(_contexto);
     }
 
     public IUsuarioRepository Usuarios { get; }
@@ -48,6 +49,7 @@ public class UnitOfWork : IUnitOfWork
     public ILicencaRepository Licencas { get; }
     public IRepository<ConfiguracaoBackup> ConfiguracoesBackup { get; }
     public IRepository<ConfiguracaoImpressao> ConfiguracoesImpressao { get; }
+    public IDevolucaoRepository Devolucoes { get; }
 
     public Task<int> SalvarAlteracoesAsync() => _contexto.SaveChangesAsync();
 

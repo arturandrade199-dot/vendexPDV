@@ -24,4 +24,13 @@ public class VendaRepository : Repository<Venda>, IVendaRepository
             .Include(v => v.Cliente)
             .Where(v => !v.Cancelada && v.DataHora >= inicio && v.DataHora <= fim)
             .ToListAsync();
+
+    public async Task<IReadOnlyList<Venda>> ObterPorClienteAsync(int clienteId) =>
+        await DbSet
+            .Include(v => v.Itens).ThenInclude(i => i.Produto)
+            .Include(v => v.Itens).ThenInclude(i => i.ProdutoVariante)
+            .Where(v => !v.Cancelada && v.ClienteId == clienteId)
+            .OrderByDescending(v => v.DataHora)
+            .AsNoTracking()
+            .ToListAsync();
 }

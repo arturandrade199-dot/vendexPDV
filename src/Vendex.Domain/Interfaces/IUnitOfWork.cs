@@ -21,6 +21,7 @@ public interface IUnitOfWork
     ILicencaRepository Licencas { get; }
     IRepository<ConfiguracaoBackup> ConfiguracoesBackup { get; }
     IRepository<ConfiguracaoImpressao> ConfiguracoesImpressao { get; }
+    IDevolucaoRepository Devolucoes { get; }
 
     Task<int> SalvarAlteracoesAsync();
     Task BackupBancoDadosAsync(string caminhoArquivoDestino);

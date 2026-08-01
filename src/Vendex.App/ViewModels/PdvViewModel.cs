@@ -21,6 +21,7 @@ public partial class PdvViewModel : ObservableObject
     private readonly Func<CaixaWindow> _caixaWindowFactory;
     private readonly Func<IReadOnlyList<ItemCarrinhoViewModel>, FinalizarVendaViewModel> _finalizarVendaViewModelFactory;
     private readonly Func<string, string, AutorizacaoWindow> _autorizacaoWindowFactory;
+    private readonly Func<DevolucaoWindow> _devolucaoWindowFactory;
 
     private TipoMovimentacaoCaixa _tipoMovimentacaoAtual;
 
@@ -83,7 +84,8 @@ public partial class PdvViewModel : ObservableObject
         SessaoUsuario sessao,
         Func<CaixaWindow> caixaWindowFactory,
         Func<IReadOnlyList<ItemCarrinhoViewModel>, FinalizarVendaViewModel> finalizarVendaViewModelFactory,
-        Func<string, string, AutorizacaoWindow> autorizacaoWindowFactory)
+        Func<string, string, AutorizacaoWindow> autorizacaoWindowFactory,
+        Func<DevolucaoWindow> devolucaoWindowFactory)
     {
         _vendaService = vendaService;
         _caixaService = caixaService;
@@ -92,6 +94,7 @@ public partial class PdvViewModel : ObservableObject
         _caixaWindowFactory = caixaWindowFactory;
         _finalizarVendaViewModelFactory = finalizarVendaViewModelFactory;
         _autorizacaoWindowFactory = autorizacaoWindowFactory;
+        _devolucaoWindowFactory = devolucaoWindowFactory;
         _ = AtualizarStatusCaixaAsync();
     }
 
@@ -347,6 +350,18 @@ public partial class PdvViewModel : ObservableObject
 
     [RelayCommand]
     private void AbrirSuprimento() => AbrirPainelMovimentacao(TipoMovimentacaoCaixa.Reforco);
+
+    [RelayCommand]
+    private async Task AbrirDevolucaoAsync()
+    {
+        // Mesma trava de permissão do cancelamento de venda — devolução mexe em estoque e,
+        // opcionalmente, tira dinheiro do caixa, então não é uma ação "de qualquer um".
+        await ExecutarComPermissaoAsync("registrar uma devolução", () =>
+        {
+            _devolucaoWindowFactory().ShowDialog();
+            return Task.CompletedTask;
+        });
+    }
 
     private void AbrirPainelMovimentacao(TipoMovimentacaoCaixa tipo)
     {

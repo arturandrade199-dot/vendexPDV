@@ -32,6 +32,7 @@ public class RelatorioService : IRelatorioService
         TipoRelatorio.AberturasCaixa => GerarCaixasAsync(ExigirPeriodo(inicio, fim), aberturas: true),
         TipoRelatorio.FechamentosCaixa => GerarCaixasAsync(ExigirPeriodo(inicio, fim), aberturas: false),
         TipoRelatorio.VendasPorFormaPagamento => GerarVendasPorFormaPagamentoAsync(ExigirPeriodo(inicio, fim)),
+        TipoRelatorio.ProdutosDevolvidos => GerarProdutosDevolvidosAsync(ExigirPeriodo(inicio, fim)),
         _ => throw new ArgumentOutOfRangeException(nameof(tipo))
     };
 
@@ -312,6 +313,37 @@ public class RelatorioService : IRelatorioService
             new[] { new ColunaRelatorio("Forma de pagamento"), new ColunaRelatorio("Total", AlinhadaDireita: true) },
             linhas,
             new[] { ("Total geral", total.ToString("C2", CulturaBr)) });
+    }
+
+    private async Task<RelatorioResultado> GerarProdutosDevolvidosAsync((DateTime Inicio, DateTime Fim) periodo)
+    {
+        var itens = await _unitOfWork.Devolucoes.ObterItensPorPeriodoAsync(periodo.Inicio, periodo.Fim);
+
+        var linhas = itens
+            .OrderBy(i => i.Devolucao.DataHora)
+            .Select(i => (IReadOnlyList<string>)new[]
+            {
+                i.Devolucao.DataHora.ToString("dd/MM/yyyy HH:mm", CulturaBr),
+                i.ProdutoVariante is null ? i.Produto.Nome : $"{i.Produto.Nome} — {i.ProdutoVariante.Nome}",
+                i.Devolucao.Cliente.Nome,
+                i.Quantidade.ToString(CulturaBr),
+                i.Subtotal.ToString("C2", CulturaBr),
+                i.Devolucao.Motivo ?? "—"
+            })
+            .ToList();
+
+        var total = itens.Sum(i => i.Subtotal);
+
+        return new RelatorioResultado(
+            "Produtos devolvidos no período",
+            new[]
+            {
+                new ColunaRelatorio("Data"), new ColunaRelatorio("Produto"), new ColunaRelatorio("Cliente"),
+                new ColunaRelatorio("Quantidade", AlinhadaDireita: true), new ColunaRelatorio("Valor", AlinhadaDireita: true),
+                new ColunaRelatorio("Motivo")
+            },
+            linhas,
+            new[] { ("Total devolvido", total.ToString("C2", CulturaBr)) });
     }
 
     private static string FormatarStatus(StatusContaFinanceira status) => status switch

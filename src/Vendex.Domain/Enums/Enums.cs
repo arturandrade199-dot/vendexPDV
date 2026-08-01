@@ -54,7 +54,8 @@ public enum TipoAcaoAuditoria
     CancelamentoVenda,
     AberturaCaixa,
     FechamentoCaixa,
-    TentativaAcessoNegado
+    TentativaAcessoNegado,
+    RegistroDevolucao
 }
 
 public enum UnidadeMedida

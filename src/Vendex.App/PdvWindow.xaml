@@ -19,6 +19,7 @@
         <KeyBinding Key="F5" Command="{Binding AbrirSangriaCommand}" />
         <KeyBinding Key="F6" Command="{Binding AbrirSuprimentoCommand}" />
         <KeyBinding Key="F7" Command="{Binding AbrirCaixaJanelaCommand}" />
+        <KeyBinding Key="F8" Command="{Binding AbrirDevolucaoCommand}" />
         <KeyBinding Key="F4" Command="{Binding NovaVendaCommand}" />
         <KeyBinding Key="P" Modifiers="Control" Command="{x:Static local:PdvWindow.ImprimirCupomCommand}" />
         <KeyBinding Key="Return" Command="{Binding ConfirmarDialogoAtivoCommand}" />
@@ -209,7 +210,8 @@
                         <ui:Button Content="Sangria (F5)" Margin="0,0,8,0" Command="{Binding AbrirSangriaCommand}" />
                         <ui:Button Content="Suprimento (F6)" Margin="0,0,8,0" Command="{Binding AbrirSuprimentoCommand}" />
                     </StackPanel>
-                    <ui:Button Content="Caixa (F7)" Command="{Binding AbrirCaixaJanelaCommand}" />
+                    <ui:Button Content="Caixa (F7)" Margin="0,0,8,0" Command="{Binding AbrirCaixaJanelaCommand}" />
+                    <ui:Button Content="Devolução (F8)" Command="{Binding AbrirDevolucaoCommand}" />
 
                     <Popup IsOpen="{Binding MostrarPainelMovimentacao, Mode=TwoWay}"
                            PlacementTarget="{Binding ElementName=PainelBotoesMovimentacao}"

@@ -32,6 +32,8 @@ public class VendexDbContext : DbContext
     public DbSet<Licenca> Licencas => Set<Licenca>();
     public DbSet<ConfiguracaoBackup> ConfiguracoesBackup => Set<ConfiguracaoBackup>();
     public DbSet<ConfiguracaoImpressao> ConfiguracoesImpressao => Set<ConfiguracaoImpressao>();
+    public DbSet<Devolucao> Devolucoes => Set<Devolucao>();
+    public DbSet<DevolucaoItem> DevolucaoItens => Set<DevolucaoItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -156,6 +158,24 @@ public class VendexDbContext : DbContext
         modelBuilder.Entity<LogAuditoria>(e =>
         {
             e.HasOne(l => l.Usuario).WithMany().HasForeignKey(l => l.UsuarioId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Devolucao>(e =>
+        {
+            e.Property(d => d.ValorTotal).HasPrecision(18, 2);
+            e.HasOne(d => d.Cliente).WithMany().HasForeignKey(d => d.ClienteId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(d => d.Venda).WithMany().HasForeignKey(d => d.VendaId).IsRequired(false);
+            e.HasOne(d => d.Usuario).WithMany().HasForeignKey(d => d.UsuarioId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<DevolucaoItem>(e =>
+        {
+            e.Property(i => i.Quantidade).HasPrecision(18, 3);
+            e.Property(i => i.PrecoUnitario).HasPrecision(18, 2);
+            e.Property(i => i.Subtotal).HasPrecision(18, 2);
+            e.HasOne(i => i.Devolucao).WithMany(d => d.Itens).HasForeignKey(i => i.DevolucaoId);
+            e.HasOne(i => i.Produto).WithMany().HasForeignKey(i => i.ProdutoId);
+            e.HasOne(i => i.ProdutoVariante).WithMany().HasForeignKey(i => i.ProdutoVarianteId).IsRequired(false);
         });
     }
 }

@@ -98,6 +98,7 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<AgendadorAtualizacao>();
                 services.AddSingleton<IRelatorioService, RelatorioService>();
                 services.AddSingleton<IConfiguracaoImpressaoService, ConfiguracaoImpressaoService>();
+                services.AddSingleton<IDevolucaoService, DevolucaoService>();
                 services.AddSingleton<ILicencaService, LicencaService>();
                 services.AddSingleton<AgendadorLicenca>();
 
@@ -140,6 +141,10 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.CaixaViewModel>();
                 services.AddTransient<CaixaWindow>();
                 services.AddTransient<Func<CaixaWindow>>(provedor => () => provedor.GetRequiredService<CaixaWindow>());
+
+                services.AddTransient<ViewModels.DevolucaoWindowViewModel>();
+                services.AddTransient<DevolucaoWindow>();
+                services.AddTransient<Func<DevolucaoWindow>>(provedor => () => provedor.GetRequiredService<DevolucaoWindow>());
 
                 services.AddTransient<ViewModels.PerfilWindowViewModel>();
                 services.AddTransient<PerfilWindow>();
