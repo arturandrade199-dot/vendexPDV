@@ -10,7 +10,8 @@ public class MenuViewModel : ObservableObject
 {
     public ObservableCollection<ModuloTile> Modulos { get; }
 
-    public MenuViewModel(INavigationService navegacao, Func<PdvWindow> pdvWindowFactory, Func<CaixaWindow> caixaWindowFactory, SessaoUsuario sessao)
+    public MenuViewModel(INavigationService navegacao, Func<PdvWindow> pdvWindowFactory, Func<CaixaWindow> caixaWindowFactory,
+        Func<DevolucaoWindow> devolucaoWindowFactory, Func<string, string, AutorizacaoWindow> autorizacaoWindowFactory, SessaoUsuario sessao)
     {
         var modulos = new List<ModuloTile>();
 
@@ -18,6 +19,22 @@ public class MenuViewModel : ObservableObject
         {
             modulos.Add(new ModuloTile("PDV (Venda)", "Registrar vendas no balcão", SymbolRegular.Cart24, true,
                 new RelayCommand(() => pdvWindowFactory().ShowDialog())));
+
+            // Mesma trava de permissão do atalho na sidebar (ShellViewModel.AbrirDevolucao) —
+            // devolução mexe em estoque e, opcionalmente, tira dinheiro do caixa.
+            modulos.Add(new ModuloTile("Devolução", "Devolver mercadoria de uma venda", SymbolRegular.ArrowUndo24, true,
+                new RelayCommand(() =>
+                {
+                    if (sessao.PodeExcluir("PDV"))
+                    {
+                        devolucaoWindowFactory().ShowDialog();
+                        return;
+                    }
+
+                    var janela = autorizacaoWindowFactory("PDV", "Você não tem permissão para registrar uma devolução.");
+                    if (janela.ShowDialog() == true)
+                        devolucaoWindowFactory().ShowDialog();
+                })));
         }
 
         if (sessao.PodeAcessar("Produtos"))
@@ -60,6 +77,12 @@ public class MenuViewModel : ObservableObject
         {
             modulos.Add(new ModuloTile("Vendas", "Histórico de vendas do período", SymbolRegular.ReceiptMoney24, true,
                 new RelayCommand(() => navegacao.NavegarPara<VendasViewModel>("Vendas"))));
+        }
+
+        if (sessao.PodeAcessar("Controle de Validade"))
+        {
+            modulos.Add(new ModuloTile("Controle de Validade", "Lotes, validade e perdas", SymbolRegular.CalendarClock24, true,
+                new RelayCommand(() => navegacao.NavegarPara<LotesViewModel>("Controle de validade"))));
         }
 
         if (sessao.EhAdministrador)

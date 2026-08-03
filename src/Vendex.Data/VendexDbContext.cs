@@ -34,6 +34,8 @@ public class VendexDbContext : DbContext
     public DbSet<ConfiguracaoImpressao> ConfiguracoesImpressao => Set<ConfiguracaoImpressao>();
     public DbSet<Devolucao> Devolucoes => Set<Devolucao>();
     public DbSet<DevolucaoItem> DevolucaoItens => Set<DevolucaoItem>();
+    public DbSet<Lote> Lotes => Set<Lote>();
+    public DbSet<LotePerda> LotePerdas => Set<LotePerda>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -163,7 +165,7 @@ public class VendexDbContext : DbContext
         modelBuilder.Entity<Devolucao>(e =>
         {
             e.Property(d => d.ValorTotal).HasPrecision(18, 2);
-            e.HasOne(d => d.Cliente).WithMany().HasForeignKey(d => d.ClienteId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(d => d.Cliente).WithMany().HasForeignKey(d => d.ClienteId).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
             e.HasOne(d => d.Venda).WithMany().HasForeignKey(d => d.VendaId).IsRequired(false);
             e.HasOne(d => d.Usuario).WithMany().HasForeignKey(d => d.UsuarioId).OnDelete(DeleteBehavior.Restrict);
         });
@@ -176,6 +178,22 @@ public class VendexDbContext : DbContext
             e.HasOne(i => i.Devolucao).WithMany(d => d.Itens).HasForeignKey(i => i.DevolucaoId);
             e.HasOne(i => i.Produto).WithMany().HasForeignKey(i => i.ProdutoId);
             e.HasOne(i => i.ProdutoVariante).WithMany().HasForeignKey(i => i.ProdutoVarianteId).IsRequired(false);
+        });
+
+        modelBuilder.Entity<Lote>(e =>
+        {
+            e.Property(l => l.QuantidadeInicial).HasPrecision(18, 3);
+            e.Property(l => l.QuantidadeAtual).HasPrecision(18, 3);
+            e.HasOne(l => l.Produto).WithMany().HasForeignKey(l => l.ProdutoId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(l => l.ProdutoVariante).WithMany().HasForeignKey(l => l.ProdutoVarianteId).IsRequired(false).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<LotePerda>(e =>
+        {
+            e.Property(p => p.Quantidade).HasPrecision(18, 3);
+            e.Property(p => p.PrecoCustoUnitarioNaData).HasPrecision(18, 2);
+            e.Property(p => p.ValorPerdido).HasPrecision(18, 2);
+            e.HasOne(p => p.Lote).WithMany(l => l.Perdas).HasForeignKey(p => p.LoteId);
         });
     }
 }

@@ -52,6 +52,7 @@
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -71,8 +72,18 @@
                 </StackPanel>
             </Grid>
 
+            <!-- Busca e filtros -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,16">
+                <ui:TextBox Width="320"
+                            PlaceholderText="🔍 Buscar por descrição ou fornecedor"
+                            Text="{Binding TermoBusca, UpdateSourceTrigger=PropertyChanged}"
+                            ClearButtonEnabled="True" />
+                <ComboBox Width="150" Margin="8,0,0,0"
+                          ItemsSource="{Binding SituacoesDisponiveis}" SelectedItem="{Binding SituacaoSelecionada}" />
+            </StackPanel>
+
             <!-- Tabela -->
-            <Border Grid.Row="1" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1">
+            <Border Grid.Row="2" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1">
                 <ListView ItemsSource="{Binding Contas}" BorderThickness="0" Background="Transparent">
                     <ListView.View>
                         <GridView>

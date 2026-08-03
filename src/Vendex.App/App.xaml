@@ -12,9 +12,18 @@
 
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter" />
             <conv:InverseBooleanToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+            <conv:InverseBooleanConverter x:Key="InverseBooleanConverter" />
             <conv:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <conv:AllTrueToVisibilityConverter x:Key="AllTrueToVisibilityConverter" />
             <conv:PathToImageSourceConverter x:Key="PathToImageSourceConverter" />
+
+            <!-- SelectedDateFormat="Long" é o padrão do DatePicker do WPF (ex: "segunda-feira, 3 de
+                 agosto de 2026") — sem isso, todo filtro de data do sistema fica assim em vez de
+                 dd/MM/yyyy, mesmo com a cultura pt-BR configurada em App.xaml.cs. BasedOn preserva o
+                 visual Fluent que o ui:ControlsDictionary já aplica a todo DatePicker implicitamente. -->
+            <Style TargetType="DatePicker" BasedOn="{StaticResource {x:Type DatePicker}}">
+                <Setter Property="SelectedDateFormat" Value="Short" />
+            </Style>
 
             <!-- Estilos compartilhados do "design moderno" — reaproveitados em todas as telas de módulo -->
             <Style x:Key="CartaoResumo" TargetType="Border">

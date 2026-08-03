@@ -17,14 +17,18 @@ public partial class ProdutosViewModel : ObservableObject
     private readonly IProdutoService _produtoService;
     private readonly Func<Produto?, ProdutoWindow> _produtoWindowFactory;
     private readonly SessaoUsuario _sessao;
+    private List<Produto> _todosProdutos = new();
 
     public ObservableCollection<ProdutoLinhaViewModel> Produtos { get; } = new();
+    public ObservableCollection<string> SituacoesDisponiveis { get; } = new() { "Todos", "Ativos", "Inativos" };
 
     [ObservableProperty] private int totalProdutos;
     [ObservableProperty] private int ativos;
     [ObservableProperty] private int estoqueBaixo;
     [ObservableProperty] private string valorEmEstoqueFormatado = "R$ 0,00";
     [ObservableProperty] private ProdutoLinhaViewModel? itemSelecionado;
+    [ObservableProperty] private string termoBusca = string.Empty;
+    [ObservableProperty] private string situacaoSelecionada = "Todos";
 
     public bool PodeCriar => _sessao.PodeCriar(NomeModulo);
     public bool PodeEditar => _sessao.PodeEditar(NomeModulo);
@@ -78,17 +82,41 @@ public partial class ProdutosViewModel : ObservableObject
         await CarregarAsync();
     }
 
+    partial void OnTermoBuscaChanged(string value) => AplicarFiltro();
+    partial void OnSituacaoSelecionadaChanged(string value) => AplicarFiltro();
+
     private async Task CarregarAsync()
     {
-        var produtos = await _produtoService.ListarAsync();
-        Produtos.Clear();
-        foreach (var produto in produtos.OrderBy(p => p.Nome))
-            Produtos.Add(new ProdutoLinhaViewModel(produto));
+        _todosProdutos = (await _produtoService.ListarAsync()).OrderBy(p => p.Nome).ToList();
 
         var resumo = await _produtoService.ObterResumoAsync();
         TotalProdutos = resumo.TotalProdutos;
         Ativos = resumo.Ativos;
         EstoqueBaixo = resumo.EstoqueBaixo;
         ValorEmEstoqueFormatado = resumo.ValorEmEstoque.ToString("C2", CulturaBr);
+
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        var termo = TermoBusca.Trim();
+        IEnumerable<Produto> filtrados = _todosProdutos;
+
+        if (!string.IsNullOrEmpty(termo))
+            filtrados = filtrados.Where(p =>
+                p.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase) ||
+                (p.CodigoBarras?.Contains(termo, StringComparison.OrdinalIgnoreCase) ?? false));
+
+        filtrados = SituacaoSelecionada switch
+        {
+            "Ativos" => filtrados.Where(p => p.Ativo),
+            "Inativos" => filtrados.Where(p => !p.Ativo),
+            _ => filtrados
+        };
+
+        Produtos.Clear();
+        foreach (var produto in filtrados)
+            Produtos.Add(new ProdutoLinhaViewModel(produto));
     }
 }

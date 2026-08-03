@@ -14,11 +14,13 @@ public partial class FornecedoresViewModel : ObservableObject
     private readonly IFornecedorService _fornecedorService;
     private readonly Func<Fornecedor?, FornecedorWindow> _fornecedorWindowFactory;
     private readonly SessaoUsuario _sessao;
+    private List<Fornecedor> _todosFornecedores = new();
 
     public ObservableCollection<FornecedorLinhaViewModel> Fornecedores { get; } = new();
 
     [ObservableProperty] private int totalFornecedores;
     [ObservableProperty] private FornecedorLinhaViewModel? itemSelecionado;
+    [ObservableProperty] private string termoBusca = string.Empty;
 
     public bool PodeCriar => _sessao.PodeCriar(NomeModulo);
     public bool PodeEditar => _sessao.PodeEditar(NomeModulo);
@@ -79,13 +81,27 @@ public partial class FornecedoresViewModel : ObservableObject
         await CarregarAsync();
     }
 
+    partial void OnTermoBuscaChanged(string value) => AplicarFiltro();
+
     private async Task CarregarAsync()
     {
-        var fornecedores = await _fornecedorService.ListarAsync();
-        Fornecedores.Clear();
-        foreach (var fornecedor in fornecedores.OrderBy(f => f.Nome))
-            Fornecedores.Add(new FornecedorLinhaViewModel(fornecedor));
+        _todosFornecedores = (await _fornecedorService.ListarAsync()).OrderBy(f => f.Nome).ToList();
+        TotalFornecedores = _todosFornecedores.Count;
+        AplicarFiltro();
+    }
 
-        TotalFornecedores = fornecedores.Count;
+    private void AplicarFiltro()
+    {
+        var termo = TermoBusca.Trim();
+        var filtrados = string.IsNullOrEmpty(termo)
+            ? _todosFornecedores
+            : _todosFornecedores.Where(f =>
+                f.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase) ||
+                (f.Telefone?.Contains(termo, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (f.Documento?.Contains(termo, StringComparison.OrdinalIgnoreCase) ?? false));
+
+        Fornecedores.Clear();
+        foreach (var fornecedor in filtrados)
+            Fornecedores.Add(new FornecedorLinhaViewModel(fornecedor));
     }
 }

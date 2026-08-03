@@ -1,0 +1,145 @@
+<UserControl x:Class="Vendex.App.Views.LotesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             mc:Ignorable="d">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Cartões de resumo -->
+        <UniformGrid Grid.Row="0" Columns="4" Margin="0,0,0,20">
+            <Border Style="{StaticResource CartaoResumo}" BorderBrush="#F0413A">
+                <StackPanel>
+                    <TextBlock Text="Vencidos" Style="{StaticResource RotuloResumo}" />
+                    <TextBlock Text="{Binding Vencidos}" Style="{StaticResource ValorResumo}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CartaoResumo}" BorderBrush="#F2A93B">
+                <StackPanel>
+                    <TextBlock Text="Vencem em 3 dias" Style="{StaticResource RotuloResumo}" />
+                    <TextBlock Text="{Binding VencemEm3Dias}" Style="{StaticResource ValorResumo}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CartaoResumo}" BorderBrush="#3B82F6">
+                <StackPanel>
+                    <TextBlock Text="Vencem em 7 dias" Style="{StaticResource RotuloResumo}" />
+                    <TextBlock Text="{Binding VencemEm7Dias}" Style="{StaticResource ValorResumo}" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource CartaoResumo}" BorderBrush="#6B7280" Margin="0">
+                <StackPanel>
+                    <TextBlock Text="Perdido no mês" Style="{StaticResource RotuloResumo}" />
+                    <TextBlock Text="{Binding PerdidoNoPeriodoFormatado}" Style="{StaticResource ValorResumo}" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <!-- Barra de ações -->
+            <Grid Grid.Row="0" Margin="0,0,0,16">
+                <ui:Button Content="+ Adicionar (Ctrl+N)" Appearance="Primary"
+                           Command="{Binding AdicionarCommand}" Padding="18,8"
+                           HorizontalAlignment="Left"
+                           Visibility="{Binding PodeCriar, Converter={StaticResource BoolToVisibilityConverter}}" />
+            </Grid>
+
+            <!-- Busca e filtros -->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,16">
+                <ui:TextBox Width="320"
+                            PlaceholderText="🔍 Buscar por produto"
+                            Text="{Binding TermoBusca, UpdateSourceTrigger=PropertyChanged}"
+                            ClearButtonEnabled="True" />
+                <ComboBox Width="150" Margin="8,0,0,0"
+                          ItemsSource="{Binding SituacoesDisponiveis}" SelectedItem="{Binding SituacaoSelecionada}" />
+            </StackPanel>
+
+            <!-- Tabela -->
+            <Border Grid.Row="2" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1">
+                <DataGrid ItemsSource="{Binding Lotes}" AutoGenerateColumns="False" CanUserAddRows="False"
+                          CanUserDeleteRows="False" CanUserResizeColumns="False" CanUserReorderColumns="False"
+                          CanUserSortColumns="False" HeadersVisibility="Column" GridLinesVisibility="None"
+                          BorderThickness="0" Background="Transparent" RowBackground="Transparent">
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Produto" Width="*">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding ProdutoNome}" Foreground="#1F2430" Padding="12,0" VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Validade" Width="110">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding ValidadeFormatada}" Foreground="#1F2430" VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Qtd inicial" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding QuantidadeInicialFormatada}" Foreground="#1F2430" VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Qtd atual" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding QuantidadeAtualFormatada}" Foreground="#1F2430" VerticalAlignment="Center" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Situação" Width="110">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border CornerRadius="10" Padding="10,3" HorizontalAlignment="Left">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding SituacaoFundo}" />
+                                        </Border.Background>
+                                        <TextBlock Text="{Binding SituacaoTexto}" FontWeight="Medium">
+                                            <TextBlock.Foreground>
+                                                <SolidColorBrush Color="{Binding SituacaoCor}" />
+                                            </TextBlock.Foreground>
+                                        </TextBlock>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="" Width="230">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:Button Content="Registrar perda" Margin="0,0,8,0"
+                                                   Command="{Binding DataContext.RegistrarPerdaCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   CommandParameter="{Binding}">
+                                            <ui:Button.Visibility>
+                                                <MultiBinding Converter="{StaticResource AllTrueToVisibilityConverter}">
+                                                    <Binding Path="PodeRegistrarPerda" />
+                                                    <Binding Path="DataContext.PodeEditar" RelativeSource="{RelativeSource AncestorType=DataGrid}" />
+                                                </MultiBinding>
+                                            </ui:Button.Visibility>
+                                        </ui:Button>
+                                        <ui:Button Content="Remover"
+                                                   Command="{Binding DataContext.RemoverCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   CommandParameter="{Binding}"
+                                                   Visibility="{Binding DataContext.PodeExcluir, RelativeSource={RelativeSource AncestorType=DataGrid}, Converter={StaticResource BoolToVisibilityConverter}}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

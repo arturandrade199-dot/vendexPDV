@@ -58,6 +58,14 @@ public enum TipoAcaoAuditoria
     RegistroDevolucao
 }
 
+public enum SituacaoLote
+{
+    Valido,
+    Vencendo,
+    Vencido,
+    Esgotado
+}
+
 public enum UnidadeMedida
 {
     UN,

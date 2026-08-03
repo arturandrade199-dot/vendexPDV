@@ -4,8 +4,11 @@ public class Devolucao : EntidadeBase
 {
     public DateTime DataHora { get; set; } = DateTime.Now;
 
-    public int ClienteId { get; set; }
-    public Cliente Cliente { get; set; } = null!;
+    /// <summary>Nulo quando a devolução é manual/avulsa e o operador não quer (ou não tem
+    /// como) identificar o cliente — o vínculo com o cliente é só um registro histórico,
+    /// nada no fluxo de devolução depende dele.</summary>
+    public int? ClienteId { get; set; }
+    public Cliente? Cliente { get; set; }
 
     /// <summary>Nulo quando a devolução é avulsa (sem vínculo com uma venda do histórico).</summary>
     public int? VendaId { get; set; }

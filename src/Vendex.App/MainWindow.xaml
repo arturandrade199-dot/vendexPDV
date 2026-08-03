@@ -8,7 +8,7 @@
         xmlns:views="clr-namespace:Vendex.App.Views"
         mc:Ignorable="d"
         Title="Vendex PDV" Height="760" Width="1240"
-        MinHeight="600" MinWidth="900"
+        MinHeight="480" MinWidth="900"
         WindowState="Maximized"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica"
@@ -93,6 +93,14 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="IconeControleValidade" TargetType="Border" BasedOn="{StaticResource IconeMenu}">
+            <Setter Property="Background" Value="Transparent" />
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding TituloAtual}" Value="Controle de validade">
+                    <Setter Property="Background" Value="#EDEBFF" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </ui:FluentWindow.Resources>
 
     <Grid Background="#F3F4F8">
@@ -111,7 +119,9 @@
 
             <!-- Sidebar -->
             <Border Grid.Column="0" Background="White" BorderBrush="#E5E7EB" BorderThickness="0,0,1,0">
-                <StackPanel Margin="0,20,0,0" HorizontalAlignment="Center">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                              PanningMode="VerticalOnly">
+                <StackPanel Margin="0,20,0,20" HorizontalAlignment="Center">
                     <Border Width="40" Height="40" CornerRadius="10" Background="#5B4FE9" Margin="0,0,0,28"
                             Cursor="Hand" ToolTip="Menu principal">
                         <Border.InputBindings>
@@ -135,6 +145,14 @@
                             <MouseBinding MouseAction="LeftClick" Command="{Binding AbrirPdvCommand}" />
                         </Border.InputBindings>
                         <ui:SymbolIcon Symbol="Cart24" Foreground="#5B4FE9"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <Border Style="{StaticResource IconeMenu}" ToolTip="Devolução — Devolver mercadoria de uma venda" Cursor="Hand"
+                            Visibility="{Binding PodeAcessarPdv, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding AbrirDevolucaoCommand}" />
+                        </Border.InputBindings>
+                        <ui:SymbolIcon Symbol="ArrowUndo24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <Border Style="{StaticResource IconeProdutos}" ToolTip="Produtos — Cadastro de produtos" Cursor="Hand"
@@ -177,6 +195,14 @@
                         <ui:SymbolIcon Symbol="History24" Foreground="#5B4FE9"
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
+                    <Border Style="{StaticResource IconeControleValidade}" ToolTip="Controle de Validade — Lotes, validade e perdas" Cursor="Hand"
+                            Visibility="{Binding PodeAcessarControleValidade, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick" Command="{Binding IrParaControleValidadeCommand}" />
+                        </Border.InputBindings>
+                        <ui:SymbolIcon Symbol="CalendarClock24" Foreground="#5B4FE9"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
                     <Border Style="{StaticResource IconeUsuarios}" ToolTip="Usuários e Permissões — Funcionários e acessos" Cursor="Hand"
                             Visibility="{Binding EhAdministrador, Converter={StaticResource BoolToVisibilityConverter}}">
                         <Border.InputBindings>
@@ -194,6 +220,7 @@
                                        HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                 </StackPanel>
+                </ScrollViewer>
             </Border>
 
             <!-- Conteúdo -->
@@ -270,6 +297,9 @@
                         </DataTemplate>
                         <DataTemplate DataType="{x:Type vm:VendasViewModel}">
                             <views:VendasView />
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type vm:LotesViewModel}">
+                            <views:LotesView />
                         </DataTemplate>
                     </ContentControl.Resources>
                 </ContentControl>

@@ -9,7 +9,7 @@
 ; com saída em ..\publish\VendexPDV antes de compilar este script.
 
 #define MyAppName "Vendex PDV"
-#define MyAppVersion "1.0.0"
+#define MyAppVersion "1.2.0"
 #define MyAppPublisher "Vendex"
 #define MyAppExeName "Vendex.App.exe"
 #define PublishDir "..\publish\VendexPDV"

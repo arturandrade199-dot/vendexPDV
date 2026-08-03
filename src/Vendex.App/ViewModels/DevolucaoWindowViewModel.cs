@@ -19,21 +19,24 @@ public partial class DevolucaoWindowViewModel : ObservableObject
     private readonly IClienteService _clienteService;
     private readonly IVendaService _vendaService;
     private readonly SessaoUsuario _sessao;
+    private readonly Func<IReadOnlyList<Cliente>, SelecionarClienteWindow> _selecionarClienteWindowFactory;
+    private readonly Func<SelecionarVendaWindow> _selecionarVendaWindowFactory;
+    private readonly Func<SelecionarProdutoWindow> _selecionarProdutoWindowFactory;
+
+    // Evita que OnNumeroVendaTextoChanged reaja ao texto que o próprio OnVendaSelecionadaChanged
+    // acabou de escrever ali (ex: ao selecionar pela lupa) — sem isso, o parse do número faria
+    // uma segunda atribuição desnecessária de VendaSelecionada a cada seleção.
+    private bool _sincronizandoNumeroVenda;
 
     public ObservableCollection<Cliente> Clientes { get; } = new();
-    public ObservableCollection<Venda> VendasCliente { get; } = new();
     public ObservableCollection<ResultadoBuscaProduto> ResultadosBusca { get; } = new();
     public ObservableCollection<ItemDevolucaoViewModel> Itens { get; } = new();
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(PodeCarregarItensDaVenda))]
-    private Cliente? clienteSelecionado;
+    [ObservableProperty] private Cliente? clienteSelecionado;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(PodeCarregarItensDaVenda))]
-    private Venda? vendaSelecionada;
+    [ObservableProperty] private Venda? vendaSelecionada;
 
-    public bool PodeCarregarItensDaVenda => VendaSelecionada is not null;
+    [ObservableProperty] private string numeroVendaTexto = string.Empty;
 
     [ObservableProperty] private bool mostrarNovoCliente;
     [ObservableProperty] private string novoClienteNome = string.Empty;
@@ -55,12 +58,19 @@ public partial class DevolucaoWindowViewModel : ObservableObject
 
     public event Action? Salvo;
 
-    public DevolucaoWindowViewModel(IDevolucaoService devolucaoService, IClienteService clienteService, IVendaService vendaService, SessaoUsuario sessao)
+    public DevolucaoWindowViewModel(
+        IDevolucaoService devolucaoService, IClienteService clienteService, IVendaService vendaService, SessaoUsuario sessao,
+        Func<IReadOnlyList<Cliente>, SelecionarClienteWindow> selecionarClienteWindowFactory,
+        Func<SelecionarVendaWindow> selecionarVendaWindowFactory,
+        Func<SelecionarProdutoWindow> selecionarProdutoWindowFactory)
     {
         _devolucaoService = devolucaoService;
         _clienteService = clienteService;
         _vendaService = vendaService;
         _sessao = sessao;
+        _selecionarClienteWindowFactory = selecionarClienteWindowFactory;
+        _selecionarVendaWindowFactory = selecionarVendaWindowFactory;
+        _selecionarProdutoWindowFactory = selecionarProdutoWindowFactory;
         _ = CarregarClientesAsync();
     }
 
@@ -72,20 +82,65 @@ public partial class DevolucaoWindowViewModel : ObservableObject
             Clientes.Add(cliente);
     }
 
-    partial void OnClienteSelecionadoChanged(Cliente? value)
+    // Trocar de cliente manualmente invalida a venda escolhida antes — evita ficar com uma
+    // venda de outro cliente vinculada por engano. AbrirSelecaoVenda/ResolverVendaPorNumeroAsync
+    // contornam isso de propósito: setam ClienteSelecionado (o que passa por aqui e zera
+    // VendaSelecionada) e IMEDIATAMENTE depois sobrescrevem com a venda escolhida.
+    partial void OnClienteSelecionadoChanged(Cliente? value) => VendaSelecionada = null;
+
+    partial void OnVendaSelecionadaChanged(Venda? value)
     {
-        VendaSelecionada = null;
-        VendasCliente.Clear();
-        if (value is not null)
-            _ = CarregarVendasDoClienteAsync(value.Id);
+        _sincronizandoNumeroVenda = true;
+        NumeroVendaTexto = value is null ? string.Empty : value.Id.ToString();
+        _sincronizandoNumeroVenda = false;
     }
 
-    private async Task CarregarVendasDoClienteAsync(int clienteId)
+    /// <summary>Permite digitar o número da venda direto, sem precisar abrir a lupa.</summary>
+    partial void OnNumeroVendaTextoChanged(string value)
     {
-        var vendas = await _devolucaoService.ListarVendasPorClienteAsync(clienteId);
-        VendasCliente.Clear();
-        foreach (var venda in vendas)
-            VendasCliente.Add(venda);
+        if (_sincronizandoNumeroVenda)
+            return;
+
+        if (int.TryParse(value, out var id))
+            _ = ResolverVendaPorNumeroAsync(id);
+    }
+
+    private async Task ResolverVendaPorNumeroAsync(int id)
+    {
+        var venda = await _vendaService.ObterPorIdAsync(id);
+        if (venda is null)
+            return;
+
+        SelecionarVendaEPreencherCliente(venda);
+    }
+
+    [RelayCommand]
+    private void AbrirSelecaoCliente()
+    {
+        var janela = _selecionarClienteWindowFactory(Clientes);
+        if (janela.ShowDialog() == true)
+            ClienteSelecionado = janela.ClienteSelecionado;
+    }
+
+    [RelayCommand]
+    private void AbrirSelecaoVenda()
+    {
+        var janela = _selecionarVendaWindowFactory();
+        if (janela.ShowDialog() == true && janela.VendaSelecionada is not null)
+            SelecionarVendaEPreencherCliente(janela.VendaSelecionada);
+    }
+
+    /// <summary>A busca de venda (por número ou pela lupa) não fica restrita ao cliente já
+    /// selecionado — se a venda tiver cliente vinculado, ele preenche o campo Cliente sozinho.
+    /// Os itens da venda já entram no carrinho de devolução direto, sem precisar de um passo
+    /// manual extra — o operador remove o que não quiser devolver.</summary>
+    private void SelecionarVendaEPreencherCliente(Venda venda)
+    {
+        if (venda.Cliente is not null)
+            ClienteSelecionado = venda.Cliente;
+
+        VendaSelecionada = venda;
+        CarregarItensDaVenda();
     }
 
     [RelayCommand]
@@ -111,7 +166,6 @@ public partial class DevolucaoWindowViewModel : ObservableObject
         MensagemErro = null;
     }
 
-    [RelayCommand]
     private void CarregarItensDaVenda()
     {
         if (VendaSelecionada is null)
@@ -135,6 +189,14 @@ public partial class DevolucaoWindowViewModel : ObservableObject
         var resultados = await _vendaService.BuscarProdutosAsync(termo.Trim());
         foreach (var resultado in resultados.Take(8))
             ResultadosBusca.Add(resultado);
+    }
+
+    [RelayCommand]
+    private void AbrirSelecaoProduto()
+    {
+        var janela = _selecionarProdutoWindowFactory();
+        if (janela.ShowDialog() == true && janela.ProdutoSelecionado is not null)
+            AdicionarProduto(janela.ProdutoSelecionado);
     }
 
     [RelayCommand]
@@ -191,12 +253,6 @@ public partial class DevolucaoWindowViewModel : ObservableObject
     [RelayCommand]
     private async Task ConfirmarAsync()
     {
-        if (ClienteSelecionado is null)
-        {
-            MensagemErro = "Selecione o cliente.";
-            return;
-        }
-
         if (Itens.Count == 0)
         {
             MensagemErro = "Adicione ao menos um item para devolver.";
@@ -212,7 +268,7 @@ public partial class DevolucaoWindowViewModel : ObservableObject
                 .ToList();
 
             await _devolucaoService.RegistrarAsync(
-                ClienteSelecionado.Id, VendaSelecionada?.Id, _sessao.UsuarioLogado!.Id, Motivo, itens, EstornarCaixa);
+                ClienteSelecionado?.Id, VendaSelecionada?.Id, _sessao.UsuarioLogado!.Id, Motivo, itens, EstornarCaixa);
 
             Salvo?.Invoke();
         }

@@ -15,11 +15,8 @@ public class DevolucaoService : IDevolucaoService
         _caixaService = caixaService;
     }
 
-    public Task<IReadOnlyList<Venda>> ListarVendasPorClienteAsync(int clienteId) =>
-        _unitOfWork.Vendas.ObterPorClienteAsync(clienteId);
-
     public async Task<Devolucao> RegistrarAsync(
-        int clienteId, int? vendaId, int usuarioId, string? motivo,
+        int? clienteId, int? vendaId, int usuarioId, string? motivo,
         IReadOnlyList<ItemDevolucao> itens, bool estornarCaixa)
     {
         if (itens.Count == 0)

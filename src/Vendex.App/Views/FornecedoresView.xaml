@@ -24,6 +24,7 @@
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -54,8 +55,14 @@
                 </StackPanel>
             </Grid>
 
+            <!-- Busca -->
+            <ui:TextBox Grid.Row="1" Margin="0,0,0,16"
+                        PlaceholderText="🔍 Buscar por nome, telefone ou documento"
+                        Text="{Binding TermoBusca, UpdateSourceTrigger=PropertyChanged}"
+                        ClearButtonEnabled="True" />
+
             <!-- Tabela -->
-            <Border Grid.Row="1" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1">
+            <Border Grid.Row="2" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1">
                 <ListView ItemsSource="{Binding Fornecedores}" SelectedItem="{Binding ItemSelecionado}"
                           BorderThickness="0" Background="Transparent">
                     <ListView.View>

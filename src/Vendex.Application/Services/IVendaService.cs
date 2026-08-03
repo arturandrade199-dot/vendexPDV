@@ -21,4 +21,8 @@ public interface IVendaService
     /// <summary>Vendas não canceladas no período, com itens/produtos e pagamentos já
     /// carregados — usado pela tela de Vendas para listar e reimprimir cupons.</summary>
     Task<IReadOnlyList<Venda>> ListarPorPeriodoAsync(DateTime inicio, DateTime fim);
+
+    /// <summary>Busca uma venda pelo número exato — usado na devolução quando o operador já
+    /// sabe o número do cupom, sem precisar navegar por período.</summary>
+    Task<Venda?> ObterPorIdAsync(int id);
 }

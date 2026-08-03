@@ -1,0 +1,55 @@
+<ui:FluentWindow x:Class="Vendex.App.RegistrarPerdaWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        mc:Ignorable="d"
+        Title="Registrar perda" Height="480" Width="420"
+        WindowStartupLocation="CenterOwner"
+        ExtendsContentIntoTitleBar="True"
+        WindowBackdropType="Mica">
+    <Grid Margin="24,0,24,24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0" Title="Registrar perda" />
+
+        <StackPanel Grid.Row="1" Margin="0,16,0,0">
+            <TextBlock Text="{Binding ProdutoNome}" FontWeight="SemiBold" FontSize="16" Foreground="#1F2430" Margin="0,0,0,4" />
+            <TextBlock Foreground="#6B7280" Margin="0,0,0,4">
+                <Run Text="Validade: " /><Run Text="{Binding ValidadeFormatada, Mode=OneWay}" />
+            </TextBlock>
+            <TextBlock Text="{Binding RestamTexto}" Foreground="#6B7280" Margin="0,0,0,16" />
+
+            <!-- Sem binding em IsChecked aqui de propósito: o agrupamento nativo do WPF
+                 (GroupName compartilhado) já desmarca este RadioButton quando o de baixo é
+                 marcado, e vice-versa — só o de baixo precisa estar amarrado a UsarPercentual. -->
+            <RadioButton Content="Quantidade exata" IsChecked="True"
+                         GroupName="ModoPerda" Margin="0,0,0,8" />
+            <ui:TextBox Text="{Binding QuantidadeTexto, UpdateSourceTrigger=PropertyChanged}"
+                        IsEnabled="{Binding UsarPercentual, Converter={StaticResource InverseBooleanConverter}}"
+                        Margin="0,0,0,16" />
+
+            <RadioButton Content="Percentual do lote" IsChecked="{Binding UsarPercentual}"
+                         GroupName="ModoPerda" Margin="0,0,0,8" />
+            <ui:TextBox Text="{Binding PercentualTexto, UpdateSourceTrigger=PropertyChanged}"
+                        IsEnabled="{Binding UsarPercentual}"
+                        PlaceholderText="Ex: 20 (para 20%)" Margin="0,0,0,16" />
+
+            <TextBlock Text="Motivo (opcional)" Margin="0,0,0,4" />
+            <ui:TextBox Text="{Binding Motivo, UpdateSourceTrigger=PropertyChanged}"
+                        PlaceholderText="Ex: Vencido, quebrado no transporte" Margin="0,0,0,12" />
+
+            <TextBlock Text="{Binding MensagemErro}" Foreground="#C4291E" Margin="0,0,0,12" TextWrapping="Wrap" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <ui:Button Content="Cancelar (Esc)" Margin="0,0,8,0" Click="BtnCancelar_Click" />
+                <ui:Button Content="Confirmar (Enter)" Appearance="Primary" Command="{Binding ConfirmarCommand}"
+                           IsDefault="True" IsEnabled="{Binding PodeConfirmar}" Padding="24,8" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>

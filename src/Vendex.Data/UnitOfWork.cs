@@ -30,6 +30,7 @@ public class UnitOfWork : IUnitOfWork
         ConfiguracoesBackup = new Repository<ConfiguracaoBackup>(_contexto);
         ConfiguracoesImpressao = new Repository<ConfiguracaoImpressao>(_contexto);
         Devolucoes = new DevolucaoRepository(_contexto);
+        Lotes = new LoteRepository(_contexto);
     }
 
     public IUsuarioRepository Usuarios { get; }
@@ -50,6 +51,7 @@ public class UnitOfWork : IUnitOfWork
     public IRepository<ConfiguracaoBackup> ConfiguracoesBackup { get; }
     public IRepository<ConfiguracaoImpressao> ConfiguracoesImpressao { get; }
     public IDevolucaoRepository Devolucoes { get; }
+    public ILoteRepository Lotes { get; }
 
     public Task<int> SalvarAlteracoesAsync() => _contexto.SaveChangesAsync();
 

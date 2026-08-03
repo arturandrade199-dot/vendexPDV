@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:behaviors="clr-namespace:Vendex.App.Behaviors"
         mc:Ignorable="d"
         Title="Devolução de mercadoria" Height="720" Width="1000"
         WindowStartupLocation="CenterOwner"
@@ -33,44 +34,58 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Cliente" VerticalAlignment="Center" />
+                        <TextBlock Grid.Column="0" Text="Cliente (opcional)" VerticalAlignment="Center" />
                         <ui:Button Grid.Column="1" Content="+ Novo cliente" Appearance="Transparent" Padding="6,2"
                                    FontSize="12" Command="{Binding AlternarNovoClienteCommand}" />
                     </Grid>
-                    <ComboBox ItemsSource="{Binding Clientes}" DisplayMemberPath="Nome"
-                              SelectedItem="{Binding ClienteSelecionado}" Margin="0,0,0,12" />
+                    <Grid Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="0" ItemsSource="{Binding Clientes}" DisplayMemberPath="Nome"
+                                  SelectedItem="{Binding ClienteSelecionado}" />
+                        <ui:Button Grid.Column="1" Content="🔍" Margin="8,0,0,0" Padding="10,6"
+                                   Command="{Binding AbrirSelecaoClienteCommand}" ToolTip="Buscar cliente" />
+                    </Grid>
 
                     <StackPanel Visibility="{Binding MostrarNovoCliente, Converter={StaticResource BoolToVisibilityConverter}}"
                                 Margin="0,0,0,12">
                         <ui:TextBox Text="{Binding NovoClienteNome, UpdateSourceTrigger=PropertyChanged}"
                                     PlaceholderText="Nome do novo cliente" Margin="0,0,0,8" />
                         <ui:TextBox Text="{Binding NovoClienteTelefone, UpdateSourceTrigger=PropertyChanged}"
-                                    PlaceholderText="Telefone (opcional)" Margin="0,0,0,8" />
+                                    PlaceholderText="Telefone (opcional)" Margin="0,0,0,8"
+                                    behaviors:Mascara.Tipo="Telefone" />
                         <ui:Button Content="Cadastrar cliente" Command="{Binding AdicionarClienteRapidoCommand}"
                                    HorizontalAlignment="Left" />
                     </StackPanel>
 
                     <TextBlock Text="Venda de origem (opcional)" Margin="0,0,0,4" Foreground="#6B7280" FontSize="12" />
-                    <ComboBox ItemsSource="{Binding VendasCliente}" SelectedItem="{Binding VendaSelecionada}" Margin="0,0,0,8">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock>
-                                    <Run Text="Venda #" /><Run Text="{Binding Id, Mode=OneWay}" />
-                                    <Run Text=" — " /><Run Text="{Binding DataHora, Mode=OneWay, StringFormat='dd/MM/yyyy HH:mm'}" />
-                                    <Run Text=" — " /><Run Text="{Binding ValorTotal, Mode=OneWay, StringFormat='{}{0:C2}'}" />
-                                </TextBlock>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
-                    <ui:Button Content="Carregar itens desta venda" Command="{Binding CarregarItensDaVendaCommand}"
-                               IsEnabled="{Binding PodeCarregarItensDaVenda}" HorizontalAlignment="Left" Margin="0,0,0,20" />
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox Grid.Column="0" PlaceholderText="Número da venda"
+                                    Text="{Binding NumeroVendaTexto, UpdateSourceTrigger=PropertyChanged}" />
+                        <ui:Button Grid.Column="1" Content="🔍" Margin="8,0,0,0" Padding="10,6"
+                                   Command="{Binding AbrirSelecaoVendaCommand}" ToolTip="Buscar venda do cliente" />
+                    </Grid>
 
-                    <TextBlock Text="Buscar produto (nome ou código de barras)" Margin="0,0,0,6" Foreground="#6B7280" FontSize="12" />
-                    <ui:TextBox FontSize="16" Padding="10" Text="{Binding TermoBusca, UpdateSourceTrigger=PropertyChanged}">
-                        <ui:TextBox.InputBindings>
-                            <KeyBinding Key="Return" Command="{Binding AdicionarPrimeiroResultadoCommand}" />
-                        </ui:TextBox.InputBindings>
-                    </ui:TextBox>
+                    <TextBlock Text="Buscar produto (nome ou código de barras)" Margin="0,20,0,6" Foreground="#6B7280" FontSize="12" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <ui:TextBox Grid.Column="0" FontSize="16" Padding="10" Text="{Binding TermoBusca, UpdateSourceTrigger=PropertyChanged}">
+                            <ui:TextBox.InputBindings>
+                                <KeyBinding Key="Return" Command="{Binding AdicionarPrimeiroResultadoCommand}" />
+                            </ui:TextBox.InputBindings>
+                        </ui:TextBox>
+                        <ui:Button Grid.Column="1" Content="🔍" Margin="8,0,0,0" Padding="10,6"
+                                   Command="{Binding AbrirSelecaoProdutoCommand}" ToolTip="Buscar produto" />
+                    </Grid>
 
                     <TextBlock Text="Quantidade" Margin="0,12,0,6" Foreground="#6B7280" FontSize="12" />
                     <ui:TextBox Text="{Binding QuantidadeTexto, UpdateSourceTrigger=PropertyChanged}" FontSize="16" Padding="10" />
@@ -105,49 +120,55 @@
                 </Grid.RowDefinitions>
 
                 <Border Grid.Row="0" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" Margin="0,0,0,16">
-                    <ListView ItemsSource="{Binding Itens}" BorderThickness="0" Background="Transparent">
-                        <ListView.View>
-                            <GridView>
-                                <GridViewColumn Header="Produto" Width="260">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Nome}" Foreground="#1F2430" Padding="0,6" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Quantidade" Width="110">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <ui:TextBox Text="{Binding Quantidade, UpdateSourceTrigger=PropertyChanged}" Width="80" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Preço Unit." Width="110">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding PrecoUnitarioFormatado}" Foreground="#1F2430" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="Subtotal" Width="120">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding SubtotalFormatado}" FontWeight="SemiBold" Foreground="#1F2430" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                                <GridViewColumn Header="" Width="100">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <ui:Button Content="Remover"
-                                                       Command="{Binding DataContext.RemoverItemCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                       CommandParameter="{Binding}" />
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
-                                </GridViewColumn>
-                            </GridView>
-                        </ListView.View>
-                    </ListView>
+                    <!-- DataGrid em vez de ListView/GridView: a coluna Produto com Width="*" absorve o
+                         espaço sobrando, o que empurra "Remover" pra ficar sempre grudado na borda
+                         direita — GridView não suporta coluna elástica, então "Remover" flutuava no
+                         meio da tabela quando a janela era mais larga que a soma das colunas fixas. -->
+                    <DataGrid ItemsSource="{Binding Itens}" AutoGenerateColumns="False" CanUserAddRows="False"
+                              CanUserDeleteRows="False" CanUserResizeColumns="False" CanUserReorderColumns="False"
+                              CanUserSortColumns="False" HeadersVisibility="Column" GridLinesVisibility="None"
+                              BorderThickness="0" Background="Transparent" RowBackground="Transparent">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="Produto" Width="*">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Nome}" Foreground="#1F2430" Padding="12,0"
+                                                   VerticalAlignment="Center" TextWrapping="Wrap" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Quantidade" Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ui:TextBox Text="{Binding Quantidade, UpdateSourceTrigger=PropertyChanged}" Width="80" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Preço Unit." Width="110">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding PrecoUnitarioFormatado}" Foreground="#1F2430" VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="Subtotal" Width="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding SubtotalFormatado}" FontWeight="SemiBold" Foreground="#1F2430" VerticalAlignment="Center" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <ui:Button Content="Remover"
+                                                   Command="{Binding DataContext.RemoverItemCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                   CommandParameter="{Binding}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
                 </Border>
 
                 <Border Grid.Row="1" Background="White" CornerRadius="12" BorderBrush="#E5E7EB" BorderThickness="1" Padding="20">

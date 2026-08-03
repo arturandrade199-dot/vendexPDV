@@ -12,7 +12,8 @@ public enum TipoRelatorio
     AberturasCaixa,
     FechamentosCaixa,
     VendasPorFormaPagamento,
-    ProdutosDevolvidos
+    ProdutosDevolvidos,
+    PerdasValidade
 }
 
 public static class RelatoriosDisponiveis
@@ -30,5 +31,6 @@ public static class RelatoriosDisponiveis
         (TipoRelatorio.FechamentosCaixa, "Fechamento de caixa no período", true),
         (TipoRelatorio.VendasPorFormaPagamento, "Total de vendas por forma de pagamento", true),
         (TipoRelatorio.ProdutosDevolvidos, "Produtos devolvidos no período", true),
+        (TipoRelatorio.PerdasValidade, "Perdas por validade no período", true),
     };
 }

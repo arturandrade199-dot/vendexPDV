@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Vendex.App.Navigation;
 using Vendex.Application.Services;
+using Vendex.Domain.Entities;
 using Vendex.Domain.Enums;
 
 namespace Vendex.App.ViewModels;
@@ -17,6 +18,7 @@ public partial class ContasReceberViewModel : ObservableObject
     private readonly IContaReceberService _contaReceberService;
     private readonly Func<NovaContaReceberWindow> _novaContaReceberWindowFactory;
     private readonly SessaoUsuario _sessao;
+    private List<ContaReceber> _todasContas = new();
 
     public ObservableCollection<ContaReceberLinhaViewModel> Contas { get; } = new();
 
@@ -26,11 +28,18 @@ public partial class ContasReceberViewModel : ObservableObject
         FormaPagamento.CartaoDebito.ParaTexto(), FormaPagamento.Pix.ParaTexto(), FormaPagamento.Beneficios.ParaTexto()
     };
 
+    public ObservableCollection<string> SituacoesDisponiveis { get; } = new()
+    {
+        "Todas", "Em aberto", "Parcial", "Recebido", "Atrasado"
+    };
+
     [ObservableProperty] private string vencidosFormatado = "R$ 0,00";
     [ObservableProperty] private string vencemHojeFormatado = "R$ 0,00";
     [ObservableProperty] private string aVencerFormatado = "R$ 0,00";
     [ObservableProperty] private string recebidosFormatado = "R$ 0,00";
     [ObservableProperty] private string totalPeriodoFormatado = "R$ 0,00";
+    [ObservableProperty] private string termoBusca = string.Empty;
+    [ObservableProperty] private string situacaoSelecionada = "Todas";
 
     [ObservableProperty] private bool mostrarConfirmacaoRecebimento;
     [ObservableProperty] private ContaReceberLinhaViewModel? contaParaReceber;
@@ -92,12 +101,12 @@ public partial class ContasReceberViewModel : ObservableObject
     private static FormaPagamento MapForma(string texto) =>
         Enum.GetValues<FormaPagamento>().FirstOrDefault(f => f.ParaTexto() == texto, FormaPagamento.Dinheiro);
 
+    partial void OnTermoBuscaChanged(string value) => AplicarFiltro();
+    partial void OnSituacaoSelecionadaChanged(string value) => AplicarFiltro();
+
     private async Task CarregarAsync()
     {
-        var contas = await _contaReceberService.ListarAsync();
-        Contas.Clear();
-        foreach (var conta in contas.OrderByDescending(c => c.DataVencimento))
-            Contas.Add(new ContaReceberLinhaViewModel(conta));
+        _todasContas = (await _contaReceberService.ListarAsync()).OrderByDescending(c => c.DataVencimento).ToList();
 
         var resumo = await _contaReceberService.ObterResumoAsync();
         VencidosFormatado = resumo.Vencidos.ToString("C2", CulturaBr);
@@ -105,5 +114,31 @@ public partial class ContasReceberViewModel : ObservableObject
         AVencerFormatado = resumo.AVencer.ToString("C2", CulturaBr);
         RecebidosFormatado = resumo.Recebidos.ToString("C2", CulturaBr);
         TotalPeriodoFormatado = resumo.TotalPeriodo.ToString("C2", CulturaBr);
+
+        AplicarFiltro();
+    }
+
+    private void AplicarFiltro()
+    {
+        var termo = TermoBusca.Trim();
+        IEnumerable<ContaReceber> filtradas = _todasContas;
+
+        if (!string.IsNullOrEmpty(termo))
+            filtradas = filtradas.Where(c =>
+                c.Descricao.Contains(termo, StringComparison.OrdinalIgnoreCase) ||
+                (c.Cliente?.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase) ?? false));
+
+        filtradas = SituacaoSelecionada switch
+        {
+            "Em aberto" => filtradas.Where(c => c.StatusEfetivo == StatusContaFinanceira.Aberto),
+            "Parcial" => filtradas.Where(c => c.StatusEfetivo == StatusContaFinanceira.Parcial),
+            "Recebido" => filtradas.Where(c => c.StatusEfetivo == StatusContaFinanceira.Pago),
+            "Atrasado" => filtradas.Where(c => c.StatusEfetivo == StatusContaFinanceira.Atrasado),
+            _ => filtradas
+        };
+
+        Contas.Clear();
+        foreach (var conta in filtradas)
+            Contas.Add(new ContaReceberLinhaViewModel(conta));
     }
 }

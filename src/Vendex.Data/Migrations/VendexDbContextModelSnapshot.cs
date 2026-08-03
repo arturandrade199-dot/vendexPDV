@@ -406,7 +406,7 @@ namespace Vendex.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ClienteId")
+                    b.Property<int?>("ClienteId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DataHora")
@@ -578,6 +578,81 @@ namespace Vendex.Data.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("LogsAuditoria");
+                });
+
+            modelBuilder.Entity("Vendex.Domain.Entities.Lote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataCadastro")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DataFabricacao")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DataValidade")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Observacoes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ProdutoId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("ProdutoVarianteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("QuantidadeAtual")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("QuantidadeInicial")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProdutoId");
+
+                    b.HasIndex("ProdutoVarianteId");
+
+                    b.ToTable("Lotes");
+                });
+
+            modelBuilder.Entity("Vendex.Domain.Entities.LotePerda", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DataHora")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("LoteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Motivo")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("PrecoCustoUnitarioNaData")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Quantidade")
+                        .HasPrecision(18, 3)
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("ValorPerdido")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LoteId");
+
+                    b.ToTable("LotePerdas");
                 });
 
             modelBuilder.Entity("Vendex.Domain.Entities.Modulo", b =>
@@ -944,8 +1019,7 @@ namespace Vendex.Data.Migrations
                     b.HasOne("Vendex.Domain.Entities.Cliente", "Cliente")
                         .WithMany()
                         .HasForeignKey("ClienteId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Vendex.Domain.Entities.Usuario", "Usuario")
                         .WithMany()
@@ -998,6 +1072,35 @@ namespace Vendex.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("Vendex.Domain.Entities.Lote", b =>
+                {
+                    b.HasOne("Vendex.Domain.Entities.Produto", "Produto")
+                        .WithMany()
+                        .HasForeignKey("ProdutoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Vendex.Domain.Entities.ProdutoVariante", "ProdutoVariante")
+                        .WithMany()
+                        .HasForeignKey("ProdutoVarianteId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Produto");
+
+                    b.Navigation("ProdutoVariante");
+                });
+
+            modelBuilder.Entity("Vendex.Domain.Entities.LotePerda", b =>
+                {
+                    b.HasOne("Vendex.Domain.Entities.Lote", "Lote")
+                        .WithMany("Perdas")
+                        .HasForeignKey("LoteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Lote");
                 });
 
             modelBuilder.Entity("Vendex.Domain.Entities.ProdutoVariante", b =>
@@ -1105,6 +1208,11 @@ namespace Vendex.Data.Migrations
             modelBuilder.Entity("Vendex.Domain.Entities.Devolucao", b =>
                 {
                     b.Navigation("Itens");
+                });
+
+            modelBuilder.Entity("Vendex.Domain.Entities.Lote", b =>
+                {
+                    b.Navigation("Perdas");
                 });
 
             modelBuilder.Entity("Vendex.Domain.Entities.Modulo", b =>

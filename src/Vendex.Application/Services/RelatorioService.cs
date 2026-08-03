@@ -33,6 +33,7 @@ public class RelatorioService : IRelatorioService
         TipoRelatorio.FechamentosCaixa => GerarCaixasAsync(ExigirPeriodo(inicio, fim), aberturas: false),
         TipoRelatorio.VendasPorFormaPagamento => GerarVendasPorFormaPagamentoAsync(ExigirPeriodo(inicio, fim)),
         TipoRelatorio.ProdutosDevolvidos => GerarProdutosDevolvidosAsync(ExigirPeriodo(inicio, fim)),
+        TipoRelatorio.PerdasValidade => GerarPerdasValidadeAsync(ExigirPeriodo(inicio, fim)),
         _ => throw new ArgumentOutOfRangeException(nameof(tipo))
     };
 
@@ -325,7 +326,7 @@ public class RelatorioService : IRelatorioService
             {
                 i.Devolucao.DataHora.ToString("dd/MM/yyyy HH:mm", CulturaBr),
                 i.ProdutoVariante is null ? i.Produto.Nome : $"{i.Produto.Nome} — {i.ProdutoVariante.Nome}",
-                i.Devolucao.Cliente.Nome,
+                i.Devolucao.Cliente?.Nome ?? "—",
                 i.Quantidade.ToString(CulturaBr),
                 i.Subtotal.ToString("C2", CulturaBr),
                 i.Devolucao.Motivo ?? "—"
@@ -344,6 +345,44 @@ public class RelatorioService : IRelatorioService
             },
             linhas,
             new[] { ("Total devolvido", total.ToString("C2", CulturaBr)) });
+    }
+
+    private async Task<RelatorioResultado> GerarPerdasValidadeAsync((DateTime Inicio, DateTime Fim) periodo)
+    {
+        var perdas = await _unitOfWork.Lotes.ObterPerdasPorPeriodoAsync(periodo.Inicio, periodo.Fim);
+
+        var linhas = perdas
+            .OrderBy(p => p.DataHora)
+            .Select(p => (IReadOnlyList<string>)new[]
+            {
+                p.DataHora.ToString("dd/MM/yyyy HH:mm", CulturaBr),
+                p.Lote.ProdutoVariante is null ? p.Lote.Produto.Nome : $"{p.Lote.Produto.Nome} — {p.Lote.ProdutoVariante.Nome}",
+                p.Quantidade.ToString(CulturaBr),
+                p.ValorPerdido.ToString("C2", CulturaBr),
+                (p.Quantidade / p.Lote.QuantidadeInicial).ToString("P1", CulturaBr),
+                p.Motivo ?? "—"
+            })
+            .ToList();
+
+        var totalQuantidade = perdas.Sum(p => p.Quantidade);
+        var totalValor = perdas.Sum(p => p.ValorPerdido);
+
+        return new RelatorioResultado(
+            "Perdas por validade no período",
+            new[]
+            {
+                new ColunaRelatorio("Data"), new ColunaRelatorio("Produto"),
+                new ColunaRelatorio("Quantidade perdida", AlinhadaDireita: true),
+                new ColunaRelatorio("Valor perdido", AlinhadaDireita: true),
+                new ColunaRelatorio("% do lote", AlinhadaDireita: true),
+                new ColunaRelatorio("Motivo")
+            },
+            linhas,
+            new[]
+            {
+                ("Quantidade total", totalQuantidade.ToString(CulturaBr)),
+                ("Valor total perdido", totalValor.ToString("C2", CulturaBr))
+            });
     }
 
     private static string FormatarStatus(StatusContaFinanceira status) => status switch

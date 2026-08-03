@@ -14,11 +14,13 @@ public partial class ClientesViewModel : ObservableObject
     private readonly IClienteService _clienteService;
     private readonly Func<Cliente?, ClienteWindow> _clienteWindowFactory;
     private readonly SessaoUsuario _sessao;
+    private List<Cliente> _todosClientes = new();
 
     public ObservableCollection<ClienteLinhaViewModel> Clientes { get; } = new();
 
     [ObservableProperty] private int totalClientes;
     [ObservableProperty] private ClienteLinhaViewModel? itemSelecionado;
+    [ObservableProperty] private string termoBusca = string.Empty;
 
     public bool PodeCriar => _sessao.PodeCriar(NomeModulo);
     public bool PodeEditar => _sessao.PodeEditar(NomeModulo);
@@ -60,13 +62,29 @@ public partial class ClientesViewModel : ObservableObject
         }
     }
 
+    partial void OnTermoBuscaChanged(string value) => AplicarFiltro();
+
     private async Task CarregarAsync()
     {
-        var clientes = await _clienteService.ListarAsync();
-        Clientes.Clear();
-        foreach (var cliente in clientes)
-            Clientes.Add(new ClienteLinhaViewModel(cliente));
+        _todosClientes = (await _clienteService.ListarAsync()).ToList();
+        TotalClientes = _todosClientes.Count;
+        AplicarFiltro();
+    }
 
-        TotalClientes = clientes.Count;
+    /// <summary>Filtra em memória — a lista de clientes cabe inteira em RAM sem esforço, então
+    /// não vale a pena um parâmetro de busca ida-e-volta ao banco a cada tecla digitada.</summary>
+    private void AplicarFiltro()
+    {
+        var termo = TermoBusca.Trim();
+        var filtrados = string.IsNullOrEmpty(termo)
+            ? _todosClientes
+            : _todosClientes.Where(c =>
+                c.Nome.Contains(termo, StringComparison.OrdinalIgnoreCase) ||
+                (c.Telefone?.Contains(termo, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (c.Documento?.Contains(termo, StringComparison.OrdinalIgnoreCase) ?? false));
+
+        Clientes.Clear();
+        foreach (var cliente in filtrados)
+            Clientes.Add(new ClienteLinhaViewModel(cliente));
     }
 }

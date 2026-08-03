@@ -192,4 +192,7 @@ public class VendaService : IVendaService
 
     public Task<IReadOnlyList<Venda>> ListarPorPeriodoAsync(DateTime inicio, DateTime fim) =>
         _unitOfWork.Vendas.ObterPorPeriodoAsync(inicio, fim);
+
+    public Task<Venda?> ObterPorIdAsync(int id) =>
+        _unitOfWork.Vendas.ObterComItensAsync(id);
 }

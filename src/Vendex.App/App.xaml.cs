@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Threading;
@@ -38,6 +39,13 @@ public partial class App : System.Windows.Application
         FrameworkElement.LanguageProperty.OverrideMetadata(
             typeof(FrameworkElement),
             new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(culturaBr.IetfLanguageTag)));
+
+        // DefaultThreadCurrentCulture só vale pra threads criadas DEPOIS desta linha — a UI
+        // thread já existe nesse ponto, então sem isso o DatePicker (que lê CurrentCulture da
+        // thread, não a propriedade Language do FrameworkElement) continuava mostrando/aceitando
+        // datas no formato do Windows (ex: MM/dd/yyyy) mesmo com tudo acima já configurado.
+        Thread.CurrentThread.CurrentCulture = culturaBr;
+        Thread.CurrentThread.CurrentUICulture = culturaBr;
 
         Directory.CreateDirectory(AppPaths.PastaDados);
         Logger.Configure(AppPaths.PastaLogs);
@@ -99,6 +107,7 @@ public partial class App : System.Windows.Application
                 services.AddSingleton<IRelatorioService, RelatorioService>();
                 services.AddSingleton<IConfiguracaoImpressaoService, ConfiguracaoImpressaoService>();
                 services.AddSingleton<IDevolucaoService, DevolucaoService>();
+                services.AddSingleton<ILoteService, LoteService>();
                 services.AddSingleton<ILicencaService, LicencaService>();
                 services.AddSingleton<AgendadorLicenca>();
 
@@ -117,6 +126,7 @@ public partial class App : System.Windows.Application
                 services.AddTransient<ViewModels.ConfiguracaoBackupViewModel>();
                 services.AddTransient<ViewModels.RelatoriosViewModel>();
                 services.AddTransient<ViewModels.VendasViewModel>();
+                services.AddTransient<ViewModels.LotesViewModel>();
                 services.AddTransient<MainWindow>();
 
                 services.AddTransient<Func<ViewModels.ReciboVenda, ReciboWindow>>(provedor => recibo =>
@@ -142,9 +152,33 @@ public partial class App : System.Windows.Application
                 services.AddTransient<CaixaWindow>();
                 services.AddTransient<Func<CaixaWindow>>(provedor => () => provedor.GetRequiredService<CaixaWindow>());
 
+                services.AddTransient<Func<IReadOnlyList<Cliente>, SelecionarClienteWindow>>(provedor => clientes =>
+                {
+                    var viewModel = new ViewModels.SelecionarClienteWindowViewModel(clientes);
+                    return new SelecionarClienteWindow(viewModel);
+                });
+
+                services.AddTransient<ViewModels.SelecionarVendaWindowViewModel>();
+                services.AddTransient<SelecionarVendaWindow>();
+                services.AddTransient<Func<SelecionarVendaWindow>>(provedor => () => provedor.GetRequiredService<SelecionarVendaWindow>());
+
+                services.AddTransient<ViewModels.SelecionarProdutoWindowViewModel>();
+                services.AddTransient<SelecionarProdutoWindow>();
+                services.AddTransient<Func<SelecionarProdutoWindow>>(provedor => () => provedor.GetRequiredService<SelecionarProdutoWindow>());
+
                 services.AddTransient<ViewModels.DevolucaoWindowViewModel>();
                 services.AddTransient<DevolucaoWindow>();
                 services.AddTransient<Func<DevolucaoWindow>>(provedor => () => provedor.GetRequiredService<DevolucaoWindow>());
+
+                services.AddTransient<ViewModels.NovoLoteWindowViewModel>();
+                services.AddTransient<NovoLoteWindow>();
+                services.AddTransient<Func<NovoLoteWindow>>(provedor => () => provedor.GetRequiredService<NovoLoteWindow>());
+
+                services.AddTransient<Func<Lote, RegistrarPerdaWindow>>(provedor => lote =>
+                {
+                    var viewModel = new ViewModels.RegistrarPerdaWindowViewModel(provedor.GetRequiredService<ILoteService>(), lote);
+                    return new RegistrarPerdaWindow(viewModel);
+                });
 
                 services.AddTransient<ViewModels.PerfilWindowViewModel>();
                 services.AddTransient<PerfilWindow>();
@@ -289,7 +323,11 @@ public partial class App : System.Windows.Application
     // sem exigir uma nova migration a cada módulo novo.
     private static void SeedModulos(VendexDbContext contexto)
     {
-        var nomes = new[] { "PDV", "Produtos", "Clientes", "Fornecedores", "Contas a Receber", "Contas a Pagar", "Caixa", "Vendas" };
+        var nomes = new[]
+        {
+            "PDV", "Produtos", "Clientes", "Fornecedores", "Contas a Receber", "Contas a Pagar", "Caixa", "Vendas",
+            "Controle de Validade"
+        };
         var existentes = contexto.Modulos.Select(m => m.NomeModulo).ToHashSet();
         var faltantes = nomes.Where(nome => !existentes.Contains(nome));
 

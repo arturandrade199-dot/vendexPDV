@@ -13,7 +13,8 @@ public class VendaRepository : Repository<Venda>, IVendaRepository
     public Task<Venda?> ObterComItensAsync(int id) =>
         DbSet.Include(v => v.Itens).ThenInclude(i => i.Produto)
             .Include(v => v.Itens).ThenInclude(i => i.ProdutoVariante)
-            .FirstOrDefaultAsync(v => v.Id == id);
+            .Include(v => v.Cliente)
+            .FirstOrDefaultAsync(v => v.Id == id && !v.Cancelada);
 
     public async Task<IReadOnlyList<Venda>> ObterPorPeriodoAsync(DateTime inicio, DateTime fim) =>
         await DbSet
@@ -23,14 +24,5 @@ public class VendaRepository : Repository<Venda>, IVendaRepository
             .Include(v => v.Usuario)
             .Include(v => v.Cliente)
             .Where(v => !v.Cancelada && v.DataHora >= inicio && v.DataHora <= fim)
-            .ToListAsync();
-
-    public async Task<IReadOnlyList<Venda>> ObterPorClienteAsync(int clienteId) =>
-        await DbSet
-            .Include(v => v.Itens).ThenInclude(i => i.Produto)
-            .Include(v => v.Itens).ThenInclude(i => i.ProdutoVariante)
-            .Where(v => !v.Cancelada && v.ClienteId == clienteId)
-            .OrderByDescending(v => v.DataHora)
-            .AsNoTracking()
             .ToListAsync();
 }

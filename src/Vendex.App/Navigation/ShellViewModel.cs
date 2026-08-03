@@ -20,6 +20,8 @@ public partial class ShellViewModel : ObservableObject, INavigationService
     private readonly SessaoUsuario _sessao;
     private readonly Func<PerfilWindow> _perfilWindowFactory;
     private readonly Func<PdvWindow> _pdvWindowFactory;
+    private readonly Func<DevolucaoWindow> _devolucaoWindowFactory;
+    private readonly Func<string, string, AutorizacaoWindow> _autorizacaoWindowFactory;
 
     [ObservableProperty]
     private object? conteudoAtual;
@@ -42,18 +44,22 @@ public partial class ShellViewModel : ObservableObject, INavigationService
     public bool PodeAcessarContasReceber => _sessao.PodeAcessar("Contas a Receber");
     public bool PodeAcessarPdv => _sessao.PodeAcessar("PDV");
     public bool PodeAcessarVendas => _sessao.PodeAcessar("Vendas");
+    public bool PodeAcessarControleValidade => _sessao.PodeAcessar("Controle de Validade");
 
     // Não navega para o Menu aqui: MenuViewModel precisa de INavigationService, que
     // aponta de volta para este singleton — resolvê-lo durante o próprio construtor
     // trava o container de DI (a instância ainda não terminou de ser criada). A
     // navegação inicial é disparada explicitamente pelo App.xaml.cs, depois que este
     // objeto já está totalmente construído.
-    public ShellViewModel(IServiceProvider serviceProvider, SessaoUsuario sessao, Func<PerfilWindow> perfilWindowFactory, Func<PdvWindow> pdvWindowFactory)
+    public ShellViewModel(IServiceProvider serviceProvider, SessaoUsuario sessao, Func<PerfilWindow> perfilWindowFactory, Func<PdvWindow> pdvWindowFactory,
+        Func<DevolucaoWindow> devolucaoWindowFactory, Func<string, string, AutorizacaoWindow> autorizacaoWindowFactory)
     {
         _serviceProvider = serviceProvider;
         _sessao = sessao;
         _perfilWindowFactory = perfilWindowFactory;
         _pdvWindowFactory = pdvWindowFactory;
+        _devolucaoWindowFactory = devolucaoWindowFactory;
+        _autorizacaoWindowFactory = autorizacaoWindowFactory;
 
         // As propriedades de usuário logado (nome/iniciais/foto/tooltip) são calculadas a
         // partir de _sessao.UsuarioLogado — sem isso, editar o perfil não atualiza o
@@ -109,5 +115,25 @@ public partial class ShellViewModel : ObservableObject, INavigationService
     private void IrParaVendas() => NavegarPara<VendasViewModel>("Vendas");
 
     [RelayCommand]
+    private void IrParaControleValidade() => NavegarPara<LotesViewModel>("Controle de validade");
+
+    [RelayCommand]
     private void AbrirPdv() => _pdvWindowFactory().ShowDialog();
+
+    /// <summary>Mesma trava de permissão usada dentro do PDV (PodeExcluir "PDV") — devolução
+    /// mexe em estoque e, opcionalmente, tira dinheiro do caixa, então também é acessível
+    /// direto pela tela principal, mas sem abrir mão da checagem.</summary>
+    [RelayCommand]
+    private void AbrirDevolucao()
+    {
+        if (_sessao.PodeExcluir("PDV"))
+        {
+            _devolucaoWindowFactory().ShowDialog();
+            return;
+        }
+
+        var janela = _autorizacaoWindowFactory("PDV", "Você não tem permissão para registrar uma devolução.");
+        if (janela.ShowDialog() == true)
+            _devolucaoWindowFactory().ShowDialog();
+    }
 }
